@@ -13,7 +13,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/openid/AppAuth-iOS.git",
-                 branch: "main"),
+                 .upToNextMajor(from: "2.0.0")),
         .package(path: "https://github.com/alphagov/di-mobile-ios-networking")
     ],
     targets: [
