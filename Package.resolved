@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "appauth-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/openid/AppAuth-iOS.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "36c1df0c70324bc3a41ef96f9bb568670cc366d0"
+      }
+    },
+    {
+      "identity" : "di-mobile-ios-networking",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alphagov/di-mobile-ios-networking.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "d0fbead44abf21558ea364fa9a08f5e0ff48caa3"
+      }
+    }
+  ],
+  "version" : 2
+}
