@@ -1,5 +1,7 @@
 import AppAuth
 
+/// AppAuthSession object handle login flow with given auth provider
+/// Uses AppAuth Libary to presentation logic of login flow and handle callbacks from auth service
 public final class AppAuthSession: LoginSession {
     let window: UIWindow
     
@@ -11,6 +13,10 @@ public final class AppAuthSession: LoginSession {
     
     private let service: TokenServicing
     
+    /// convenience init uses TokenService provided by package
+    ///
+    /// - Parameters:
+    ///    - window: UIWindow with a root view controller where you wish to show the login dialog
     public convenience init(window: UIWindow) {
         self.init(window: window,
                   service: TokenService(client: .init()))
@@ -21,11 +27,16 @@ public final class AppAuthSession: LoginSession {
         self.service = service
     }
     
+    /// Shows the login dialog
+    ///
+    /// - Parameters:
+    ///     - configuration: object that contains your loginSessionConfiguration
     public func present(configuration: LoginSessionConfiguration) {
         guard let viewController = window.rootViewController else {
             return
         }
         
+        // state is stored for later use to compare against state in reponse object
         self.state = configuration.state
         
         let config = OIDServiceConfiguration(
@@ -57,6 +68,7 @@ public final class AppAuthSession: LoginSession {
             self.error = error
         }
     }
+    
     
     @MainActor
     public func finalise(callback url: URL) async throws -> TokenResponse {
