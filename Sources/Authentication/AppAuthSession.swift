@@ -6,6 +6,8 @@ public final class AppAuthSession: LoginSession {
     private var flow: OIDExternalUserAgentSession?
     private var authorizationCode: String?
     private var error: Error?
+    private var state: String?
+    private var stateReponse: String?
     
     private let service: TokenServicing
     
@@ -23,6 +25,8 @@ public final class AppAuthSession: LoginSession {
         guard let viewController = window.rootViewController else {
             return
         }
+        
+        self.state = configuration.state
         
         let config = OIDServiceConfiguration(
             authorizationEndpoint: configuration.authorizationEndpoint,
@@ -47,17 +51,23 @@ public final class AppAuthSession: LoginSession {
         )
         
         flow = OIDAuthorizationService.present(request,
-                                                   externalUserAgent: agent!) { response, error in
-            self.authorizationCode = response?.authorizationCode
-            self.error = error
+                                                   externalUserAgent: agent!) { [unowned self] response, error in
+            self.handlePresentCallback(authorizationCode: response?.authorizationCode, state: response?.state, error: error)
         }
+    }
+    
+    func handlePresentCallback(authorizationCode: String?, state: String?, error: Error?) {
+        self.authorizationCode = authorizationCode
+        self.error = error
+        self.stateReponse = state
     }
     
     @MainActor
     public func finalise(callback url: URL) async throws -> TokenResponse {
         flow?.resumeExternalUserAgentFlow(with: url)
         
-        guard let authorizationCode else {
+        guard let authorizationCode,
+              self.state == stateReponse else {
             throw error ?? LoginError.inconsistentStateResponse
         }
         return try await service
