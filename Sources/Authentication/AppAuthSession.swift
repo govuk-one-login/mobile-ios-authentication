@@ -52,14 +52,10 @@ public final class AppAuthSession: LoginSession {
         
         flow = OIDAuthorizationService.present(request,
                                                    externalUserAgent: agent!) { [unowned self] response, error in
-            self.handlePresentCallback(authorizationCode: response?.authorizationCode, state: response?.state, error: error)
+            self.authorizationCode = response?.authorizationCode
+            self.stateReponse = response?.state
+            self.error = error
         }
-    }
-    
-    func handlePresentCallback(authorizationCode: String?, state: String?, error: Error?) {
-        self.authorizationCode = authorizationCode
-        self.error = error
-        self.stateReponse = state
     }
     
     @MainActor

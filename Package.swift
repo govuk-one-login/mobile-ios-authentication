@@ -15,7 +15,7 @@ let package = Package(
         .package(url: "https://github.com/openid/AppAuth-iOS.git",
                  branch: "master"),
         .package(url: "https://github.com/alphagov/di-mobile-ios-networking",
-                branch: "main")
+                branch: "feature/dcmaw-6241-auth-changes")
     ],
     targets: [
         .target(name: "Authentication",
@@ -25,7 +25,9 @@ let package = Package(
                 ]),
         .testTarget(name: "AuthenticationTests",
                     dependencies: [
-                        "Authentication"
+                        "Authentication",
+                        "UserDetails",
+                        .product(name: "MockNetworking", package: "di-mobile-ios-networking")
                     ]),
         
         .target(name: "UserDetails",
