@@ -16,15 +16,79 @@ To use Login in a SwiftPM project:
 
 ```swift
 .target(name: "MyTarget", dependencies: [
-    .product(name: "Login", package: "dcmaw-login")
+    .product(name: "Login", package: "di-mobile-ios-login")
 ]),
 ```
 
-3. Add `import Login` in your source code.
+3. Add `import Authentication` in your source code.
 
 ## Package description
 
-The Login package authenticates a users details and enables them to log into their account securely. This is done by providing them with a login session and token and rejects attempts if an authorization code is not received.
+The Login package authenticates a users details and enables them to log into their account securely. This is done by providing them with a login session and token.
 
-The package also integrates openID AppAuth and conforms to its standards.
+The package also integrates openID AppAuth and conforms to its standards, and also uses `NetworkClient` from the [Networking](https://github.com/alphagov/di-mobile-ios-networking)
+
+
+### Protocols
+
+
+### Types
+
+
+#### UserService
+
+`UserService` implements the `UserServicing` protocol. `fetchUserInfo` makes a request with an authentication token. The request will fetch the `UserInfo` object.
+
+#### UserInfo
+
+A struct which conforms to `Codable`. It requires the following to be implemented:
+
+```swift
+public struct UserInfo: Codable {
+  let sub: String
+  let phoneNumberVerified: Bool
+  let phoneNumber: String?
+  let emailVerified: Bool
+  public let email: String
+}
+```
+
+#### LoginSessionConfiguration
+
+Handles creating the `config` found in `LoginSession`. It requires the following to be initialised:
+
+```swift
+  let authorizationEndpoint: URL
+  let responseType: ResponseType
+  let scopes: [Scope]
+   
+  let clientID: String
+   
+  let prefersEphemeralWebSession: Bool
+  let state: String = UUID().uuidString
+   
+  let redirectURI: String
+   
+  let nonce: String
+  let viewThroughRate: String
+  let locale: UILocale
+```
+
+The struct also contains 3 enums to handle the language, the response and scopes required for sending the `OIDAuthorizationRequest`. 
+
+#### AppAuthSession
+
+A class to handle the login flow with the given auth provider and conforms to the `LoginSession` protocol. It uses the `UIWindow` to know where to display the login dialogue.
+
+`present` takes configuration as a parameter, which comes from `LoginSessionConfiguration` and contains the login information to make the request. 
+
+#### Extensions
+
+`URL` has been extended with a static `authenticationURL` for the core URL and a static `userInfo: URL` to send the request to the right URL for the user when authenticating
+
+## Error Handling
+
+## Example Implementation
+
+### How to use the Login Client
 

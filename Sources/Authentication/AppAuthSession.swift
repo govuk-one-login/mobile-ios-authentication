@@ -1,7 +1,7 @@
 import AppAuth
 
 /// AppAuthSession object handle login flow with given auth provider
-/// Uses AppAuth Libary to presentation logic of login flow and handle callbacks from auth service
+/// Uses AppAuth Libary for presentation logic of login flow and handle callbacks from auth service
 public final class AppAuthSession: LoginSession {
     let window: UIWindow
     
