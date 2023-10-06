@@ -4,12 +4,14 @@ import XCTest
 final class AppAuthSessionTests: XCTestCase {
     
     var sut: AppAuthSession!
+    var config = LoginSessionConfiguration.mock
     
     override func setUp() {
         super.setUp()
         let window = UIWindow()
         let vc = UIViewController()
         window.rootViewController = vc
+        window.makeKeyAndVisible()
         
         sut = .init(window: window, service: MockTokenService())
     }
@@ -39,7 +41,7 @@ extension AppAuthSessionTests {
             sut.present(configuration: sessionConfig)
         }
         
-        let _ = try await sut.finalise(callback: URL(string: "https://www.google.com")!)
+        let _ = try await sut.finalise(callback: URL(string: "https://www.google.com?code=23234&state=\(config.state)")!)
         
         XCTAssertNotNil(sut.authorizationCode)
         XCTAssertNotNil(sut.stateReponse)
@@ -48,5 +50,5 @@ extension AppAuthSessionTests {
 }
 
 extension LoginSessionConfiguration {
-    static let mock = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!, responseType: .code, scopes: [.email, .offline_access, .phone, .openid], clientID: "1234", prefersEphemeralWebSession: true, redirectURI: "http://www.example.com", nonce: "1234", viewThroughRate: "1234", locale: .en)
+    static let mock = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!, responseType: .code, scopes: [.email, .offline_access, .phone, .openid], clientID: "1234", prefersEphemeralWebSession: true, redirectURI: "https://www.google.com", nonce: "1234", viewThroughRate: "1234", locale: .en)
 }
