@@ -15,7 +15,7 @@ let package = Package(
         .package(url: "https://github.com/openid/AppAuth-iOS.git",
                  branch: "master"),
         .package(url: "https://github.com/alphagov/di-mobile-ios-networking",
-                branch: "feature/dcmaw-6241-auth-changes")
+                branch: "main")
     ],
     targets: [
         .target(name: "Authentication",

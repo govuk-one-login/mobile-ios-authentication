@@ -6,16 +6,16 @@
       "location" : "https://github.com/openid/AppAuth-iOS.git",
       "state" : {
         "branch" : "master",
-        "revision" : "36c1df0c70324bc3a41ef96f9bb568670cc366d0"
+        "revision" : "b376a8719dd9e3067439580d3b2c8aded748827f"
       }
     },
     {
       "identity" : "di-mobile-ios-networking",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/alphagov/di-mobile-ios-networking.git",
+      "location" : "https://github.com/alphagov/di-mobile-ios-networking",
       "state" : {
         "branch" : "main",
-        "revision" : "d0fbead44abf21558ea364fa9a08f5e0ff48caa3"
+        "revision" : "d248dca8944e0d61be3c0e27060ca9b0cdef023b"
       }
     }
   ],
