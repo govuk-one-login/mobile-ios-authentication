@@ -82,13 +82,31 @@ A class to handle the login flow with the given auth provider and conforms to th
 
 `present` takes configuration as a parameter, which comes from `LoginSessionConfiguration` and contains the login information to make the request. 
 
-#### Extensions
+`finalise` takes a URL as a callback and returns a token response. However, if no authorization code is found, an error will be thrown.
 
-`URL` has been extended with a static `authenticationURL` for the core URL and a static `userInfo: URL` to send the request to the right URL for the user when authenticating
+#### Extensions
 
 ## Error Handling
 
 ## Example Implementation
 
 ### How to use the Login Client
+
+To use the Login package, first make sure your module or app has a dependency on Authentication and UserDetails and import both into the relevant file(s).
+
+```swift
+import Authentication
+import UserDetails
+
+...
+
+let session: LoginSession
+    
+    init(session: LoginSession) {
+        self.session = session
+    }
+
+...
+
+```
 
