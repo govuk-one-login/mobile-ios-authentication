@@ -6,10 +6,10 @@ public final class AppAuthSession: LoginSession {
     let window: UIWindow
     
     private var flow: OIDExternalUserAgentSession?
-    private var authorizationCode: String?
-    private var error: Error?
+    private(set) var authorizationCode: String?
+    private(set) var error: Error?
     private var state: String?
-    private var stateReponse: String?
+    private(set) var stateReponse: String?
     
     private let service: TokenServicing
     
@@ -33,6 +33,7 @@ public final class AppAuthSession: LoginSession {
     ///     - configuration: object that contains your loginSessionConfiguration
     public func present(configuration: LoginSessionConfiguration) {
         guard let viewController = window.rootViewController else {
+            assertionFailure("empty vc in window, please add vc")
             return
         }
         
