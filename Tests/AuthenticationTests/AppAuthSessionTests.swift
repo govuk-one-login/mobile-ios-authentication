@@ -35,20 +35,46 @@ extension AppAuthSessionTests {
         }
     }
     
-    func test_present_authService_callback_isCalled() async throws {
+    func test_finaliseAuthService_rejectsIncorrectStateParameter() async throws {
         let sessionConfig = LoginSessionConfiguration.mock
-        await MainActor.run {
-            sut.present(configuration: sessionConfig)
+        await sut.present(configuration: sessionConfig)
+        
+        let randomState = UUID().uuidString
+        let code = UUID().uuidString
+        
+        do {
+            let _ = try await sut.finalise(callback: URL(string: "https://www.google.com?code=\(code)&state=\(randomState)")!)
+            XCTFail("Expected an error to be thrown")
+        } catch LoginError.inconsistentStateResponse {
+            XCTAssertNil(sut.authorizationCode)
+            XCTAssertNil(sut.stateReponse)
+        } catch {
+            XCTFail("Unexpected error was thrown: \(error)")
         }
+    }
+    
+    func test_present_authService_acquiresAuthCode() async throws {
+        let sessionConfig = LoginSessionConfiguration.mock
+        await sut.present(configuration: sessionConfig)
         
-        let _ = try await sut.finalise(callback: URL(string: "https://www.google.com?code=23234&state=\(config.state)")!)
+        let state = try XCTUnwrap(sut.state)
+        let code = UUID().uuidString
+        let callbackURL = try XCTUnwrap(URL(string: "https://www.google.com?code=\(code)&state=\(state)"))
+        let _ = try await sut.finalise(callback: callbackURL)
         
-        XCTAssertNotNil(sut.authorizationCode)
-        XCTAssertNotNil(sut.stateReponse)
-        XCTAssertNil(sut.error)
+        XCTAssertEqual(sut.authorizationCode, code)
+        XCTAssertEqual(sut.stateReponse, state)
     }
 }
 
 extension LoginSessionConfiguration {
-    static let mock = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!, responseType: .code, scopes: [.email, .offline_access, .phone, .openid], clientID: "1234", prefersEphemeralWebSession: true, redirectURI: "https://www.google.com", nonce: "1234", viewThroughRate: "1234", locale: .en)
+    static let mock = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
+                                                responseType: .code,
+                                                scopes: [.email, .offline_access, .phone, .openid],
+                                                clientID: "1234",
+                                                prefersEphemeralWebSession: true,
+                                                redirectURI: "https://www.google.com",
+                                                nonce: "1234",
+                                                viewThroughRate: "1234",
+                                                locale: .en)
 }

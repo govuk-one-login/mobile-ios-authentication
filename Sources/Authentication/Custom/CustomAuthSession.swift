@@ -25,19 +25,19 @@ public final class CustomAuthSession: NSObject, LoginSession {
     public func present(configuration: LoginSessionConfiguration) {
         var components = URLComponents(url: configuration.authorizationEndpoint,
                                        resolvingAgainstBaseURL: false)!
+        
+        self.state = UUID().uuidString
         components.queryItems = [
             .init(name: "response_type", value: configuration.responseType.rawValue),
             .init(name: "scope", value: configuration.scopes
                 .map(\.rawValue).joined(separator: " ")),
             .init(name: "client_id", value: configuration.clientID),
-            .init(name: "state", value: configuration.state),
+            .init(name: "state", value: self.state),
             .init(name: "redirect_uri", value: configuration.redirectURI),
             .init(name: "vtr", value: configuration.viewThroughRate),
             .init(name: "nonce", value: configuration.nonce),
             .init(name: "ui_locales", value: configuration.locale.rawValue)
         ]
-        
-        self.state = configuration.state
         
         session = ASWebAuthenticationSession(url: components.url!,
                                              callbackURLScheme: "https") { _, error in

@@ -7,8 +7,8 @@ public final class AppAuthSession: LoginSession {
     
     private var flow: OIDExternalUserAgentSession?
     private(set) var authorizationCode: String?
-    private(set) var error: Error?
-    private var state: String?
+    private var error: Error?
+    private(set) var state: String?
     private(set) var stateReponse: String?
     
     private let service: TokenServicing
@@ -31,14 +31,12 @@ public final class AppAuthSession: LoginSession {
     ///
     /// - Parameters:
     ///     - configuration: object that contains your loginSessionConfiguration
+    @MainActor
     public func present(configuration: LoginSessionConfiguration) {
         guard let viewController = window.rootViewController else {
             assertionFailure("empty vc in window, please add vc")
             return
         }
-        
-        // state is stored for later use to compare against state in reponse object
-        self.state = configuration.state
         
         let config = OIDServiceConfiguration(
             authorizationEndpoint: configuration.authorizationEndpoint,
@@ -56,6 +54,7 @@ public final class AppAuthSession: LoginSession {
                 "ui_locales": configuration.locale.rawValue
             ]
         )
+        self.state = request.state
         
         let agent = OIDExternalUserAgentIOS(
             presenting: viewController,
@@ -75,9 +74,9 @@ public final class AppAuthSession: LoginSession {
     public func finalise(callback url: URL) async throws -> TokenResponse {
         flow?.resumeExternalUserAgentFlow(with: url)
         
-        guard let authorizationCode,
-              self.state == stateReponse else {
-            throw error ?? LoginError.inconsistentStateResponse
+        guard let authorizationCode else {
+            // todo: are there specific values of `self.error` we care about here?
+            throw LoginError.inconsistentStateResponse
         }
         return try await service
             .fetchTokens(authorizationCode: authorizationCode)
