@@ -1,6 +1,6 @@
 # di-mobile-ios-login
 
-Implementation of Login client.
+Implementation of Login package.
 
 ## Installation
 
@@ -20,7 +20,7 @@ To use Login in a SwiftPM project:
 ]),
 ```
 
-3. Add `import Authentication` in your source code.
+3. Add `import Authentication` and `import UserDetails` in your source code.
 
 ## Package description
 
@@ -28,16 +28,7 @@ The Login package authenticates a users details and enables them to log into the
 
 The package also integrates openID AppAuth and conforms to its standards, and also uses `NetworkClient` from the [Networking](https://github.com/alphagov/di-mobile-ios-networking)
 
-
-### Protocols
-
-
 ### Types
-
-
-#### UserService
-
-`UserService` implements the `UserServicing` protocol. `fetchUserInfo` makes a request with an authentication token. The request will fetch the `UserInfo` object.
 
 #### UserInfo
 
@@ -52,6 +43,10 @@ public struct UserInfo: Codable {
   public let email: String
 }
 ```
+
+#### UserService
+
+`UserService` implements the `UserServicing` protocol in order to make a request with an authentication token. The request will fetch the `UserInfo` object.
 
 #### LoginSessionConfiguration
 
@@ -74,7 +69,7 @@ Handles creating the `config` found in `LoginSession`. It requires the following
   let locale: UILocale
 ```
 
-The struct also contains 3 enums to handle the language, the response and scopes required for sending the `OIDAuthorizationRequest`. 
+The struct also contains three enums to handle the language, the response and the scopes required for sending the `OIDAuthorizationRequest` within the AppAuthSession. 
 
 #### AppAuthSession
 
@@ -84,15 +79,11 @@ A class to handle the login flow with the given auth provider and conforms to th
 
 `finalise` takes a URL as a callback and returns a token response. However, if no authorization code is found, an error will be thrown.
 
-#### Extensions
-
-## Error Handling
-
 ## Example Implementation
 
 ### How to use the Login Client
 
-To use the Login package, first make sure your module or app has a dependency on Authentication and UserDetails and import both into the relevant file(s).
+To use the Login package, first make sure your module or app has a dependency on Authentication and UserDetails and import both into the relevant file(s). Next, initialise an instance of LogginSession and LogginSessionConfiguration, then call `present` on your session, with the configuration as a parameter.
 
 ```swift
 import Authentication
@@ -108,5 +99,38 @@ let session: LoginSession
 
 ...
 
+let configuration = LoginSessionConfiguration(
+            authorizationEndpoint: url,
+            responseType: .code,
+            scopes: [.openid, .email, .phone, .offline_access],
+            clientID: "someClientID",
+            prefersEphemeralWebSession: true,
+            redirectURI: "someRedirectURI",
+            nonce: "someNonce",
+            viewThroughRate: "someThroughRate",
+            locale: .en)
+            
+session.present(configuration: configuration)
+
 ```
 
+To get a token, call the finalise method on the session, using the callback url as a parameter.
+
+The token can then be used to get an authenticatedClient, which in turn is used to create an instance of UserService.
+
+`fetchUserInfo` can then be called on the UserService object to receive the required data.
+
+```swift
+
+let url = URL(string: "someURL")
+
+do {
+    let tokens = try await session.finalise(callback: url)
+    let authenticatedClient = NetworkClient(authenticationProvider: tokens)
+    let service = UserService(client: authenticatedClient)
+    let userInfo = try await service.fetchUserInfo()
+} catch {
+    // handle errors
+}
+                
+```
