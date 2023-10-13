@@ -114,15 +114,24 @@ session.present(configuration: configuration)
 
 ```
 
-To get a token, call the finalise method on the session, using the callback url as a parameter.
+Your code should include a callback handler method in either the SceneDelegate or AppDelegate. Therefore, once `present` has been called and the user logs in, the web service will redirect to the app and the url passed back into the app is used to call `finalise`.
 
-The token can then be used to get an authenticatedClient, which in turn is used to create an instance of UserService.
+```swift
+// SceneDelegate.swift
+
+...
+
+if let webURL = userActivity.webpageURL {
+    viewController?.handleCallback(url: webURL)
+}
+
+```
+
+To get a token, call the finalise method on the session. The token can then be used to get an authenticatedClient, which in turn is used to create an instance of UserService.
 
 `fetchUserInfo` can then be called on the UserService object to receive the required data.
 
 ```swift
-
-let url = URL(string: "someURL")
 
 do {
     let tokens = try await session.finalise(callback: url)
