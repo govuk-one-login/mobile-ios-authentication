@@ -1,6 +1,7 @@
 import AuthenticationServices
 import UIKit
 
+/// CustomAuthSession object handles login flow with given auth provider
 enum LoginError: Error {
     case inconsistentStateResponse
 }
@@ -12,6 +13,10 @@ public final class CustomAuthSession: NSObject, LoginSession {
     
     private let service: TokenServicing
     
+    /// convenience init uses TokenService provided by package
+    ///
+    /// - Parameters:
+    ///    - window: UIWindow with a root view controller where you wish to show the login dialog
     public convenience init(window: UIWindow) {
         self.init(window: window,
                   service: TokenService(client: .init()))
@@ -22,6 +27,10 @@ public final class CustomAuthSession: NSObject, LoginSession {
         self.service = service
     }
     
+    /// Shows the login dialog
+    ///
+    /// - Parameters:
+    ///     - configuration: object that contains your LoginSessionConfiguration
     public func present(configuration: LoginSessionConfiguration) {
         var components = URLComponents(url: configuration.authorizationEndpoint,
                                        resolvingAgainstBaseURL: false)!
