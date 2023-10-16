@@ -8,7 +8,6 @@ public struct LoginSessionConfiguration {
     let clientID: String
     
     let prefersEphemeralWebSession: Bool
-    let state: String = UUID().uuidString
     
     let redirectURI: String
     

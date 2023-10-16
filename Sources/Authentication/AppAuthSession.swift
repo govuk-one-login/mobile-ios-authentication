@@ -1,14 +1,22 @@
 import AppAuth
 
+/// AppAuthSession object handle login flow with given auth provider
+/// Uses AppAuth Libary for presentation logic of login flow and handle callbacks from auth service
 public final class AppAuthSession: LoginSession {
     let window: UIWindow
     
     private var flow: OIDExternalUserAgentSession?
-    private var authorizationCode: String?
+    private(set) var authorizationCode: String?
     private var error: Error?
+    private(set) var state: String?
+    private(set) var stateReponse: String?
     
     private let service: TokenServicing
     
+    /// convenience init uses TokenService provided by package
+    ///
+    /// - Parameters:
+    ///    - window: UIWindow with a root view controller where you wish to show the login dialog
     public convenience init(window: UIWindow) {
         self.init(window: window,
                   service: TokenService(client: .init()))
@@ -19,8 +27,14 @@ public final class AppAuthSession: LoginSession {
         self.service = service
     }
     
+    /// Shows the login dialog
+    ///
+    /// - Parameters:
+    ///     - configuration: object that contains your loginSessionConfiguration
+    @MainActor
     public func present(configuration: LoginSessionConfiguration) {
         guard let viewController = window.rootViewController else {
+            assertionFailure("empty vc in window, please add vc")
             return
         }
         
@@ -40,6 +54,7 @@ public final class AppAuthSession: LoginSession {
                 "ui_locales": configuration.locale.rawValue
             ]
         )
+        self.state = request.state
         
         let agent = OIDExternalUserAgentIOS(
             presenting: viewController,
@@ -47,18 +62,21 @@ public final class AppAuthSession: LoginSession {
         )
         
         flow = OIDAuthorizationService.present(request,
-                                                   externalUserAgent: agent!) { response, error in
+                                                   externalUserAgent: agent!) { [unowned self] response, error in
             self.authorizationCode = response?.authorizationCode
+            self.stateReponse = response?.state
             self.error = error
         }
     }
+    
     
     @MainActor
     public func finalise(callback url: URL) async throws -> TokenResponse {
         flow?.resumeExternalUserAgentFlow(with: url)
         
         guard let authorizationCode else {
-            throw error ?? LoginError.inconsistentStateResponse
+            // todo: are there specific values of `self.error` we care about here?
+            throw LoginError.inconsistentStateResponse
         }
         return try await service
             .fetchTokens(authorizationCode: authorizationCode)

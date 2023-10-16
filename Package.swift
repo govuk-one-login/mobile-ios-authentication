@@ -13,22 +13,27 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/openid/AppAuth-iOS.git",
-                 branch: "main"),
-        .package(path: "https://github.com/alphagov/di-mobile-ios-networking")
+                 branch: "master"),
+        .package(url: "https://github.com/alphagov/di-mobile-ios-networking",
+                branch: "main")
     ],
     targets: [
         .target(name: "Authentication",
                 dependencies: [
                     .product(name: "AppAuth", package: "AppAuth-iOS"),
-                    "Networking"
+                    .product(name: "Networking", package: "di-mobile-ios-networking")
                 ]),
         .testTarget(name: "AuthenticationTests",
                     dependencies: [
                         "Authentication",
-                        "Networking"
+                        "UserDetails",
+                        .product(name: "MockNetworking", package: "di-mobile-ios-networking")
                     ]),
         
-        .target(name: "UserDetails"),
+        .target(name: "UserDetails",
+               dependencies: [
+                .product(name: "Networking", package: "di-mobile-ios-networking")
+               ])
     ]
 )
 

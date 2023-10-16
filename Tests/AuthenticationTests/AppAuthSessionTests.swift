@@ -1,0 +1,80 @@
+@testable import Authentication
+import XCTest
+
+final class AppAuthSessionTests: XCTestCase {
+    
+    var sut: AppAuthSession!
+    var config = LoginSessionConfiguration.mock
+    
+    override func setUp() {
+        super.setUp()
+        let window = UIWindow()
+        let vc = UIViewController()
+        window.rootViewController = vc
+        window.makeKeyAndVisible()
+        
+        sut = .init(window: window, service: MockTokenService())
+    }
+    
+    override func tearDown() {
+        sut = nil
+        
+        super.tearDown()
+    }
+}
+
+extension AppAuthSessionTests {
+    func test_finalise_throwErrorWithNoAuthCode() async {
+        do {
+            let _ = try await sut.finalise(callback: URL(string: "https://www.google.com")!)
+            XCTFail("No AuthorizationCode was set should have failed at this point")
+        } catch let error as LoginError {
+            XCTAssertEqual(error, LoginError.inconsistentStateResponse)
+        } catch {
+            XCTFail("shouldn't catch generic error")
+        }
+    }
+    
+    func test_finaliseAuthService_rejectsIncorrectStateParameter() async throws {
+        let sessionConfig = LoginSessionConfiguration.mock
+        await sut.present(configuration: sessionConfig)
+        
+        let randomState = UUID().uuidString
+        let code = UUID().uuidString
+        
+        do {
+            let _ = try await sut.finalise(callback: URL(string: "https://www.google.com?code=\(code)&state=\(randomState)")!)
+            XCTFail("Expected an error to be thrown")
+        } catch LoginError.inconsistentStateResponse {
+            XCTAssertNil(sut.authorizationCode)
+            XCTAssertNil(sut.stateReponse)
+        } catch {
+            XCTFail("Unexpected error was thrown: \(error)")
+        }
+    }
+    
+    func test_present_authService_acquiresAuthCode() async throws {
+        let sessionConfig = LoginSessionConfiguration.mock
+        await sut.present(configuration: sessionConfig)
+        
+        let state = try XCTUnwrap(sut.state)
+        let code = UUID().uuidString
+        let callbackURL = try XCTUnwrap(URL(string: "https://www.google.com?code=\(code)&state=\(state)"))
+        let _ = try await sut.finalise(callback: callbackURL)
+        
+        XCTAssertEqual(sut.authorizationCode, code)
+        XCTAssertEqual(sut.stateReponse, state)
+    }
+}
+
+extension LoginSessionConfiguration {
+    static let mock = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
+                                                responseType: .code,
+                                                scopes: [.email, .offline_access, .phone, .openid],
+                                                clientID: "1234",
+                                                prefersEphemeralWebSession: true,
+                                                redirectURI: "https://www.google.com",
+                                                nonce: "1234",
+                                                viewThroughRate: "1234",
+                                                locale: .en)
+}
