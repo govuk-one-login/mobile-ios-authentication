@@ -26,7 +26,7 @@ To use Login in a SwiftPM project:
 
 The Login package authenticates a users details and enables them to log into their account securely. This is done by providing them with a login session and token.
 
-The package also integrates openID AppAuth and conforms to its standards, and also uses `NetworkClient` from the [Networking](https://github.com/alphagov/di-mobile-ios-networking)
+The package also integrates [openID](https://openid.net/developers/how-connect-works/) AppAuth and conforms to its standards, and also uses `NetworkClient` from the [Networking](https://github.com/alphagov/di-mobile-ios-networking) package.
 
 ### Types
 
@@ -60,7 +60,6 @@ Handles creating the `config` found in `LoginSession`. It requires the following
   let clientID: String
    
   let prefersEphemeralWebSession: Bool
-  let state: String = UUID().uuidString
    
   let redirectURI: String
    
@@ -99,17 +98,16 @@ let session: LoginSession
 
 ...
 
-let configuration = LoginSessionConfiguration(
-            authorizationEndpoint: url,
-            responseType: .code,
-            scopes: [.openid, .email, .phone, .offline_access],
-            clientID: "someClientID",
-            prefersEphemeralWebSession: true,
-            redirectURI: "someRedirectURI",
-            nonce: "someNonce",
-            viewThroughRate: "someThroughRate",
-            locale: .en)
-            
+let configuration = LoginSessionConfiguration(authorizationEndpoint: url,
+                                              responseType: .code,
+                                              scopes: [.openid, .email, .phone,            .offline_access],
+                                              clientID: "someClientID",
+                                              prefersEphemeralWebSession: true,
+                                              redirectURI: "someRedirectURI",
+                                              nonce: "someNonce",
+                                              viewThroughRate: "someThroughRate",
+                                              locale: .en)
+                                              
 session.present(configuration: configuration)
 
 ```
@@ -132,7 +130,6 @@ To get a token, call the finalise method on the session. The token can then be u
 `fetchUserInfo` can then be called on the UserService object to receive the required data.
 
 ```swift
-
 do {
     let tokens = try await session.finalise(callback: url)
     let authenticatedClient = NetworkClient(authenticationProvider: tokens)
