@@ -1,22 +1,22 @@
-# di-mobile-ios-login
+# di-mobile-ios-authentication
 
-Implementation of Login package.
+Implementation of Authentication package.
 
 ## Installation
 
-To use Login in a SwiftPM project:
+To use Authentication in a SwiftPM project:
 
 1. Add the following line to the dependencies in your `Package.swift` file:
 
 ```swift
-.package(url: "https://github.com/alphagov/di-mobile-ios-login", branch: "main"),
+.package(url: "https://github.com/alphagov/di-mobile-ios-authentication", branch: "main"),
 ```
 
 2. Add `Login` as a dependency for your target:
 
 ```swift
 .target(name: "MyTarget", dependencies: [
-  .product(name: "Login", package: "di-mobile-ios-login")
+  .product(name: "Authentication", package: "di-mobile-ios-authentication")
 ]),
 ```
 
@@ -24,7 +24,7 @@ To use Login in a SwiftPM project:
 
 ## Package description
 
-The Login package authenticates a users details and enables them to log into their account securely. This is done by providing them with a login session and token.
+The Authentication package authenticates a users details and enables them to log into their account securely. This is done by providing them with a login session and token.
 
 The package also integrates [openID](https://openid.net/developers/how-connect-works/) AppAuth and conforms to its standards, and also uses `NetworkClient` from the [Networking](https://github.com/alphagov/di-mobile-ios-networking) package.
 
@@ -80,9 +80,9 @@ A class to handle the login flow with the given auth provider and conforms to th
 
 ## Example Implementation
 
-### How to use the Login Client
+### How to use the Authentication package
 
-To use the Login package, first make sure your module or app has a dependency on Authentication and UserDetails and import both into the relevant file(s). Next, initialise an instance of LoginSession and LoginSessionConfiguration, then call `present` on your session, with the configuration as a parameter.
+To use the Authentication package, first make sure your module or app has a dependency on Authentication and UserDetails and import both into the relevant file(s). Next, initialise an instance of LoginSession and LoginSessionConfiguration, then call `present` on your session, with the configuration as a parameter.
 
 ```swift
 import Authentication

@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "Login",
+    name: "Authentication",
     platforms: [.iOS(.v13)],
     products: [
         .library(name: "Authentication", targets: ["Authentication"]),
