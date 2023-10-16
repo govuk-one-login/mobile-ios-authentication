@@ -83,7 +83,7 @@ A class to handle the login flow with the given auth provider and conforms to th
 
 ### How to use the Login Client
 
-To use the Login package, first make sure your module or app has a dependency on Authentication and UserDetails and import both into the relevant file(s). Next, initialise an instance of LogginSession and LogginSessionConfiguration, then call `present` on your session, with the configuration as a parameter.
+To use the Login package, first make sure your module or app has a dependency on Authentication and UserDetails and import both into the relevant file(s). Next, initialise an instance of LoginSession and LoginSessionConfiguration, then call `present` on your session, with the configuration as a parameter.
 
 ```swift
 import Authentication
