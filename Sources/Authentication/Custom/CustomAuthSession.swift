@@ -1,11 +1,11 @@
 import AuthenticationServices
 import UIKit
 
-/// CustomAuthSession object handles login flow with given auth provider
 enum LoginError: Error {
     case inconsistentStateResponse
 }
 
+/// CustomAuthSession object handles login flow with given auth provider
 public final class CustomAuthSession: NSObject, LoginSession {
     private let context: UIWindow
     private var session: ASWebAuthenticationSession?

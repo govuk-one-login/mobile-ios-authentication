@@ -125,6 +125,38 @@ if let webURL = userActivity.webpageURL {
 
 ```
 
+**Note**: Depending on how your app has been configured, the callback handler should be placed within the corresponding delegate method in each file. For example, the impletentation for [SceneDelegate](https://developer.apple.com/documentation/uikit/uiscenedelegate/3238056-scene), [AppDelegate](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623072-application) and [SwiftUI](https://developer.apple.com/documentation/swiftui/environmentvalues/openurl) is as follows:
+
+```swift
+//SceneDelegate.swift
+
+func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+    //handle callback
+}
+
+//AppDelegate.swift
+
+func application(_ application: UIApplication, 
+                continue userActivity: NSUserActivity,
+                restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+                         // handle callback
+                       }
+
+//SwiftUI
+
+struct PlaygroundApp: App {
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
+        .onOpenURL { url in
+          print(url)
+        }
+    }
+  }
+}
+
+```
+
 To get a token, call the finalise method on the session. The token can then be used to get an authenticatedClient, which in turn is used to create an instance of UserService.
 
 `fetchUserInfo` can then be called on the UserService object to receive the required data.
