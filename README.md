@@ -16,7 +16,7 @@ To use Login in a SwiftPM project:
 
 ```swift
 .target(name: "MyTarget", dependencies: [
-    .product(name: "Login", package: "di-mobile-ios-login")
+  .product(name: "Login", package: "di-mobile-ios-login")
 ]),
 ```
 
@@ -92,15 +92,15 @@ import UserDetails
 
 let session: LoginSession
     
-    init(session: LoginSession) {
-        self.session = session
-    }
+  init(session: LoginSession) {
+    self.session = session
+  }
 
 ...
 
 let configuration = LoginSessionConfiguration(authorizationEndpoint: url,
                                               responseType: .code,
-                                              scopes: [.openid, .email, .phone,            .offline_access],
+                                              scopes: [.openid, .email, .phone, .offline_access],
                                               clientID: "someClientID",
                                               prefersEphemeralWebSession: true,
                                               redirectURI: "someRedirectURI",
@@ -120,7 +120,7 @@ Your code should include a callback handler method in either the SceneDelegate o
 ...
 
 if let webURL = userActivity.webpageURL {
-    viewController?.handleCallback(url: webURL)
+  viewController?.handleCallback(url: webURL)
 }
 
 ```
@@ -131,7 +131,7 @@ if let webURL = userActivity.webpageURL {
 //SceneDelegate.swift
 
 func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
-    //handle callback
+  //handle callback
 }
 
 //AppDelegate.swift
@@ -139,8 +139,8 @@ func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
 func application(_ application: UIApplication, 
                 continue userActivity: NSUserActivity,
                 restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-                         // handle callback
-                       }
+                  // handle callback
+                }
 
 //SwiftUI
 
@@ -163,12 +163,12 @@ To get a token, call the finalise method on the session. The token can then be u
 
 ```swift
 do {
-    let tokens = try await session.finalise(callback: url)
-    let authenticatedClient = NetworkClient(authenticationProvider: tokens)
-    let service = UserService(client: authenticatedClient)
-    let userInfo = try await service.fetchUserInfo()
+  let tokens = try await session.finalise(callback: url)
+  let authenticatedClient = NetworkClient(authenticationProvider: tokens)
+  let service = UserService(client: authenticatedClient)
+  let userInfo = try await service.fetchUserInfo()
 } catch {
-    // handle errors
+  // handle errors
 }
                 
 ```
