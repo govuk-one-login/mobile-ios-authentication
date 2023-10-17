@@ -9,7 +9,15 @@ final class LoginSessionConfigurationTests: XCTestCase {
             super.setUp()
             let url = URL(string: "https://www.google.com")!
 
-            sut = .init(LoginSessionConfiguration(authorizationEndpoint: url, responseType: .code, scopes: [.email], clientID: "1234", prefersEphemeralWebSession: true, redirectURI: "https://www.google.com", nonce: "1234", viewThroughRate: "1", locale: .en))
+            sut = .init(LoginSessionConfiguration(authorizationEndpoint: url,
+                                                  responseType: .code,
+                                                  scopes: [.email],
+                                                  clientID: "1234",
+                                                  prefersEphemeralWebSession: true,
+                                                  redirectURI: "https://www.google.com",
+                                                  nonce: "1234",
+                                                  viewThroughRate: "1",
+                                                  locale: .en))
         }
         
         override func tearDown() {

@@ -75,7 +75,7 @@ public final class AppAuthSession: LoginSession {
         flow?.resumeExternalUserAgentFlow(with: url)
         
         guard let authorizationCode else {
-            // todo: are there specific values of `self.error` we care about here?
+            // are there specific values of `self.error` we care about here?
             throw LoginError.inconsistentStateResponse
         }
         return try await service
