@@ -1,7 +1,7 @@
-import Foundation
-import Networking
 import AppAuth
 @testable import Authentication
+import Foundation
+import Networking
 
 public final class MockTokenService: TokenServicing {
     

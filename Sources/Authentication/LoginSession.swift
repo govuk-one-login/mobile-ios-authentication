@@ -6,4 +6,3 @@ public protocol LoginSession {
     func finalise(callback: URL) async throws -> TokenResponse
     func cancel()
 }
-

@@ -12,7 +12,7 @@ public final class UserService: UserServicing {
         self.client = client
     }
     
-    public func fetchUserInfo() async throws  -> UserInfo {
+    public func fetchUserInfo() async throws -> UserInfo {
         let data = try await client.makeRequest(.init(url: .userInfo))
         return try JSONDecoder().decode(UserInfo.self, from: data)
     }
