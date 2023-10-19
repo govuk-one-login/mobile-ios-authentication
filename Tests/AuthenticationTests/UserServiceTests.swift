@@ -1,5 +1,5 @@
-@testable import UserDetails
 @testable import Networking
+@testable import UserDetails
 
 import MockNetworking
 import XCTest

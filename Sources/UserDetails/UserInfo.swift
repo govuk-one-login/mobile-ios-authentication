@@ -15,4 +15,3 @@ public struct UserInfo: Codable {
         case email = "email"
     }
 }
-

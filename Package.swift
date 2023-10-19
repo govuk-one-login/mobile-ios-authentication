@@ -8,7 +8,7 @@ let package = Package(
     platforms: [.iOS(.v13)],
     products: [
         .library(name: "Authentication", targets: ["Authentication"]),
-        .library(name: "UserDetails", targets: ["UserDetails"]),
+        .library(name: "UserDetails", targets: ["UserDetails"])
         
     ],
     dependencies: [
@@ -36,4 +36,3 @@ let package = Package(
                ])
     ]
 )
-

@@ -52,7 +52,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
                                              callbackURLScheme: "https") { _, error in
             if let error = error {
                 print("error on auth: \(error.localizedDescription), error object: \(error)")
-                // todo throw error
+                // throw error?
             }
         }
         session?.prefersEphemeralWebBrowserSession =
