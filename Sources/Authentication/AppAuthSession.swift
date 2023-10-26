@@ -40,7 +40,7 @@ public final class AppAuthSession: LoginSession {
         
         let config = OIDServiceConfiguration(
             authorizationEndpoint: configuration.authorizationEndpoint,
-            tokenEndpoint: configuration.tokenEndPoint
+            tokenEndpoint: configuration.tokenEndpoint
         )
         
         let request = OIDAuthorizationRequest(

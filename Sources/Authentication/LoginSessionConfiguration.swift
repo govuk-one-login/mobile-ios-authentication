@@ -2,7 +2,7 @@ import Foundation
 
 public struct LoginSessionConfiguration {
     let authorizationEndpoint: URL
-    let tokenEndPoint: URL
+    let tokenEndpoint: URL
     let responseType: ResponseType
     let scopes: [Scope]
     
@@ -39,11 +39,11 @@ public struct LoginSessionConfiguration {
                 clientID: String,
                 prefersEphemeralWebSession: Bool = false,
                 redirectURI: String,
-                nonce: String,
+                nonce: String = UUID().uuidString,
                 viewThroughRate: String = "[Cl.Cm.P0]",
                 locale: UILocale = .en) {
         self.authorizationEndpoint = authorizationEndpoint
-        self.tokenEndPoint = tokenEndpoint
+        self.tokenEndpoint = tokenEndpoint
         self.responseType = responseType
         self.scopes = scopes
         self.clientID = clientID
