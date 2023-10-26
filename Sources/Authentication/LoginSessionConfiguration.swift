@@ -2,6 +2,7 @@ import Foundation
 
 public struct LoginSessionConfiguration {
     let authorizationEndpoint: URL
+    let tokenEndPoint: URL
     let responseType: ResponseType
     let scopes: [Scope]
     
@@ -32,15 +33,17 @@ public struct LoginSessionConfiguration {
     }
     
     public init(authorizationEndpoint: URL,
-                responseType: ResponseType,
-                scopes: [Scope],
+                tokenEndpoint: URL,
+                responseType: ResponseType = .code,
+                scopes: [Scope] = [.openid, .email, .phone, .offline_access],
                 clientID: String,
-                prefersEphemeralWebSession: Bool,
+                prefersEphemeralWebSession: Bool = false,
                 redirectURI: String,
                 nonce: String,
-                viewThroughRate: String,
-                locale: UILocale) {
+                viewThroughRate: String = "[Cl.Cm.P0]",
+                locale: UILocale = .en) {
         self.authorizationEndpoint = authorizationEndpoint
+        self.tokenEndPoint = tokenEndpoint
         self.responseType = responseType
         self.scopes = scopes
         self.clientID = clientID

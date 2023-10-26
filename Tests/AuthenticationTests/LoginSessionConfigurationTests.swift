@@ -7,9 +7,8 @@ final class LoginSessionConfigurationTests: XCTestCase {
         
         override func setUp() {
             super.setUp()
-            let url = URL(string: "https://www.google.com")!
-
-            sut = .init(LoginSessionConfiguration(authorizationEndpoint: url,
+            sut = .init(LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
+                                                  tokenEndpoint: URL(string: "https://www.google.com/token")!,
                                                   responseType: .code,
                                                   scopes: [.email],
                                                   clientID: "1234",
@@ -30,6 +29,10 @@ final class LoginSessionConfigurationTests: XCTestCase {
 extension LoginSessionConfigurationTests {
     func testSUTHasAuthorizationURL() {
         XCTAssertEqual(sut.authorizationEndpoint, URL(string: "https://www.google.com"))
+    }
+    
+    func testSUTHasTokenURL() {
+        XCTAssertEqual(sut.tokenEndPoint, URL(string: "https://www.google.com/token"))
     }
     
     func testResponseType() {

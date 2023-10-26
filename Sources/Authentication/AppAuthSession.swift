@@ -40,7 +40,8 @@ public final class AppAuthSession: LoginSession {
         
         let config = OIDServiceConfiguration(
             authorizationEndpoint: configuration.authorizationEndpoint,
-            tokenEndpoint: URL(string: "https://oidc.integration.account.gov.uk/token")!)
+            tokenEndpoint: configuration.tokenEndPoint
+        )
         
         let request = OIDAuthorizationRequest(
             configuration: config,
@@ -54,6 +55,7 @@ public final class AppAuthSession: LoginSession {
                 "ui_locales": configuration.locale.rawValue
             ]
         )
+        
         self.state = request.state
         
         let agent = OIDExternalUserAgentIOS(
@@ -62,7 +64,7 @@ public final class AppAuthSession: LoginSession {
         )
         
         flow = OIDAuthorizationService.present(request,
-                                                   externalUserAgent: agent!) { [unowned self] response, error in
+                                               externalUserAgent: agent!) { [unowned self] response, error in
             self.authorizationCode = response?.authorizationCode
             self.stateReponse = response?.state
             self.error = error
