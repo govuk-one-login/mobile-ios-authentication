@@ -39,24 +39,8 @@ extension LoginSessionConfigurationTests {
         XCTAssertEqual(sut.responseType, .code)
     }
     
-    func testDefaultResponseType() {
-        sut = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
-                                        tokenEndpoint: URL(string: "https://www.google.com/token")!,
-                                        clientID: "1234",
-                                        redirectURI: "https://www.google.com/redirect")
-        XCTAssertEqual(sut.responseType, .code)
-    }
-    
     func testScope() {
         XCTAssertEqual(sut.scopes, [.email])
-    }
-    
-    func testDefaultScope() {
-        sut = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
-                                        tokenEndpoint: URL(string: "https://www.google.com/token")!,
-                                        clientID: "1234",
-                                        redirectURI: "https://www.google.com/redirect")
-        XCTAssertEqual(sut.scopes, [.openid, .email, .phone, .offline_access])
     }
     
     func testClientID() {
@@ -65,14 +49,6 @@ extension LoginSessionConfigurationTests {
     
     func testPrefersEphemeralWebSession() {
         XCTAssertTrue(sut.prefersEphemeralWebSession)
-    }
-    
-    func testDefaultPrefersEphemeralWebSession() {
-        sut = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
-                                        tokenEndpoint: URL(string: "https://www.google.com/token")!,
-                                        clientID: "1234",
-                                        redirectURI: "https://www.google.com/redirect")
-        XCTAssertFalse(sut.prefersEphemeralWebSession)
     }
     
     func testRedirectURI() {
@@ -87,17 +63,18 @@ extension LoginSessionConfigurationTests {
         XCTAssertEqual(sut.viewThroughRate, "1")
     }
     
-    func testDefaultViewThroughRate() {
-        sut = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
-                                        tokenEndpoint: URL(string: "https://www.google.com/token")!,
-                                        clientID: "1234",
-                                        redirectURI: "https://www.google.com/redirect")
-        XCTAssertEqual(sut.viewThroughRate, "[Cl.Cm.P0]")
-    }
-    
     func testLocale() {
         XCTAssertEqual(sut.locale, .en)
     }
     
-    
+    func testDefaultValues() {
+        sut = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
+                                        tokenEndpoint: URL(string: "https://www.google.com/token")!,
+                                        clientID: "1234",
+                                        redirectURI: "https://www.google.com/redirect")
+        XCTAssertEqual(sut.responseType, .code)
+        XCTAssertEqual(sut.scopes, [.openid, .email, .phone, .offline_access])
+        XCTAssertTrue(sut.prefersEphemeralWebSession)
+        XCTAssertEqual(sut.viewThroughRate, "[Cl.Cm.P0]")
+    }
 }

@@ -37,7 +37,7 @@ public struct LoginSessionConfiguration {
                 responseType: ResponseType = .code,
                 scopes: [Scope] = [.openid, .email, .phone, .offline_access],
                 clientID: String,
-                prefersEphemeralWebSession: Bool = false,
+                prefersEphemeralWebSession: Bool = true,
                 redirectURI: String,
                 nonce: String = UUID().uuidString,
                 viewThroughRate: String = "[Cl.Cm.P0]",
