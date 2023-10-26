@@ -69,6 +69,7 @@ extension AppAuthSessionTests {
 
 extension LoginSessionConfiguration {
     static let mock = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
+                                                tokenEndpoint: URL(string: "https://www.google.com/token")!,
                                                 responseType: .code,
                                                 scopes: [.email, .offline_access, .phone, .openid],
                                                 clientID: "1234",
