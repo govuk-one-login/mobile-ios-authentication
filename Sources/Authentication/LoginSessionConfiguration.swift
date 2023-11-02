@@ -1,20 +1,20 @@
 import Foundation
 
 public struct LoginSessionConfiguration {
-    let authorizationEndpoint: URL
-    let tokenEndpoint: URL
-    let responseType: ResponseType
-    let scopes: [Scope]
+    public let authorizationEndpoint: URL
+    public let tokenEndpoint: URL
+    public let responseType: ResponseType
+    public let scopes: [Scope]
     
-    let clientID: String
+    public let clientID: String
     
-    let prefersEphemeralWebSession: Bool
+    public let prefersEphemeralWebSession: Bool
     
-    let redirectURI: String
+    public let redirectURI: String
     
-    let nonce: String
-    let viewThroughRate: String
-    let locale: UILocale
+    public let nonce: String
+    public let viewThroughRate: String
+    public let locale: UILocale
     
     public enum ResponseType: String {
         case code
