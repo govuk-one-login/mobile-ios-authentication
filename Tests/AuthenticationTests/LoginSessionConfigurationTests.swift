@@ -14,7 +14,6 @@ final class LoginSessionConfigurationTests: XCTestCase {
                                         clientID: "1234",
                                         prefersEphemeralWebSession: true,
                                         redirectURI: "https://www.google.com/redirect",
-                                        nonce: "1234",
                                         viewThroughRate: "1",
                                         locale: .en)
     }
@@ -53,10 +52,6 @@ extension LoginSessionConfigurationTests {
     
     func testRedirectURI() {
         XCTAssertEqual(sut.redirectURI, "https://www.google.com/redirect")
-    }
-    
-    func testNonce() {
-        XCTAssertEqual(sut.nonce, "1234")
     }
     
     func testViewThroughRate() {

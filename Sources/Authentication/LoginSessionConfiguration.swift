@@ -12,7 +12,6 @@ public struct LoginSessionConfiguration {
     
     public let redirectURI: String
     
-    public let nonce: String
     public let viewThroughRate: String
     public let locale: UILocale
     
@@ -39,7 +38,6 @@ public struct LoginSessionConfiguration {
                 clientID: String,
                 prefersEphemeralWebSession: Bool = true,
                 redirectURI: String,
-                nonce: String = UUID().uuidString,
                 viewThroughRate: String = "[Cl.Cm.P0]",
                 locale: UILocale = .en) {
         self.authorizationEndpoint = authorizationEndpoint
@@ -49,7 +47,6 @@ public struct LoginSessionConfiguration {
         self.clientID = clientID
         self.prefersEphemeralWebSession = prefersEphemeralWebSession
         self.redirectURI = redirectURI
-        self.nonce = nonce
         self.viewThroughRate = viewThroughRate
         self.locale = locale
     }

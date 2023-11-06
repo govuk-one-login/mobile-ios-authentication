@@ -75,7 +75,6 @@ extension LoginSessionConfiguration {
                                                 clientID: "1234",
                                                 prefersEphemeralWebSession: true,
                                                 redirectURI: "https://www.google.com",
-                                                nonce: "1234",
                                                 viewThroughRate: "1234",
                                                 locale: .en)
 }
