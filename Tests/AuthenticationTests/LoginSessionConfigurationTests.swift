@@ -70,6 +70,6 @@ extension LoginSessionConfigurationTests {
         XCTAssertEqual(sut.responseType, .code)
         XCTAssertEqual(sut.scopes, [.openid, .email, .phone, .offline_access])
         XCTAssertTrue(sut.prefersEphemeralWebSession)
-        XCTAssertEqual(sut.viewThroughRate, "[Cl.Cm.P0]")
+        XCTAssertEqual(sut.viewThroughRate, "[\"Cl.Cm.P0\"]")
     }
 }

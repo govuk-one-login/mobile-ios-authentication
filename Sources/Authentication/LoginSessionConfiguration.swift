@@ -38,7 +38,7 @@ public struct LoginSessionConfiguration {
                 clientID: String,
                 prefersEphemeralWebSession: Bool = true,
                 redirectURI: String,
-                viewThroughRate: String = "[Cl.Cm.P0]",
+                viewThroughRate: String = "[\"Cl.Cm.P0\"]",
                 locale: UILocale = .en) {
         self.authorizationEndpoint = authorizationEndpoint
         self.tokenEndpoint = tokenEndpoint
