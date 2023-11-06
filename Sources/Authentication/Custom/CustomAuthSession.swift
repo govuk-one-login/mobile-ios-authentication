@@ -46,7 +46,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
             .init(name: "client_id", value: configuration.clientID),
             .init(name: "state", value: self.state),
             .init(name: "redirect_uri", value: configuration.redirectURI),
-            .init(name: "vtr", value: configuration.vectorsOfTrust),
+            .init(name: "vtr", value: configuration.vectorsOfTrust.description),
             .init(name: "nonce", value: nonce),
             .init(name: "ui_locales", value: configuration.locale.rawValue)
         ]
