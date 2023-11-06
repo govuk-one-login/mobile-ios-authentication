@@ -64,7 +64,7 @@ Handles creating the `config` found in `LoginSession`. It requires the following
   let redirectURI: String
    
   let nonce: String
-  let viewThroughRate: String
+  let vectorsOfTrust: String
   let locale: UILocale
 ```
 
@@ -105,7 +105,7 @@ let configuration = LoginSessionConfiguration(authorizationEndpoint: url,
                                               prefersEphemeralWebSession: true,
                                               redirectURI: "someRedirectURI",
                                               nonce: "someNonce",
-                                              viewThroughRate: "someThroughRate",
+                                              vectorsOfTrust: "someVectorOfTrust",
                                               locale: .en)
                                               
 session.present(configuration: configuration)

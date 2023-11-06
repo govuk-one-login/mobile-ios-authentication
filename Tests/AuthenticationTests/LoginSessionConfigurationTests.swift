@@ -14,7 +14,7 @@ final class LoginSessionConfigurationTests: XCTestCase {
                                         clientID: "1234",
                                         prefersEphemeralWebSession: true,
                                         redirectURI: "https://www.google.com/redirect",
-                                        viewThroughRate: "1",
+                                        vectorsOfTrust: ["1"],
                                         locale: .en)
     }
     
@@ -54,8 +54,8 @@ extension LoginSessionConfigurationTests {
         XCTAssertEqual(sut.redirectURI, "https://www.google.com/redirect")
     }
     
-    func testViewThroughRate() {
-        XCTAssertEqual(sut.viewThroughRate, "1")
+    func testVectorsOfTrust() {
+        XCTAssertEqual(sut.vectorsOfTrust, ["1"])
     }
     
     func testLocale() {
@@ -70,6 +70,7 @@ extension LoginSessionConfigurationTests {
         XCTAssertEqual(sut.responseType, .code)
         XCTAssertEqual(sut.scopes, [.openid, .email, .phone, .offline_access])
         XCTAssertTrue(sut.prefersEphemeralWebSession)
-        XCTAssertEqual(sut.viewThroughRate, "[Cl.Cm.P0]")
+        XCTAssertEqual(sut.vectorsOfTrust, ["Cl.Cm.P0"])
+        XCTAssertEqual(sut.vectorsOfTrust.description, "[\"Cl.Cm.P0\"]")
     }
 }
