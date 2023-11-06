@@ -51,7 +51,6 @@ public final class AppAuthSession: LoginSession {
             responseType: OIDResponseTypeCode,
             additionalParameters: [
                 "vtr": configuration.viewThroughRate,
-                "nonce": configuration.nonce,
                 "ui_locales": configuration.locale.rawValue
             ]
         )

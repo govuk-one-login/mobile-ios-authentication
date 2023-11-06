@@ -12,7 +12,7 @@ final class CustomAuthSessionTests: XCTestCase {
         window.rootViewController = vc
         window.makeKeyAndVisible()
         
-        sut = .init(window: window, service: MockTokenService())
+        sut = .init(window: window, service: MockTokenService(), nonce: UUID().uuidString)
     }
 
     override func tearDownWithError() throws {
