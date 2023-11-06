@@ -12,7 +12,7 @@ public struct LoginSessionConfiguration {
     
     public let redirectURI: String
     
-    public let viewThroughRate: String
+    public let vectorsOfTrust: String
     public let locale: UILocale
     
     public enum ResponseType: String {
@@ -38,7 +38,7 @@ public struct LoginSessionConfiguration {
                 clientID: String,
                 prefersEphemeralWebSession: Bool = true,
                 redirectURI: String,
-                viewThroughRate: String = "[\"Cl.Cm.P0\"]",
+                vectorsOfTrust: String = "[\"Cl.Cm.P0\"]",
                 locale: UILocale = .en) {
         self.authorizationEndpoint = authorizationEndpoint
         self.tokenEndpoint = tokenEndpoint
@@ -47,7 +47,7 @@ public struct LoginSessionConfiguration {
         self.clientID = clientID
         self.prefersEphemeralWebSession = prefersEphemeralWebSession
         self.redirectURI = redirectURI
-        self.viewThroughRate = viewThroughRate
+        self.vectorsOfTrust = vectorsOfTrust
         self.locale = locale
     }
 }

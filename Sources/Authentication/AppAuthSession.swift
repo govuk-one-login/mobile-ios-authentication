@@ -50,7 +50,7 @@ public final class AppAuthSession: LoginSession {
             redirectURL: URL(string: configuration.redirectURI)!,
             responseType: OIDResponseTypeCode,
             additionalParameters: [
-                "vtr": configuration.viewThroughRate,
+                "vtr": configuration.vectorsOfTrust,
                 "ui_locales": configuration.locale.rawValue
             ]
         )
