@@ -54,7 +54,7 @@ extension LoginSessionConfigurationTests {
         XCTAssertEqual(sut.redirectURI, "https://www.google.com/redirect")
     }
     
-    func testViewThroughRate() {
+    func testVectorsOfTrust() {
         XCTAssertEqual(sut.vectorsOfTrust, ["1"])
     }
     
@@ -71,5 +71,6 @@ extension LoginSessionConfigurationTests {
         XCTAssertEqual(sut.scopes, [.openid, .email, .phone, .offline_access])
         XCTAssertTrue(sut.prefersEphemeralWebSession)
         XCTAssertEqual(sut.vectorsOfTrust, ["Cl.Cm.P0"])
+        XCTAssertEqual(sut.vectorsOfTrust.description, "[\"Cl.Cm.P0\"]")
     }
 }
