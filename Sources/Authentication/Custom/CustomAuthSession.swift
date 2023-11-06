@@ -10,6 +10,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
     private let context: UIWindow
     private var session: ASWebAuthenticationSession?
     private(set) var state: String?
+    private let nonce: String
     
     private let service: TokenServicing
     
@@ -19,12 +20,14 @@ public final class CustomAuthSession: NSObject, LoginSession {
     ///    - window: UIWindow with a root view controller where you wish to show the login dialog
     public convenience init(window: UIWindow) {
         self.init(window: window,
-                  service: TokenService(client: .init()))
+                  service: TokenService(client: .init()),
+                  nonce: UUID().uuidString)
     }
     
-    init(window: UIWindow, service: TokenServicing) {
+    init(window: UIWindow, service: TokenServicing, nonce: String) {
         self.context = window
         self.service = service
+        self.nonce = nonce
     }
     
     /// Shows the login dialog
@@ -44,6 +47,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
             .init(name: "state", value: self.state),
             .init(name: "redirect_uri", value: configuration.redirectURI),
             .init(name: "vtr", value: configuration.viewThroughRate),
+            .init(name: "nonce", value: nonce),
             .init(name: "ui_locales", value: configuration.locale.rawValue)
         ]
         
