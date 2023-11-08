@@ -26,7 +26,7 @@ To use Authentication in a SwiftPM project:
 
 The Authentication package authenticates a users details and enables them to log into their account securely. This is done by providing them with a login session and token.
 
-The package also integrates [openID](https://openid.net/developers/how-connect-works/) AppAuth and conforms to its standards, and also uses `NetworkClient` from the [Networking](https://github.com/govuk-one-login/mobile-ios-authentication) package.
+The package also integrates [openID](https://openid.net/developers/how-connect-works/) AppAuth and conforms to its standards, and also uses `NetworkClient` from the [Networking](https://github.com/govuk-one-login/mobile-ios-networking) package.
 
 ### Types
 
