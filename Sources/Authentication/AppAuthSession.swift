@@ -8,7 +8,7 @@ public final class AppAuthSession: LoginSession {
     private var flow: OIDExternalUserAgentSession?
     private(set) var authorizationCode: String?
     private var error: Error?
-    private(set) var state: String?
+    public private(set) var state: String?
     private(set) var stateReponse: String?
     
     private let service: TokenServicing

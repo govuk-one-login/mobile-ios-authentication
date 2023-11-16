@@ -9,7 +9,7 @@ enum LoginError: Error {
 public final class CustomAuthSession: NSObject, LoginSession {
     private let context: UIWindow
     private var session: ASWebAuthenticationSession?
-    private(set) var state: String?
+    public private(set) var state: String?
     private let nonce: String
     
     private let service: TokenServicing
