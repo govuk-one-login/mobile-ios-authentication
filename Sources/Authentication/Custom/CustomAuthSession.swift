@@ -11,6 +11,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
     private var session: ASWebAuthenticationSession?
     private(set) var state: String?
     private let nonce: String
+    private(set) var redirectURI: String?
     
     private let service: TokenServicing
     
@@ -51,6 +52,8 @@ public final class CustomAuthSession: NSObject, LoginSession {
             .init(name: "ui_locales", value: configuration.locale.rawValue)
         ]
         
+        self.redirectURI = configuration.redirectURI
+        
         session = ASWebAuthenticationSession(url: components.url!,
                                              callbackURLScheme: "https") { _, error in
             if let error = error {
@@ -81,7 +84,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
             throw LoginError.inconsistentStateResponse
         }
         
-        return try await service.fetchTokens(authorizationCode: authorizationCode, endpoint: endpoint)
+        return try await service.fetchTokens(authorizationCode: authorizationCode, redirectURI: redirectURI!, endpoint: endpoint)
     }
     
     public func cancel() {
