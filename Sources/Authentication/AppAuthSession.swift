@@ -70,7 +70,11 @@ public final class AppAuthSession: LoginSession {
         }
     }
     
-    
+    /// Finishes the login dialog
+    ///
+    /// - Parameters:
+    ///     - callback: the URL to an authorization endpoint you started the flow with.
+    ///     - endpoint: the token endpoint to query to receive tokens back as the final action in the flow.
     @MainActor
     public func finalise(callback url: URL, endpoint: URL) async throws -> TokenResponse {
         flow?.resumeExternalUserAgentFlow(with: url)

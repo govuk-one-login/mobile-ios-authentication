@@ -64,6 +64,11 @@ public final class CustomAuthSession: NSObject, LoginSession {
         session?.start()
     }
     
+    /// Finishes the login dialog
+    ///
+    /// - Parameters:
+    ///     - callback: the URL to an authorization endpoint you started the flow with.
+    ///     - endpoint: the token endpoint to query to receive tokens back as the final action in the flow.
     public func finalise(callback url: URL, endpoint: URL) async throws -> TokenResponse {
         await MainActor.run { session?.cancel() }
         
