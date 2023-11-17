@@ -10,6 +10,7 @@ public final class AppAuthSession: LoginSession {
     private var error: Error?
     private(set) var state: String?
     private(set) var stateReponse: String?
+    private(set) var redirectURI: String?
     
     private let service: TokenServicing
     
@@ -56,6 +57,7 @@ public final class AppAuthSession: LoginSession {
         )
         
         self.state = request.state
+        self.redirectURI = request.redirectURL?.absoluteString
         
         let agent = OIDExternalUserAgentIOS(
             presenting: viewController,
@@ -83,7 +85,7 @@ public final class AppAuthSession: LoginSession {
             throw LoginError.inconsistentStateResponse
         }
         return try await service
-            .fetchTokens(authorizationCode: authorizationCode, endpoint: endpoint)
+            .fetchTokens(authorizationCode: authorizationCode, redirectURI: redirectURI!, endpoint: endpoint)
     }
     
     public func cancel() {
