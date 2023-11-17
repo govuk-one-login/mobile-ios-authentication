@@ -72,14 +72,14 @@ public final class AppAuthSession: LoginSession {
     
     
     @MainActor
-    public func finalise(callback url: URL) async throws -> TokenResponse {
+    public func finalise(callback url: URL, endpoint: URL) async throws -> TokenResponse {
         flow?.resumeExternalUserAgentFlow(with: url)
         
         guard let authorizationCode else {
             throw LoginError.inconsistentStateResponse
         }
         return try await service
-            .fetchTokens(authorizationCode: authorizationCode)
+            .fetchTokens(authorizationCode: authorizationCode, endpoint: endpoint)
     }
     
     public func cancel() {

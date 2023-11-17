@@ -64,7 +64,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
         session?.start()
     }
     
-    public func finalise(callback url: URL) async throws -> TokenResponse {
+    public func finalise(callback url: URL, endpoint: URL) async throws -> TokenResponse {
         await MainActor.run { session?.cancel() }
         
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
@@ -76,7 +76,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
             throw LoginError.inconsistentStateResponse
         }
         
-        return try await service.fetchTokens(authorizationCode: authorizationCode)
+        return try await service.fetchTokens(authorizationCode: authorizationCode, endpoint: endpoint)
     }
     
     public func cancel() {

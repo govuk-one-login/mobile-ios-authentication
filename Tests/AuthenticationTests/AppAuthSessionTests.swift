@@ -26,7 +26,8 @@ final class AppAuthSessionTests: XCTestCase {
 extension AppAuthSessionTests {
     func test_finalise_throwErrorWithNoAuthCode() async {
         do {
-            _ = try await sut.finalise(callback: URL(string: "https://www.google.com")!)
+            _ = try await sut.finalise(callback: URL(string: "https://www.google.com")!,
+                                       endpoint: URL(string: "https://www.google.com/token")!)
             XCTFail("No AuthorizationCode was set should have failed at this point")
         } catch let error as LoginError {
             XCTAssertEqual(error, LoginError.inconsistentStateResponse)
@@ -43,7 +44,8 @@ extension AppAuthSessionTests {
         let code = UUID().uuidString
         
         do {
-            _ = try await sut.finalise(callback: URL(string: "https://www.google.com?code=\(code)&state=\(randomState)")!)
+            _ = try await sut.finalise(callback: URL(string: "https://www.google.com?code=\(code)&state=\(randomState)")!,
+                                       endpoint: URL(string: "https://www.google.com/token")!)
             XCTFail("Expected an error to be thrown")
         } catch LoginError.inconsistentStateResponse {
             XCTAssertNil(sut.authorizationCode)
@@ -60,7 +62,8 @@ extension AppAuthSessionTests {
         let state = try XCTUnwrap(sut.state)
         let code = UUID().uuidString
         let callbackURL = try XCTUnwrap(URL(string: "https://www.google.com?code=\(code)&state=\(state)"))
-        _ = try await sut.finalise(callback: callbackURL)
+        _ = try await sut.finalise(callback: callbackURL,
+                                   endpoint: URL(string: "https://www.google.com/token")!)
         
         XCTAssertEqual(sut.authorizationCode, code)
         XCTAssertEqual(sut.stateReponse, state)

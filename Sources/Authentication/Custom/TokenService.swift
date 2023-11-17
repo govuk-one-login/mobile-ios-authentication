@@ -2,7 +2,7 @@ import Foundation
 import Networking
 
 public protocol TokenServicing {
-    func fetchTokens(authorizationCode: String) async throws -> TokenResponse
+    func fetchTokens(authorizationCode: String, endpoint: URL) async throws -> TokenResponse
 }
 
 public final class TokenService: TokenServicing {
@@ -12,11 +12,11 @@ public final class TokenService: TokenServicing {
         self.client = client
     }
     
-    public func fetchTokens(authorizationCode: String) async throws -> TokenResponse {
+    public func fetchTokens(authorizationCode: String, endpoint: URL) async throws -> TokenResponse {
         let requestBody = try JSONEncoder()
             .encode(TokenRequest(authorizationCode: authorizationCode))
         let data = try await client
-            .makeRequest(.tokenRequest(body: requestBody))
+            .makeRequest(.tokenRequest(body: requestBody, endpoint: endpoint))
         return try JSONDecoder()
             .decode(TokenResponse.self, from: data)
     }
