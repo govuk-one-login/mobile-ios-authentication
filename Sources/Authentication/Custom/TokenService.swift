@@ -13,8 +13,7 @@ public final class TokenService: TokenServicing {
     }
     
     public func fetchTokens(authorizationCode: String, redirectURI: String, endpoint: URL) async throws -> TokenResponse {
-        let requestBody = try JSONEncoder()
-            .encode(TokenRequest(authorizationCode: authorizationCode, redirectURI: redirectURI))
+        let requestBody = TokenRequest(authorizationCode: authorizationCode, redirectURI: redirectURI).formEncoded
         let data = try await client
             .makeRequest(.tokenRequest(body: requestBody, endpoint: endpoint))
         return try JSONDecoder()

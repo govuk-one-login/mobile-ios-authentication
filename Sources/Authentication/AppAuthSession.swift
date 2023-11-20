@@ -57,7 +57,7 @@ public final class AppAuthSession: LoginSession {
         )
         
         self.state = request.state
-        self.redirectURI = request.redirectURL?.absoluteString
+        self.redirectURI = configuration.redirectURI
         
         let agent = OIDExternalUserAgentIOS(
             presenting: viewController,
@@ -81,11 +81,11 @@ public final class AppAuthSession: LoginSession {
     public func finalise(callback url: URL, endpoint: URL) async throws -> TokenResponse {
         flow?.resumeExternalUserAgentFlow(with: url)
         
-        guard let authorizationCode else {
-            throw LoginError.inconsistentStateResponse
-        }
+        guard let authorizationCode else { throw LoginError.missingAuthorizationCode }
+        guard let redirectURI else { throw LoginError.missingRedirectURI }
+        
         return try await service
-            .fetchTokens(authorizationCode: authorizationCode, redirectURI: redirectURI!, endpoint: endpoint)
+            .fetchTokens(authorizationCode: authorizationCode, redirectURI: redirectURI, endpoint: endpoint)
     }
     
     public func cancel() {
