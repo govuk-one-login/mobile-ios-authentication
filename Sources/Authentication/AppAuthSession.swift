@@ -81,6 +81,10 @@ public final class AppAuthSession: LoginSession {
     public func finalise(callback url: URL, endpoint: URL) async throws -> TokenResponse {
         flow?.resumeExternalUserAgentFlow(with: url)
         
+        if let error {
+            throw error
+        }
+        
         guard let authorizationCode else { throw LoginError.missingAuthorizationCode }
         guard let redirectURI else { throw LoginError.missingRedirectURI }
         

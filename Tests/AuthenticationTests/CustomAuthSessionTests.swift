@@ -27,7 +27,7 @@ extension CustomAuthSessionTests {
                                        endpoint: URL(string: "https://www.google.com/token")!)
             XCTFail("No AuthorizationCode was set should have failed at this point")
         } catch let error as LoginError {
-            XCTAssertEqual(error, .inconsistentStateResponse)
+            XCTAssertEqual(error, .missingAuthorizationCode)
         } catch {
             XCTFail("Should not catch generic error")
         }
@@ -45,8 +45,6 @@ extension CustomAuthSessionTests {
             XCTFail("Expected an error to be thrown")
         } catch let error as LoginError {
             XCTAssertEqual(error, .inconsistentStateResponse)
-        } catch {
-            XCTFail("Unexpected error was thrown: \(error)")
         }
     }
     

@@ -74,13 +74,15 @@ public final class CustomAuthSession: NSObject, LoginSession {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
               let authorizationCode = components.queryItems?
             .first(where: { $0.name == "code" })?
-            .value,
-              let state = components.queryItems?.first(where: { $0.name == "state"})?.value,
+            .value else { throw LoginError.missingAuthorizationCode}
+              
+        guard let state = components.queryItems?.first(where: { $0.name == "state"})?.value,
               state == self.state else {
             throw LoginError.inconsistentStateResponse
         }
+        guard let redirectURI else { throw LoginError.missingRedirectURI }
         
-        return try await service.fetchTokens(authorizationCode: authorizationCode, redirectURI: redirectURI!, endpoint: endpoint)
+        return try await service.fetchTokens(authorizationCode: authorizationCode, redirectURI: redirectURI, endpoint: endpoint)
     }
     
     public func cancel() {
