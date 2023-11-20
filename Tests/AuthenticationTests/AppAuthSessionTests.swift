@@ -30,7 +30,7 @@ extension AppAuthSessionTests {
                                        endpoint: URL(string: "https://www.google.com/token")!)
             XCTFail("No AuthorizationCode was set should have failed at this point")
         } catch let error as LoginError {
-            XCTAssertEqual(error, LoginError.inconsistentStateResponse)
+            XCTAssertEqual(error, LoginError.missingAuthorizationCode)
         } catch {
             XCTFail("shouldn't catch generic error")
         }
@@ -48,8 +48,9 @@ extension AppAuthSessionTests {
                                        endpoint: URL(string: "https://www.google.com/token")!)
             XCTFail("Expected an error to be thrown")
         } catch LoginError.inconsistentStateResponse {
-            XCTAssertNil(sut.authorizationCode)
             XCTAssertNil(sut.stateReponse)
+        } catch LoginError.missingAuthorizationCode {
+            XCTAssertNil(sut.authorizationCode)
         } catch {
             XCTFail("Unexpected error was thrown: \(error)")
         }
