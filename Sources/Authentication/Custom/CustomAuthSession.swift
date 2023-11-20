@@ -7,7 +7,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
     private var session: ASWebAuthenticationSession?
     private(set) var state: String?
     private let nonce: String
-    private(set) var redirectURI: String?
+    private var redirectURI: String?
     
     private let service: TokenServicing
     
