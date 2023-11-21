@@ -82,6 +82,9 @@ public final class AppAuthSession: LoginSession {
         flow?.resumeExternalUserAgentFlow(with: url)
         
         if let error {
+            if error.localizedDescription.contains("State mismatch") {
+                throw LoginError.inconsistentStateResponse
+            }
             throw error
         }
         

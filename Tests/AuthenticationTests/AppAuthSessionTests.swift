@@ -47,9 +47,9 @@ extension AppAuthSessionTests {
             _ = try await sut.finalise(callback: URL(string: "https://www.google.com?code=\(code)&state=\(randomState)")!,
                                        endpoint: URL(string: "https://www.google.com/token")!)
             XCTFail("Expected an error to be thrown")
-        } catch {
-            print("Unexpected error was thrown: \(error)")
-            XCTAssertNotNil(error)
+        } catch let error as LoginError {
+            print("Unexpected error was thrown: \(error.localizedDescription)")
+            XCTAssertEqual(error, .inconsistentStateResponse)
         }
     }
     
