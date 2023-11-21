@@ -4,9 +4,9 @@ import XCTest
 class URLRequestExtensionsTests: XCTestCase {
     func test_tokenRequestURL() throws {
         let authorizationCode = "123456789"
-        let requestBody = TokenRequest(authorizationCode: authorizationCode, redirectURI: "123456789").formEncoded
+        let requestBody = TokenRequest(authorizationCode: authorizationCode, redirectURI: "123456789")
         let url = URL(string: "https://www.google.com/token")!
-        let sut = URLRequest.tokenRequest(body: requestBody, endpoint: url)
+        let sut = URLRequest.tokenRequest(requestBody: requestBody, endpoint: url)
         XCTAssertEqual(sut.url, url)
         XCTAssertEqual(sut.httpMethod, "POST")
         XCTAssertEqual(sut.value(forHTTPHeaderField: "Content-Type"), "application/x-www-form-urlencoded")
