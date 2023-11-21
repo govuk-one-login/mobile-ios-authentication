@@ -11,6 +11,7 @@ public final class AppAuthSession: LoginSession {
     private(set) var state: String?
     private(set) var stateReponse: String?
     private var redirectURI: String?
+    private var tokenEndpoint: URL?
     
     private let service: TokenServicing
     
@@ -56,13 +57,14 @@ public final class AppAuthSession: LoginSession {
             ]
         )
         
-        self.state = request.state
-        self.redirectURI = configuration.redirectURI
-        
         let agent = OIDExternalUserAgentIOS(
             presenting: viewController,
             prefersEphemeralSession: configuration.prefersEphemeralWebSession
         )
+        
+        self.state = request.state
+        self.redirectURI = configuration.redirectURI
+        self.tokenEndpoint = configuration.tokenEndpoint
         
         flow = OIDAuthorizationService.present(request,
                                                externalUserAgent: agent!) { [unowned self] response, error in
@@ -78,7 +80,7 @@ public final class AppAuthSession: LoginSession {
     ///     - callback: the URL to an authorization endpoint you started the flow with.
     ///     - endpoint: the token endpoint to query to receive tokens back as the final action in the flow.
     @MainActor
-    public func finalise(callback url: URL, endpoint: URL) async throws -> TokenResponse {
+    public func finalise(callback url: URL) async throws -> TokenResponse {
         flow?.resumeExternalUserAgentFlow(with: url)
         
         if let error {
@@ -89,10 +91,14 @@ public final class AppAuthSession: LoginSession {
         }
         
         guard let authorizationCode else { throw LoginError.missingAuthorizationCode }
-        guard let redirectURI else { throw LoginError.missingRedirectURI }
+        
+        guard let redirectURI,
+              let tokenEndpoint else {
+            throw LoginError.missingConfigValue
+        }
         
         return try await service
-            .fetchTokens(authorizationCode: authorizationCode, redirectURI: redirectURI, endpoint: endpoint)
+            .fetchTokens(authorizationCode: authorizationCode, redirectURI: redirectURI, endpoint: tokenEndpoint)
     }
     
     public func cancel() {

@@ -8,6 +8,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
     private(set) var state: String?
     private let nonce: String
     private var redirectURI: String?
+    private var tokenEndpoint: URL?
     
     private let service: TokenServicing
     
@@ -49,6 +50,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
         ]
         
         self.redirectURI = configuration.redirectURI
+        self.tokenEndpoint = configuration.tokenEndpoint
         
         session = ASWebAuthenticationSession(url: components.url!,
                                              callbackURLScheme: "https") { _, error in
@@ -68,7 +70,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
     /// - Parameters:
     ///     - callback: the URL to an authorization endpoint you started the flow with.
     ///     - endpoint: the token endpoint to query to receive tokens back as the final action in the flow.
-    public func finalise(callback url: URL, endpoint: URL) async throws -> TokenResponse {
+    public func finalise(callback url: URL) async throws -> TokenResponse {
         await MainActor.run { session?.cancel() }
         
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
@@ -80,9 +82,13 @@ public final class CustomAuthSession: NSObject, LoginSession {
               state == self.state else {
             throw LoginError.inconsistentStateResponse
         }
-        guard let redirectURI else { throw LoginError.missingRedirectURI }
+
+        guard let redirectURI,
+              let tokenEndpoint else {
+            throw LoginError.missingConfigValue
+        }
         
-        return try await service.fetchTokens(authorizationCode: authorizationCode, redirectURI: redirectURI, endpoint: endpoint)
+        return try await service.fetchTokens(authorizationCode: authorizationCode, redirectURI: redirectURI, endpoint: tokenEndpoint)
     }
     
     public func cancel() {
