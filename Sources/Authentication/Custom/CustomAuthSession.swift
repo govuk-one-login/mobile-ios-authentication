@@ -64,6 +64,10 @@ public final class CustomAuthSession: NSObject, LoginSession {
         session?.start()
     }
     
+    public func finalise(redirectURL: URL) {
+        
+    }
+    
     public func finalise(callback url: URL) async throws -> TokenResponse {
         await MainActor.run { session?.cancel() }
         

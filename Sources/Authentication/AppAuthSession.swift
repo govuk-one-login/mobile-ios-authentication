@@ -3,8 +3,7 @@ import AppAuth
 /// AppAuthSession object handle login flow with given auth provider
 /// Uses AppAuth Libary for presentation logic of login flow and handle callbacks from auth service
 public final class AppAuthSession: LoginSession {
-    let window: UIWindow
-    
+    private let window: UIWindow
     private var flow: OIDExternalUserAgentSession?
     private(set) var authorizationCode: String?
     private var error: Error?
@@ -54,32 +53,29 @@ public final class AppAuthSession: LoginSession {
                 "ui_locales": configuration.locale.rawValue
             ]
         )
-        
-        self.state = request.state
-        
-        let agent = OIDExternalUserAgentIOS(
-            presenting: viewController,
-            prefersEphemeralSession: configuration.prefersEphemeralWebSession
-        )
-        
-        flow = OIDAuthorizationService.present(request,
-                                               externalUserAgent: agent!) { [unowned self] response, error in
-            self.authorizationCode = response?.authorizationCode
-            self.stateReponse = response?.state
-            self.error = error
+
+        flow = OIDAuthState.authState(byPresenting: request,
+                                      presenting: viewController) { authState, error in
+            if let error = error {
+                print(error)
+            }
+            if let authState = authState {
+                print(authState)
+            }
         }
     }
     
     
     @MainActor
-    public func finalise(callback url: URL) async throws -> TokenResponse {
-        flow?.resumeExternalUserAgentFlow(with: url)
-        
-        guard let authorizationCode else {
-            throw LoginError.inconsistentStateResponse
+    public func finalise(redirectURL url: URL) {
+        if let authorizationflow = flow,
+           authorizationflow.resumeExternalUserAgentFlow(with: url) {
+            flow = nil
         }
-        return try await service
-            .fetchTokens(authorizationCode: authorizationCode)
+    }
+    
+    public func finalise(callback: URL) async throws -> TokenResponse {
+        return TokenResponse(accessToken: "", refreshToken: "", idToken: "", tokenType: "", expiresIn: 1)
     }
     
     public func cancel() {
