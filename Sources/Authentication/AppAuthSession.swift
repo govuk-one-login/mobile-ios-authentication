@@ -9,7 +9,7 @@ public final class AppAuthSession: LoginSession {
     private var error: Error?
     private(set) var state: String?
     private(set) var stateReponse: String?
-    var tokenResponse: TokenResponse?
+    public var tokenResponse: TokenResponse?
     
     private let service: TokenServicing
     

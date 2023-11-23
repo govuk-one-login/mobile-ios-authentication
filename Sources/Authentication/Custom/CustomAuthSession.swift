@@ -11,6 +11,7 @@ public final class CustomAuthSession: NSObject, LoginSession {
     private var session: ASWebAuthenticationSession?
     private(set) var state: String?
     private let nonce: String
+    public var tokenResponse: TokenResponse? = nil
     
     private let service: TokenServicing
     
