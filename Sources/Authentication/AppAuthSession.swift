@@ -9,6 +9,7 @@ public final class AppAuthSession: LoginSession {
     private var error: Error?
     private(set) var state: String?
     private(set) var stateReponse: String?
+    var authState: OIDAuthState?
     
     private let service: TokenServicing
     
@@ -61,6 +62,7 @@ public final class AppAuthSession: LoginSession {
             }
             if let authState = authState {
                 print(authState)
+                self.authState = authState
             }
         }
     }
