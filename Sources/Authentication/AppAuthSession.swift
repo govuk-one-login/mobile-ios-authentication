@@ -9,7 +9,7 @@ public final class AppAuthSession: LoginSession {
     private var error: Error?
     private(set) var state: String?
     private(set) var stateReponse: String?
-    var authState: OIDAuthState?
+    var tokenResponse: TokenResponse?
     
     private let service: TokenServicing
     
@@ -62,7 +62,12 @@ public final class AppAuthSession: LoginSession {
             }
             if let authState = authState {
                 print(authState)
-                self.authState = authState
+                guard let token = authState.lastTokenResponse,
+                      let accessToken = token.accessToken,
+                      let refreshToken = token.refreshToken,
+                      let idToken = token.idToken,
+                      let tokenType = token.tokenType else { return }
+                self.tokenResponse = TokenResponse(accessToken: accessToken, refreshToken: refreshToken, idToken: idToken, tokenType: tokenType, expiresIn: 180)
             }
         }
     }
