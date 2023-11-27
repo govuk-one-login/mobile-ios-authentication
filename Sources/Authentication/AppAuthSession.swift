@@ -5,26 +5,13 @@ import AppAuth
 public final class AppAuthSession: LoginSession {
     private let window: UIWindow
     private var flow: OIDExternalUserAgentSession?
-    private(set) var authorizationCode: String?
-    private var error: Error?
-    private(set) var state: String?
-    private(set) var stateReponse: String?
-    public var tokenResponse: TokenResponse?
+    private var authState: OIDAuthState?
+    private var authError: Error?
     
-    private let service: TokenServicing
-    
-    /// convenience init uses TokenService provided by package
-    ///
     /// - Parameters:
     ///    - window: UIWindow with a root view controller where you wish to show the login dialog
-    public convenience init(window: UIWindow) {
-        self.init(window: window,
-                  service: TokenService(client: .init()))
-    }
-    
-    init(window: UIWindow, service: TokenServicing) {
+    public init(window: UIWindow) {
         self.window = window
-        self.service = service
     }
     
     /// Shows the login dialog
@@ -32,10 +19,9 @@ public final class AppAuthSession: LoginSession {
     /// - Parameters:
     ///     - configuration: object that contains your loginSessionConfiguration
     @MainActor
-    public func present(configuration: LoginSessionConfiguration) {
+    public func authenticate(configuration: LoginSessionConfiguration) throws -> TokenResponse {
         guard let viewController = window.rootViewController else {
-            assertionFailure("empty vc in window, please add vc")
-            return
+            fatalError("empty vc in window, please add vc")
         }
         
         let config = OIDServiceConfiguration(
@@ -54,24 +40,29 @@ public final class AppAuthSession: LoginSession {
                 "ui_locales": configuration.locale.rawValue
             ]
         )
-
+        
         flow = OIDAuthState.authState(byPresenting: request,
                                       presenting: viewController) { authState, error in
-            if let error = error {
-                print(error)
-            }
             if let authState = authState {
-                print(authState)
-                guard let token = authState.lastTokenResponse,
-                      let accessToken = token.accessToken,
-                      let refreshToken = token.refreshToken,
-                      let idToken = token.idToken,
-                      let tokenType = token.tokenType else { return }
-                self.tokenResponse = TokenResponse(accessToken: accessToken, refreshToken: refreshToken, idToken: idToken, tokenType: tokenType, expiresIn: 180)
+                self.authState = authState
+            }
+            if let error = error {
+                self.authError = error
             }
         }
+        
+        guard let authState = authState else {
+            throw LoginError.generic(description: authError?.localizedDescription ?? "Unknown error")
+        }
+        guard let token = authState.lastTokenResponse,
+              let accessToken = token.accessToken,
+              let refreshToken = token.refreshToken,
+              let idToken = token.idToken,
+              let tokenType = token.tokenType else {
+            throw LoginError.generic(description: "Missing authState property")
+        }
+        return TokenResponse(accessToken: accessToken, refreshToken: refreshToken, idToken: idToken, tokenType: tokenType, expiresIn: 180)
     }
-    
     
     @MainActor
     public func finalise(redirectURL url: URL) {
@@ -79,10 +70,6 @@ public final class AppAuthSession: LoginSession {
            authorizationflow.resumeExternalUserAgentFlow(with: url) {
             flow = nil
         }
-    }
-    
-    public func finalise(callback: URL) async throws -> TokenResponse {
-        return TokenResponse(accessToken: "", refreshToken: "", idToken: "", tokenType: "", expiresIn: 1)
     }
     
     public func cancel() {
