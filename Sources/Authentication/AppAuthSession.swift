@@ -42,7 +42,8 @@ public final class AppAuthSession: LoginSession {
         )
         
         flow = OIDAuthState.authState(byPresenting: request,
-                                      presenting: viewController) { authState, error in
+                                      presenting: viewController,
+                                      prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
             if let authState = authState {
                 self.authState = authState
             }
