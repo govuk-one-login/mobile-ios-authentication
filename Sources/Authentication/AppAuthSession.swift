@@ -19,7 +19,7 @@ public final class AppAuthSession: LoginSession {
     /// - Parameters:
     ///     - configuration: object that contains your loginSessionConfiguration
     @MainActor
-    public func authenticate(configuration: LoginSessionConfiguration) throws -> TokenResponse {
+    public func authenticate(configuration: LoginSessionConfiguration) {
         guard let viewController = window.rootViewController else {
             fatalError("empty vc in window, please add vc")
         }
@@ -50,10 +50,13 @@ public final class AppAuthSession: LoginSession {
                 self.authError = error
             }
         }
-        
+    }
+    
+    public func evaluateAuthentication() throws -> TokenResponse {
         guard let authState = authState else {
             throw LoginError.generic(description: authError?.localizedDescription ?? "Unknown error")
         }
+        
         guard let token = authState.lastTokenResponse,
               let accessToken = token.accessToken,
               let refreshToken = token.refreshToken,
@@ -61,7 +64,12 @@ public final class AppAuthSession: LoginSession {
               let tokenType = token.tokenType else {
             throw LoginError.generic(description: "Missing authState property")
         }
-        return TokenResponse(accessToken: accessToken, refreshToken: refreshToken, idToken: idToken, tokenType: tokenType, expiresIn: 180)
+        
+        return TokenResponse(accessToken: accessToken,
+                             refreshToken: refreshToken,
+                             idToken: idToken,
+                             tokenType: tokenType,
+                             expiresIn: 180)
     }
     
     @MainActor
