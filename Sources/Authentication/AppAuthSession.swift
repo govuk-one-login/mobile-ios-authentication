@@ -60,7 +60,6 @@ public final class AppAuthSession: LoginSession {
                 
         guard let token = authState.lastTokenResponse,
               let accessToken = token.accessToken,
-              let refreshToken = token.refreshToken,
               let idToken = token.idToken,
               let tokenType = token.tokenType else {
             continuation?.resume(throwing: LoginError.generic(description: "Missing authState property"))
@@ -68,7 +67,7 @@ public final class AppAuthSession: LoginSession {
         }
         
         continuation?.resume(returning: TokenResponse(accessToken: accessToken,
-                                                      refreshToken: refreshToken,
+                                                      refreshToken: authState.refreshToken,
                                                       idToken: idToken,
                                                       tokenType: tokenType,
                                                       expiresIn: 180))
