@@ -49,7 +49,7 @@ public final class AppAuthSession: LoginSession {
     
     private func evaluateAuthentication(authState: OIDAuthState?, error: Error?) {
         if let error {
-            continuation?.resume(throwing: error)
+            continuation?.resume(throwing: LoginError.generic(description: error.localizedDescription))
             return
         }
         
