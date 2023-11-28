@@ -5,8 +5,7 @@ import AppAuth
 public final class AppAuthSession: LoginSession {
     private let window: UIWindow
     private var flow: OIDExternalUserAgentSession?
-    private var authState: OIDAuthState?
-    private var authError: Error?
+    private var continuation: CheckedContinuation<TokenResponse, Error>?
     
     /// - Parameters:
     ///    - window: UIWindow with a root view controller where you wish to show the login dialog
@@ -32,9 +31,9 @@ public final class AppAuthSession: LoginSession {
         let request = OIDAuthorizationRequest(
             configuration: config,
             clientId: configuration.clientID,
-            scopes: [OIDScopeOpenID],
+            scopes: configuration.scopes.map(\.rawValue),
             redirectURL: URL(string: configuration.redirectURI)!,
-            responseType: OIDResponseTypeCode,
+            responseType: configuration.responseType.rawValue,
             additionalParameters: [
                 "vtr": configuration.vectorsOfTrust.description,
                 "ui_locales": configuration.locale.rawValue
@@ -44,22 +43,19 @@ public final class AppAuthSession: LoginSession {
         flow = OIDAuthState.authState(byPresenting: request,
                                       presenting: viewController,
                                       prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
-            if let authState = authState {
-                self.authState = authState
-            }
-            if let error = error {
-                self.authError = error
-            }
+            self.evaluateAuthentication(authState: authState, error: error)
         }
     }
     
-    public func evaluateAuthentication() throws -> TokenResponse {
-        if let authError {
-            throw authError
+    private func evaluateAuthentication(authState: OIDAuthState?, error: Error?) {
+        if let error {
+            continuation?.resume(throwing: error)
+            return
         }
         
         guard let authState = authState else {
-            throw LoginError.generic(description: "No authState")
+            continuation?.resume(throwing: LoginError.generic(description: "No authState"))
+            return
         }
                 
         guard let token = authState.lastTokenResponse,
@@ -67,20 +63,25 @@ public final class AppAuthSession: LoginSession {
               let refreshToken = token.refreshToken,
               let idToken = token.idToken,
               let tokenType = token.tokenType else {
-            throw LoginError.generic(description: "Missing authState property")
+            continuation?.resume(throwing: LoginError.generic(description: "Missing authState property"))
+            return
         }
         
-        return TokenResponse(accessToken: accessToken,
-                             refreshToken: refreshToken,
-                             idToken: idToken,
-                             tokenType: tokenType,
-                             expiresIn: 180)
+        continuation?.resume(returning: TokenResponse(accessToken: accessToken,
+                                                      refreshToken: refreshToken,
+                                                      idToken: idToken,
+                                                      tokenType: tokenType,
+                                                      expiresIn: 180))
     }
     
     @MainActor
-    public func finalise(redirectURL url: URL) {
-        if let authorizationflow = flow,
-           authorizationflow.resumeExternalUserAgentFlow(with: url) {
+    public func finalise(redirectURL url: URL) async throws -> TokenResponse {
+        guard let authorizationflow = flow else {
+            preconditionFailure()
+        }
+        return try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+            authorizationflow.resumeExternalUserAgentFlow(with: url)
             flow = nil
         }
     }
