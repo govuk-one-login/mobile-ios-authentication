@@ -32,7 +32,7 @@ public final class AppAuthSession: LoginSession {
         let request = OIDAuthorizationRequest(
             configuration: config,
             clientId: configuration.clientID,
-            scopes: configuration.scopes.map(\.rawValue),
+            scopes: [OIDScopeOpenID],
             redirectURL: URL(string: configuration.redirectURI)!,
             responseType: OIDResponseTypeCode,
             additionalParameters: [
