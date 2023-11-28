@@ -5,5 +5,4 @@ public protocol LoginSession {
     func authenticate(configuration: LoginSessionConfiguration)
     func evaluateAuthentication() throws -> TokenResponse
     func finalise(redirectURL: URL)
-    func cancel()
 }

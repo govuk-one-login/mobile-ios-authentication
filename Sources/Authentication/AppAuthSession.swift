@@ -54,11 +54,12 @@ public final class AppAuthSession: LoginSession {
     }
     
     public func evaluateAuthentication() throws -> TokenResponse {
-        guard let authState = authState else {
-            throw LoginError.generic(description: authError?.localizedDescription ?? "Unknown error")
+        if let authError {
+            throw authError
         }
         
-        guard let token = authState.lastTokenResponse,
+        guard let authState = authState,
+              let token = authState.lastTokenResponse,
               let accessToken = token.accessToken,
               let refreshToken = token.refreshToken,
               let idToken = token.idToken,
@@ -79,9 +80,5 @@ public final class AppAuthSession: LoginSession {
            authorizationflow.resumeExternalUserAgentFlow(with: url) {
             flow = nil
         }
-    }
-    
-    public func cancel() {
-        flow?.cancel()
     }
 }
