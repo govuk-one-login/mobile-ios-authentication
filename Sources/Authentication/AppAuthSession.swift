@@ -58,8 +58,11 @@ public final class AppAuthSession: LoginSession {
             throw authError
         }
         
-        guard let authState = authState,
-              let token = authState.lastTokenResponse,
+        guard let authState = authState else {
+            throw LoginError.generic(description: "No authState")
+        }
+                
+        guard let token = authState.lastTokenResponse,
               let accessToken = token.accessToken,
               let refreshToken = token.refreshToken,
               let idToken = token.idToken,
