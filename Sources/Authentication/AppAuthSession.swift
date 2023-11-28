@@ -50,11 +50,13 @@ public final class AppAuthSession: LoginSession {
     private func evaluateAuthentication(authState: OIDAuthState?, error: Error?) {
         if let error {
             continuation?.resume(throwing: LoginError.generic(description: error.localizedDescription))
+            flow?.cancel()
             return
         }
         
         guard let authState = authState else {
             continuation?.resume(throwing: LoginError.generic(description: "No authState"))
+            flow?.cancel()
             return
         }
                 
@@ -63,6 +65,7 @@ public final class AppAuthSession: LoginSession {
               let idToken = token.idToken,
               let tokenType = token.tokenType else {
             continuation?.resume(throwing: LoginError.generic(description: "Missing authState property"))
+            flow?.cancel()
             return
         }
         
