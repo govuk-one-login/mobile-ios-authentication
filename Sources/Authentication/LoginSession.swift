@@ -1,5 +1,4 @@
 import UIKit
-import AppAuthCore
 
 public protocol LoginSession {
     init(window: UIWindow)

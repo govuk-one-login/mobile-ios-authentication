@@ -23,14 +23,14 @@ final class AppAuthSessionTests: XCTestCase {
 }
 
 extension AppAuthSessionTests {
-    @MainActor 
+    @MainActor
     func test_finaliseAuthService_rejectsIncorrectStateParameter() async throws {
         sut.present(configuration: .mock)
         
         let code = UUID().uuidString
         let randomState = UUID().uuidString
         do {
-            let _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(code)&state=\(randomState)")!)
+            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(code)&state=\(randomState)")!)
         } catch LoginError.generic(let description) {
             XCTAssertTrue(description.starts(with: "State mismatch"))
         }
@@ -38,7 +38,7 @@ extension AppAuthSessionTests {
     
     func test_finalise_throwErrorWithNoAuthCode() async throws {
         do {
-            let _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         } catch LoginError.generic(let description) {
             XCTAssertTrue(description == "User Agent Session does not exist")
         }
