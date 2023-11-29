@@ -4,7 +4,7 @@ import AppAuth
 /// Uses AppAuth Libary for presentation logic of login flow and handle callbacks from auth service
 public final class AppAuthSession: LoginSession {
     private let window: UIWindow
-    private var service: OIDExternalUserAgentSession?
+    private var userAgent: OIDExternalUserAgentSession?
     private var continuation: CheckedContinuation<TokenResponse, Error>?
     
     /// - Parameters:
@@ -18,7 +18,7 @@ public final class AppAuthSession: LoginSession {
     /// - Parameters:
     ///     - configuration: object that contains your loginSessionConfiguration
     @MainActor
-    public func present(configuration: LoginSessionConfiguration) {
+    public func present(configuration: LoginSessionConfiguration, service: OIDAuthState.Type = OIDAuthState.self) {
         guard let viewController = window.rootViewController else {
             fatalError("empty vc in window, please add vc")
         }
@@ -40,35 +40,37 @@ public final class AppAuthSession: LoginSession {
             ]
         )
         
-        service = OIDAuthState.authState(byPresenting: request,
-                                              presenting: viewController,
-                                              prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
+        userAgent = service.authState(byPresenting: request,
+                                      presenting: viewController,
+                                      prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
             self.handleResponse(authState: authState, error: error)
         }
     }
     
     private func handleResponse(authState: OIDAuthState?, error: Error?) {
         if let error {
-            let loginError = LoginError.generic(description: error.localizedDescription)
-            print(loginError)
             continuation?.resume(throwing: LoginError.generic(description: error.localizedDescription))
-            service = nil
+            userAgent = nil
             return
         }
         
         guard let authState = authState else {
             continuation?.resume(throwing: LoginError.generic(description: "No authState"))
-            service = nil
+            userAgent = nil
             return
         }
         
-        guard let token = authState.lastTokenResponse,
-              let accessToken = token.accessToken,
+        guard let token = authState.lastTokenResponse else {
+            continuation?.resume(throwing: LoginError.generic(description: "Missing authState Token Response"))
+            return
+        }
+        
+        guard let accessToken = token.accessToken,
               let idToken = token.idToken,
               let tokenType = token.tokenType,
               let expiryDate = token.accessTokenExpirationDate else {
             continuation?.resume(throwing: LoginError.generic(description: "Missing authState property"))
-            service = nil
+            userAgent = nil
             return
         }
         
@@ -81,13 +83,13 @@ public final class AppAuthSession: LoginSession {
     
     @MainActor
     public func finalise(redirectURL url: URL) async throws -> TokenResponse {
-        guard let authorizationflow = service else {
+        guard let userAgent else {
             throw LoginError.generic(description: "User Agent Session does not exist")
         }
         return try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
-            authorizationflow.resumeExternalUserAgentFlow(with: url)
-            service = nil
+            userAgent.resumeExternalUserAgentFlow(with: url)
+            self.userAgent = nil
         }
     }
 }

@@ -23,6 +23,14 @@ final class AppAuthSessionTests: XCTestCase {
 }
 
 extension AppAuthSessionTests {
+    func test_finalise_throwErrorWithNoAuthCode() async throws {
+        do {
+            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        } catch LoginError.generic(let description) {
+            XCTAssertTrue(description == "User Agent Session does not exist")
+        }
+    }
+    
     @MainActor
     func test_finaliseAuthService_rejectsIncorrectStateParameter() async throws {
         sut.present(configuration: .mock)
@@ -36,11 +44,36 @@ extension AppAuthSessionTests {
         }
     }
     
-    func test_finalise_throwErrorWithNoAuthCode() async throws {
+    @MainActor
+    func test_finaliseAuthService_rejectsWhenNoAuthState() async throws {
+        sut.present(configuration: .mock, service: MockOIDAuthState_NothingReturned.self)
+
         do {
             _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         } catch LoginError.generic(let description) {
-            XCTAssertTrue(description == "User Agent Session does not exist")
+            XCTAssertTrue(description == "No authState")
+        }
+    }
+    
+    @MainActor
+    func test_finaliseAuthService_rejectsWhenAuthStateMissingToken() async throws {
+        sut.present(configuration: .mock, service: MockOIDAuthState_MissingAuthStateToken.self)
+
+        do {
+            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        } catch LoginError.generic(let description) {
+            XCTAssertTrue(description == "Missing authState Token Response")
+        }
+    }
+    
+    @MainActor
+    func test_finaliseAuthService_rejectsWhenAuthStateMissingProperty() async throws {
+        sut.present(configuration: .mock, service: MockOIDAuthState_MissingAuthStateProperty.self)
+
+        do {
+            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        } catch LoginError.generic(let description) {
+            XCTAssertTrue(description == "Missing authState property")
         }
     }
 }
