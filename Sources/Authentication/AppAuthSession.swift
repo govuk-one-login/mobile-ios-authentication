@@ -54,39 +54,54 @@ public final class AppAuthSession: LoginSession {
     }
     
     private func handleResponse(authState: OIDAuthState?, error: Error?) {
-        if let error {
-            continuation?.resume(throwing: LoginError.generic(description: error.localizedDescription))
-            userAgent = nil
-            return
+        do {
+            try checkNoError(error)
+            let authState = try checkAuthState(authState)
+            let token = try extractToken(authState: authState)
+            let tokenResponse = try generateTokenResponse(token: token, authState: authState)
+            continuation?.resume(returning: tokenResponse)
+        } catch {
+            continuation?.resume(throwing: error)
         }
-        
+    }
+
+    private func checkAuthState(_ authState: OIDAuthState?) throws -> OIDAuthState {
         guard let authState = authState else {
-            continuation?.resume(throwing: LoginError.generic(description: "No authState"))
             userAgent = nil
-            return
+            throw LoginError.generic(description: "No authState")
         }
-        
+        return authState
+    }
+
+    private func checkNoError(_ error: Error?) throws {
+        if let error {
+            userAgent = nil
+            throw LoginError.generic(description: error.localizedDescription)
+        }
+    }
+
+    private func extractToken(authState: OIDAuthState) throws -> OIDTokenResponse {
         guard let token = authState.lastTokenResponse else {
-            continuation?.resume(throwing: LoginError.generic(description: "Missing authState Token Response"))
-            return
+            throw LoginError.generic(description: "Missing authState Token Response")
         }
-        
+        return token
+    }
+
+    private func generateTokenResponse(token: OIDTokenResponse, authState: OIDAuthState) throws -> TokenResponse {
         guard let accessToken = token.accessToken,
               let idToken = token.idToken,
               let tokenType = token.tokenType,
               let expiryDate = token.accessTokenExpirationDate else {
-            continuation?.resume(throwing: LoginError.generic(description: "Missing authState property"))
             userAgent = nil
-            return
+            throw LoginError.generic(description: "Missing authState property")
         }
-        
-        continuation?.resume(returning: TokenResponse(accessToken: accessToken,
-                                                      refreshToken: authState.refreshToken,
-                                                      idToken: idToken,
-                                                      tokenType: tokenType,
-                                                      expiresIn: Int(expiryDate.timeIntervalSince(Date()))))
+        return TokenResponse(accessToken: accessToken,
+                             refreshToken: authState.refreshToken,
+                             idToken: idToken,
+                             tokenType: tokenType,
+                             expiresIn: Int(expiryDate.timeIntervalSince(Date())))
     }
-    
+
     @MainActor
     public func finalise(redirectURL url: URL) async throws -> TokenResponse {
         guard let userAgent else {
