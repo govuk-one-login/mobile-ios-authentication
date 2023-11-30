@@ -74,7 +74,7 @@ The struct also contains three enums to handle the language, the response and th
 
 A class to handle the login flow with the given auth provider and conforms to the `LoginSession` protocol. It uses the `UIWindow` to know where to display the login dialogue.
 
-`present` takes configuration, which comes from `LoginSessionConfiguration`, and service, which by default assigns `authState` so that it can be updated during the callback later on, as parameters and contains the login information to make the request. 
+`present` takes configuration, which comes from `LoginSessionConfiguration`, as a parameter and contains the login information to make the request. 
 
 `finalise` takes a URL to redirect to as a parameter and returns a token response. The `userAgent` is assigned during the private `handleResponse` method and an error is thrown should this be nil. Otherwise, the token response is returned. 
 

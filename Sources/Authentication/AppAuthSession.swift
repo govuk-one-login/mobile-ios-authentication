@@ -96,10 +96,10 @@ public final class AppAuthSession: LoginSession {
             throw LoginError.generic(description: "Missing authState property")
         }
         return TokenResponse(accessToken: accessToken,
-                             refreshToken: authState.refreshToken,
-                             idToken: idToken,
-                             tokenType: tokenType,
-                             expiresIn: Int(expiryDate.timeIntervalSince(Date())))
+                       refreshToken: authState.refreshToken,
+                       idToken: idToken,
+                       tokenType: tokenType,
+                       expiryDate: expiryDate)
     }
 
     @MainActor
