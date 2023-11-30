@@ -12,13 +12,19 @@ public final class AppAuthSession: LoginSession {
     public init(window: UIWindow) {
         self.window = window
     }
-    
+
+    // Ensures `present` is public and can be called by the app
     /// Shows the login dialog
     ///
     /// - Parameters:
     ///     - configuration: object that contains your loginSessionConfiguration
+    @MainActor public func present(configuration: LoginSessionConfiguration) {
+        present(configuration: configuration, service: OIDAuthState.self)
+    }
+    
+    // This is here for testing and allows `service` to be mocked
     @MainActor
-    public func present(configuration: LoginSessionConfiguration, service: OIDAuthState.Type = OIDAuthState.self) {
+    func present(configuration: LoginSessionConfiguration, service: OIDAuthState.Type = OIDAuthState.self) {
         guard let viewController = window.rootViewController else {
             fatalError("empty vc in window, please add vc")
         }
