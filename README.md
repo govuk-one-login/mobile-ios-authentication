@@ -54,6 +54,7 @@ Handles creating the `config` found in `LoginSession`. It requires the following
 
 ```swift
   let authorizationEndpoint: URL
+  let tokenEndpoint: URL
   let responseType: ResponseType
   let scopes: [Scope]
    
@@ -63,7 +64,6 @@ Handles creating the `config` found in `LoginSession`. It requires the following
    
   let redirectURI: String
    
-  let nonce: String
   let vectorsOfTrust: String
   let locale: UILocale
 ```
@@ -76,7 +76,7 @@ A class to handle the login flow with the given auth provider and conforms to th
 
 `present` takes configuration, which comes from `LoginSessionConfiguration`, as a parameter and contains the login information to make the request. 
 
-`finalise` takes a URL to redirect to as a parameter and returns a token response. The `userAgent` is assigned during the private `handleResponse` method and an error is thrown should this be nil. Otherwise, the token response is returned. 
+`finalise` takes a URL to redirect to as a parameter and returns a token response. If `userAgent` was not assigned inside the `present` method an error is thrown. Otherwise, the token response is returned. 
 
 ## Example Implementation
 
@@ -104,7 +104,6 @@ let configuration = LoginSessionConfiguration(authorizationEndpoint: url,
                                               clientID: "someClientID",
                                               prefersEphemeralWebSession: true,
                                               redirectURI: "someRedirectURI",
-                                              nonce: "someNonce",
                                               vectorsOfTrust: "someVectorOfTrust",
                                               locale: .en)
                                               
