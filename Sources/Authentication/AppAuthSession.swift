@@ -1,7 +1,7 @@
 import AppAuth
 
 /// AppAuthSession object handle login flow with given auth provider
-/// Uses AppAuth Libary for presentation logic of login flow and handle callbacks from auth service
+/// Uses AppAuth Libary for presentation logic of login flow and handle redirects from auth service
 public final class AppAuthSession: LoginSession {
     private let window: UIWindow
     private var userAgent: OIDExternalUserAgentSession?
@@ -13,17 +13,17 @@ public final class AppAuthSession: LoginSession {
         self.window = window
     }
     
-    // Ensures `present` is public and can be called by the app
-    /// Shows the login dialog
+    /// Ensures `present` is public and can be called by the app
+    /// Presents the login modal
     ///
     /// - Parameters:
-    ///     - configuration: object that contains your loginSessionConfiguration
-    @MainActor 
+    ///     - configuration: object that contains your LoginSessionConfiguration
+    @MainActor
     public func present(configuration: LoginSessionConfiguration) {
         present(configuration: configuration, service: OIDAuthState.self)
     }
     
-    // This is here for testing and allows `service` to be mocked
+    /// This is here for testing and allows `service` to be mocked
     @MainActor
     func present(configuration: LoginSessionConfiguration, service: OIDAuthState.Type = OIDAuthState.self) {
         guard let viewController = window.rootViewController else {
@@ -51,6 +51,23 @@ public final class AppAuthSession: LoginSession {
                                       presenting: viewController,
                                       prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
             self.handleResponse(authState: authState, error: error)
+        }
+    }
+    
+    /// Ensures `finalise` is public and can be called by the app
+    /// Handles the redirect URL from the login modal
+    ///
+    /// - Parameter url: redirect URL from login modal
+    /// - Returns: TokenResponse, tokens for the session
+    @MainActor
+    public func finalise(redirectURL url: URL) async throws -> TokenResponse {
+        guard let userAgent else {
+            throw LoginError.generic(description: "User Agent Session does not exist")
+        }
+        return try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+            userAgent.resumeExternalUserAgentFlow(with: url)
+            self.userAgent = nil
         }
     }
     
@@ -101,17 +118,5 @@ public final class AppAuthSession: LoginSession {
                              idToken: idToken,
                              tokenType: tokenType,
                              expiryDate: expiryDate)
-    }
-    
-    @MainActor
-    public func finalise(redirectURL url: URL) async throws -> TokenResponse {
-        guard let userAgent else {
-            throw LoginError.generic(description: "User Agent Session does not exist")
-        }
-        return try await withCheckedThrowingContinuation { continuation in
-            self.continuation = continuation
-            userAgent.resumeExternalUserAgentFlow(with: url)
-            self.userAgent = nil
-        }
     }
 }
