@@ -2,7 +2,6 @@
 import XCTest
 
 final class AppAuthSessionTests: XCTestCase {
-    
     var sut: AppAuthSession!
     var config = LoginSessionConfiguration.mock
     
@@ -13,7 +12,7 @@ final class AppAuthSessionTests: XCTestCase {
         window.rootViewController = vc
         window.makeKeyAndVisible()
         
-        sut = .init(window: window, service: MockTokenService())
+        sut = .init(window: window)
     }
     
     override func tearDown() {
@@ -24,57 +23,64 @@ final class AppAuthSessionTests: XCTestCase {
 }
 
 extension AppAuthSessionTests {
-    func test_finalise_throwErrorWithNoAuthCode() async {
+    func test_finalise_throwErrorWithNoAuthCode() async throws {
         do {
-            _ = try await sut.finalise(callback: URL(string: "https://www.google.com")!)
-            XCTFail("No AuthorizationCode was set should have failed at this point")
-        } catch let error as LoginError {
-            XCTAssertEqual(error, LoginError.inconsistentStateResponse)
-        } catch {
-            XCTFail("shouldn't catch generic error")
+            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        } catch LoginError.generic(let description) {
+            XCTAssertTrue(description == "User Agent Session does not exist")
         }
     }
     
+    @MainActor
     func test_finaliseAuthService_rejectsIncorrectStateParameter() async throws {
-        let sessionConfig = LoginSessionConfiguration.mock
-        await sut.present(configuration: sessionConfig)
+        sut.present(configuration: .mock)
         
-        let randomState = UUID().uuidString
         let code = UUID().uuidString
-        
+        let randomState = UUID().uuidString
         do {
-            _ = try await sut.finalise(callback: URL(string: "https://www.google.com?code=\(code)&state=\(randomState)")!)
-            XCTFail("Expected an error to be thrown")
-        } catch LoginError.inconsistentStateResponse {
-            XCTAssertNil(sut.authorizationCode)
-            XCTAssertNil(sut.stateReponse)
-        } catch {
-            XCTFail("Unexpected error was thrown: \(error)")
+            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(code)&state=\(randomState)")!)
+        } catch LoginError.generic(let description) {
+            XCTAssertTrue(description.starts(with: "State mismatch"))
         }
     }
     
-    func test_present_authService_acquiresAuthCode() async throws {
-        let sessionConfig = LoginSessionConfiguration.mock
-        await sut.present(configuration: sessionConfig)
+    @MainActor
+    func test_finaliseAuthService_rejectsWhenNoAuthState() async throws {
+        sut.present(configuration: .mock, service: MockOIDAuthState_NothingReturned.self)
         
-        let state = try XCTUnwrap(sut.state)
-        let code = UUID().uuidString
-        let callbackURL = try XCTUnwrap(URL(string: "https://www.google.com?code=\(code)&state=\(state)"))
-        _ = try await sut.finalise(callback: callbackURL)
+        do {
+            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        } catch LoginError.generic(let description) {
+            XCTAssertTrue(description == "No authState")
+        }
+    }
+    
+    @MainActor
+    func test_finaliseAuthService_rejectsWhenAuthStateMissingToken() async throws {
+        sut.present(configuration: .mock, service: MockOIDAuthState_MissingAuthStateToken.self)
         
-        XCTAssertEqual(sut.authorizationCode, code)
-        XCTAssertEqual(sut.stateReponse, state)
+        do {
+            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        } catch LoginError.generic(let description) {
+            XCTAssertTrue(description == "Missing authState Token Response")
+        }
+    }
+    
+    @MainActor
+    func test_finaliseAuthService_rejectsWhenAuthStateMissingProperty() async throws {
+        sut.present(configuration: .mock, service: MockOIDAuthState_MissingAuthStateProperty.self)
+        
+        do {
+            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        } catch LoginError.generic(let description) {
+            XCTAssertTrue(description == "Missing authState property")
+        }
     }
 }
 
 extension LoginSessionConfiguration {
     static let mock = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
                                                 tokenEndpoint: URL(string: "https://www.google.com/token")!,
-                                                responseType: .code,
-                                                scopes: [.email, .offline_access, .phone, .openid],
                                                 clientID: "1234",
-                                                prefersEphemeralWebSession: true,
-                                                redirectURI: "https://www.google.com",
-                                                vectorsOfTrust: ["1234"],
-                                                locale: .en)
+                                                redirectURI: "https://www.google.com")
 }

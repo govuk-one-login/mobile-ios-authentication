@@ -54,6 +54,7 @@ Handles creating the `config` found in `LoginSession`. It requires the following
 
 ```swift
   let authorizationEndpoint: URL
+  let tokenEndpoint: URL
   let responseType: ResponseType
   let scopes: [Scope]
    
@@ -63,7 +64,6 @@ Handles creating the `config` found in `LoginSession`. It requires the following
    
   let redirectURI: String
    
-  let nonce: String
   let vectorsOfTrust: String
   let locale: UILocale
 ```
@@ -72,17 +72,17 @@ The struct also contains three enums to handle the language, the response and th
 
 #### AppAuthSession
 
-A class to handle the login flow with the given auth provider and conforms to the `LoginSession` protocol. It uses the `UIWindow` to know where to display the login dialogue.
+A class to handle the login flow with the given auth provider and conforms to the `LoginSession` protocol. It uses the `UIWindow` to know where to display the login modal.
 
-`present` takes configuration as a parameter, which comes from `LoginSessionConfiguration` and contains the login information to make the request. 
+`present` takes configuration, which comes from `LoginSessionConfiguration`, as a parameter and contains the login information to make the request. 
 
-`finalise` takes a URL as a callback and returns a token response. However, if no authorization code is found, an error will be thrown.
+`finalise` takes a URL to redirect to as a parameter and returns a token response. If `userAgent` was not assigned inside the `present` method an error is thrown. Otherwise, the token response is returned. 
 
 ## Example Implementation
 
 ### How to use the Authentication package
 
-To use the Authentication package, first make sure your module or app has a dependency on Authentication and UserDetails and import both into the relevant file(s). Next, initialise an instance of LoginSession and LoginSessionConfiguration, then call `present` on your session, with the configuration as a parameter.
+To use the Authentication package, first, make sure your module or app has a dependency on Authentication and UserDetails and import both into the relevant file(s). Next, initialise an instance of AppAuthSession (which conforms to LoginSession) and LoginSessionConfiguration, then call `present` on your session, with the configuration as a parameter.
 
 ```swift
 import Authentication
@@ -104,7 +104,6 @@ let configuration = LoginSessionConfiguration(authorizationEndpoint: url,
                                               clientID: "someClientID",
                                               prefersEphemeralWebSession: true,
                                               redirectURI: "someRedirectURI",
-                                              nonce: "someNonce",
                                               vectorsOfTrust: "someVectorOfTrust",
                                               locale: .en)
                                               
@@ -112,7 +111,7 @@ session.present(configuration: configuration)
 
 ```
 
-Your code should include a callback handler method in either the SceneDelegate or AppDelegate. Therefore, once `present` has been called and the user logs in, the web service will redirect to the app and the url passed back into the app is used to call `finalise`.
+Your code should include a redirect URL handler method in either the SceneDelegate or AppDelegate. Therefore, once `present` has been called, the user logs in and selects a redirect link on the login modal. The device will redirect into the app and the url is passed into the call to `finalise`.
 
 ```swift
 // SceneDelegate.swift
@@ -120,18 +119,18 @@ Your code should include a callback handler method in either the SceneDelegate o
 ...
 
 if let webURL = userActivity.webpageURL {
-  viewController?.handleCallback(url: webURL)
+  viewController?.handleCallback(redirectURL: webURL)
 }
 
 ```
 
-**Note**: Depending on how your app has been configured, the callback handler should be placed within the corresponding delegate method in each file. For example, the impletentation for [SceneDelegate](https://developer.apple.com/documentation/uikit/uiscenedelegate/3238056-scene), [AppDelegate](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623072-application) and [SwiftUI](https://developer.apple.com/documentation/swiftui/environmentvalues/openurl) is as follows:
+**Note**: Depending on how your app has been configured, the redirect URL handler should be placed within the corresponding delegate method in each file. For example, the impletentation for [SceneDelegate](https://developer.apple.com/documentation/uikit/uiscenedelegate/3238056-scene), [AppDelegate](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623072-application) and [SwiftUI](https://developer.apple.com/documentation/swiftui/environmentvalues/openurl) is as follows:
 
 ```swift
 //SceneDelegate.swift
 
 func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
-  //handle callback
+  //handle redirect URL
 }
 
 //AppDelegate.swift
@@ -139,7 +138,7 @@ func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
 func application(_ application: UIApplication, 
                 continue userActivity: NSUserActivity,
                 restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-                  // handle callback
+                  // handle redirect URL
                 }
 
 //SwiftUI
@@ -149,7 +148,7 @@ struct PlaygroundApp: App {
     WindowGroup {
       ContentView()
         .onOpenURL { url in
-          print(url)
+          // handle redirect URL
         }
     }
   }
@@ -163,7 +162,7 @@ To get a token, call the finalise method on the session. The token can then be u
 
 ```swift
 do {
-  let tokens = try await session.finalise(callback: url)
+  let tokens = try await session.finalise(redirectURL: url)
   let authenticatedClient = NetworkClient(authenticationProvider: tokens)
   let service = UserService(client: authenticatedClient)
   let userInfo = try await service.fetchUserInfo()

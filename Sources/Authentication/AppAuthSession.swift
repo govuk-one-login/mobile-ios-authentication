@@ -1,41 +1,33 @@
 import AppAuth
 
 /// AppAuthSession object handle login flow with given auth provider
-/// Uses AppAuth Libary for presentation logic of login flow and handle callbacks from auth service
+/// Uses AppAuth Libary for presentation logic of login flow and handle redirects from auth service
 public final class AppAuthSession: LoginSession {
-    let window: UIWindow
+    private let window: UIWindow
+    private var userAgent: OIDExternalUserAgentSession?
+    private var continuation: CheckedContinuation<TokenResponse, Error>?
     
-    private var flow: OIDExternalUserAgentSession?
-    private(set) var authorizationCode: String?
-    private var error: Error?
-    private(set) var state: String?
-    private(set) var stateReponse: String?
-    
-    private let service: TokenServicing
-    
-    /// convenience init uses TokenService provided by package
-    ///
     /// - Parameters:
     ///    - window: UIWindow with a root view controller where you wish to show the login dialog
-    public convenience init(window: UIWindow) {
-        self.init(window: window,
-                  service: TokenService(client: .init()))
-    }
-    
-    init(window: UIWindow, service: TokenServicing) {
+    public init(window: UIWindow) {
         self.window = window
-        self.service = service
     }
     
-    /// Shows the login dialog
+    /// Ensures `present` is public and can be called by the app
+    /// Presents the login modal
     ///
     /// - Parameters:
-    ///     - configuration: object that contains your loginSessionConfiguration
+    ///     - configuration: object that contains your LoginSessionConfiguration
     @MainActor
     public func present(configuration: LoginSessionConfiguration) {
+        present(configuration: configuration, service: OIDAuthState.self)
+    }
+    
+    /// This is here for testing and allows `service` to be mocked
+    @MainActor
+    func present(configuration: LoginSessionConfiguration, service: OIDAuthState.Type = OIDAuthState.self) {
         guard let viewController = window.rootViewController else {
-            assertionFailure("empty vc in window, please add vc")
-            return
+            fatalError("empty vc in window, please add vc")
         }
         
         let config = OIDServiceConfiguration(
@@ -48,41 +40,83 @@ public final class AppAuthSession: LoginSession {
             clientId: configuration.clientID,
             scopes: configuration.scopes.map(\.rawValue),
             redirectURL: URL(string: configuration.redirectURI)!,
-            responseType: OIDResponseTypeCode,
+            responseType: configuration.responseType.rawValue,
             additionalParameters: [
                 "vtr": configuration.vectorsOfTrust.description,
                 "ui_locales": configuration.locale.rawValue
             ]
         )
         
-        self.state = request.state
-        
-        let agent = OIDExternalUserAgentIOS(
-            presenting: viewController,
-            prefersEphemeralSession: configuration.prefersEphemeralWebSession
-        )
-        
-        flow = OIDAuthorizationService.present(request,
-                                               externalUserAgent: agent!) { [unowned self] response, error in
-            self.authorizationCode = response?.authorizationCode
-            self.stateReponse = response?.state
-            self.error = error
+        userAgent = service.authState(byPresenting: request,
+                                      presenting: viewController,
+                                      prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
+            self.handleResponse(authState: authState, error: error)
         }
     }
     
-    
+    /// Ensures `finalise` is public and can be called by the app
+    /// Handles the redirect URL from the login modal
+    ///
+    /// - Parameter url: redirect URL from login modal
+    /// - Returns: TokenResponse, tokens for the session
     @MainActor
-    public func finalise(callback url: URL) async throws -> TokenResponse {
-        flow?.resumeExternalUserAgentFlow(with: url)
-        
-        guard let authorizationCode else {
-            throw LoginError.inconsistentStateResponse
+    public func finalise(redirectURL url: URL) async throws -> TokenResponse {
+        guard let userAgent else {
+            throw LoginError.generic(description: "User Agent Session does not exist")
         }
-        return try await service
-            .fetchTokens(authorizationCode: authorizationCode)
+        return try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+            userAgent.resumeExternalUserAgentFlow(with: url)
+            self.userAgent = nil
+        }
     }
     
-    public func cancel() {
-        flow?.cancel()
+    private func handleResponse(authState: OIDAuthState?, error: Error?) {
+        do {
+            try checkNoError(error)
+            let authState = try checkAuthState(authState)
+            let token = try extractToken(authState: authState)
+            let tokenResponse = try generateTokenResponse(token: token, authState: authState)
+            continuation?.resume(returning: tokenResponse)
+        } catch {
+            continuation?.resume(throwing: error)
+        }
+    }
+    
+    private func checkNoError(_ error: Error?) throws {
+        if let error {
+            userAgent = nil
+            throw LoginError.generic(description: error.localizedDescription)
+        }
+    }
+    
+    private func checkAuthState(_ authState: OIDAuthState?) throws -> OIDAuthState {
+        guard let authState = authState else {
+            userAgent = nil
+            throw LoginError.generic(description: "No authState")
+        }
+        return authState
+    }
+    
+    private func extractToken(authState: OIDAuthState) throws -> OIDTokenResponse {
+        guard let token = authState.lastTokenResponse else {
+            throw LoginError.generic(description: "Missing authState Token Response")
+        }
+        return token
+    }
+    
+    private func generateTokenResponse(token: OIDTokenResponse, authState: OIDAuthState) throws -> TokenResponse {
+        guard let accessToken = token.accessToken,
+              let idToken = token.idToken,
+              let tokenType = token.tokenType,
+              let expiryDate = token.accessTokenExpirationDate else {
+            userAgent = nil
+            throw LoginError.generic(description: "Missing authState property")
+        }
+        return TokenResponse(accessToken: accessToken,
+                             refreshToken: authState.refreshToken,
+                             idToken: idToken,
+                             tokenType: tokenType,
+                             expiryDate: expiryDate)
     }
 }
