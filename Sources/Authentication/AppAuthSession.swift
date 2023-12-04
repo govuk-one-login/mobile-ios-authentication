@@ -18,7 +18,8 @@ public final class AppAuthSession: LoginSession {
     ///
     /// - Parameters:
     ///     - configuration: object that contains your loginSessionConfiguration
-    @MainActor public func present(configuration: LoginSessionConfiguration) {
+    @MainActor 
+    public func present(configuration: LoginSessionConfiguration) {
         present(configuration: configuration, service: OIDAuthState.self)
     }
     
@@ -65,19 +66,19 @@ public final class AppAuthSession: LoginSession {
         }
     }
     
+    private func checkNoError(_ error: Error?) throws {
+        if let error {
+            userAgent = nil
+            throw LoginError.generic(description: error.localizedDescription)
+        }
+    }
+    
     private func checkAuthState(_ authState: OIDAuthState?) throws -> OIDAuthState {
         guard let authState = authState else {
             userAgent = nil
             throw LoginError.generic(description: "No authState")
         }
         return authState
-    }
-    
-    private func checkNoError(_ error: Error?) throws {
-        if let error {
-            userAgent = nil
-            throw LoginError.generic(description: error.localizedDescription)
-        }
     }
     
     private func extractToken(authState: OIDAuthState) throws -> OIDTokenResponse {
