@@ -12,7 +12,7 @@ public final class AppAuthSession: LoginSession {
     public init(window: UIWindow) {
         self.window = window
     }
-
+    
     // Ensures `present` is public and can be called by the app
     /// Shows the login dialog
     ///
@@ -64,7 +64,7 @@ public final class AppAuthSession: LoginSession {
             continuation?.resume(throwing: error)
         }
     }
-
+    
     private func checkAuthState(_ authState: OIDAuthState?) throws -> OIDAuthState {
         guard let authState = authState else {
             userAgent = nil
@@ -72,21 +72,21 @@ public final class AppAuthSession: LoginSession {
         }
         return authState
     }
-
+    
     private func checkNoError(_ error: Error?) throws {
         if let error {
             userAgent = nil
             throw LoginError.generic(description: error.localizedDescription)
         }
     }
-
+    
     private func extractToken(authState: OIDAuthState) throws -> OIDTokenResponse {
         guard let token = authState.lastTokenResponse else {
             throw LoginError.generic(description: "Missing authState Token Response")
         }
         return token
     }
-
+    
     private func generateTokenResponse(token: OIDTokenResponse, authState: OIDAuthState) throws -> TokenResponse {
         guard let accessToken = token.accessToken,
               let idToken = token.idToken,
@@ -96,12 +96,12 @@ public final class AppAuthSession: LoginSession {
             throw LoginError.generic(description: "Missing authState property")
         }
         return TokenResponse(accessToken: accessToken,
-                       refreshToken: authState.refreshToken,
-                       idToken: idToken,
-                       tokenType: tokenType,
-                       expiryDate: expiryDate)
+                             refreshToken: authState.refreshToken,
+                             idToken: idToken,
+                             tokenType: tokenType,
+                             expiryDate: expiryDate)
     }
-
+    
     @MainActor
     public func finalise(redirectURL url: URL) async throws -> TokenResponse {
         guard let userAgent else {

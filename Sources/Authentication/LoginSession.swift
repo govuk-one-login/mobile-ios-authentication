@@ -1,4 +1,3 @@
-import AppAuthCore
 import UIKit
 
 public protocol LoginSession {

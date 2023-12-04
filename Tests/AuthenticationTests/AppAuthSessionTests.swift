@@ -47,7 +47,7 @@ extension AppAuthSessionTests {
     @MainActor
     func test_finaliseAuthService_rejectsWhenNoAuthState() async throws {
         sut.present(configuration: .mock, service: MockOIDAuthState_NothingReturned.self)
-
+        
         do {
             _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         } catch LoginError.generic(let description) {
@@ -58,7 +58,7 @@ extension AppAuthSessionTests {
     @MainActor
     func test_finaliseAuthService_rejectsWhenAuthStateMissingToken() async throws {
         sut.present(configuration: .mock, service: MockOIDAuthState_MissingAuthStateToken.self)
-
+        
         do {
             _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         } catch LoginError.generic(let description) {
@@ -69,7 +69,7 @@ extension AppAuthSessionTests {
     @MainActor
     func test_finaliseAuthService_rejectsWhenAuthStateMissingProperty() async throws {
         sut.present(configuration: .mock, service: MockOIDAuthState_MissingAuthStateProperty.self)
-
+        
         do {
             _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         } catch LoginError.generic(let description) {
