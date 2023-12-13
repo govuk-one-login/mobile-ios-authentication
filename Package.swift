@@ -14,25 +14,25 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/openid/AppAuth-iOS.git",
                  branch: "master"),
-        .package(url: "https://github.com/alphagov/di-mobile-ios-networking",
+        .package(url: "https://github.com/govuk-one-login/mobile-ios-networking.git",
                 branch: "main")
     ],
     targets: [
         .target(name: "Authentication",
                 dependencies: [
                     .product(name: "AppAuth", package: "AppAuth-iOS"),
-                    .product(name: "Networking", package: "di-mobile-ios-networking")
+                    .product(name: "Networking", package: "mobile-ios-networking")
                 ]),
         .testTarget(name: "AuthenticationTests",
                     dependencies: [
                         "Authentication",
                         "UserDetails",
-                        .product(name: "MockNetworking", package: "di-mobile-ios-networking")
+                        .product(name: "MockNetworking", package: "mobile-ios-networking")
                     ]),
         
         .target(name: "UserDetails",
                dependencies: [
-                .product(name: "Networking", package: "di-mobile-ios-networking")
+                .product(name: "Networking", package: "mobile-ios-networking")
                ])
     ]
 )

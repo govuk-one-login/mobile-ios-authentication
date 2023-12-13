@@ -10,12 +10,12 @@
       }
     },
     {
-      "identity" : "di-mobile-ios-networking",
+      "identity" : "mobile-ios-networking",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/alphagov/di-mobile-ios-networking",
+      "location" : "https://github.com/govuk-one-login/mobile-ios-networking.git",
       "state" : {
         "branch" : "main",
-        "revision" : "d248dca8944e0d61be3c0e27060ca9b0cdef023b"
+        "revision" : "8724c7ffcbc2546e3b1fa57f1021769e12b475ea"
       }
     }
   ],
