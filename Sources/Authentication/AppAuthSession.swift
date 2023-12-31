@@ -19,13 +19,13 @@ public final class AppAuthSession: LoginSession {
     /// - Parameters:
     ///     - configuration: object that contains your LoginSessionConfiguration
     @MainActor
-    public func present(configuration: LoginSessionConfiguration) throws {
-        try present(configuration: configuration, service: OIDAuthState.self)
+    public func present(configuration: LoginSessionConfiguration) async throws {
+        try await present(configuration: configuration, service: OIDAuthState.self)
     }
     
     /// This is here for testing and allows `service` to be mocked
     @MainActor
-    func present(configuration: LoginSessionConfiguration, service: OIDAuthState.Type = OIDAuthState.self) throws {
+    func present(configuration: LoginSessionConfiguration, service: OIDAuthState.Type = OIDAuthState.self) async throws {
         guard let viewController = window.rootViewController else {
             fatalError("empty vc in window, please add vc")
         }
@@ -47,10 +47,13 @@ public final class AppAuthSession: LoginSession {
             ]
         )
         
-        userAgent = service.authState(byPresenting: request,
-                                      presenting: viewController,
-                                      prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
-            self.handleResponse(authState: authState, error: error)
+        _ = try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+            userAgent = service.authState(byPresenting: request,
+                                          presenting: viewController,
+                                          prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
+                self.handleResponse(authState: authState, error: error)
+            }
         }
     }
     

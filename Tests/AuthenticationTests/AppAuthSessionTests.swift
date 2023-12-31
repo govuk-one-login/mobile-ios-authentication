@@ -33,7 +33,7 @@ extension AppAuthSessionTests {
     
     @MainActor
     func test_finaliseAuthService_rejectsIncorrectStateParameter() async throws {
-        try sut.present(configuration: .mock)
+        try await sut.present(configuration: .mock)
         
         let code = UUID().uuidString
         let randomState = UUID().uuidString
@@ -46,7 +46,7 @@ extension AppAuthSessionTests {
     
     @MainActor
     func test_finaliseAuthService_rejectsWhenNoAuthState() async throws {
-        try sut.present(configuration: .mock, service: MockOIDAuthState_NothingReturned.self)
+        try await sut.present(configuration: .mock, service: MockOIDAuthState_NothingReturned.self)
         
         do {
             _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
@@ -57,7 +57,7 @@ extension AppAuthSessionTests {
     
     @MainActor
     func test_finaliseAuthService_rejectsWhenAuthStateMissingToken() async throws {
-        try sut.present(configuration: .mock, service: MockOIDAuthState_MissingAuthStateToken.self)
+        try await sut.present(configuration: .mock, service: MockOIDAuthState_MissingAuthStateToken.self)
         
         do {
             _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
@@ -68,7 +68,7 @@ extension AppAuthSessionTests {
     
     @MainActor
     func test_finaliseAuthService_rejectsWhenAuthStateMissingProperty() async throws {
-        try sut.present(configuration: .mock, service: MockOIDAuthState_MissingAuthStateProperty.self)
+        try await sut.present(configuration: .mock, service: MockOIDAuthState_MissingAuthStateProperty.self)
         
         do {
             _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
