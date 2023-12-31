@@ -19,13 +19,13 @@ public final class AppAuthSession: LoginSession {
     /// - Parameters:
     ///     - configuration: object that contains your LoginSessionConfiguration
     @MainActor
-    public func present(configuration: LoginSessionConfiguration) {
-        present(configuration: configuration, service: OIDAuthState.self)
+    public func present(configuration: LoginSessionConfiguration) throws {
+        try present(configuration: configuration, service: OIDAuthState.self)
     }
     
     /// This is here for testing and allows `service` to be mocked
     @MainActor
-    func present(configuration: LoginSessionConfiguration, service: OIDAuthState.Type = OIDAuthState.self) {
+    func present(configuration: LoginSessionConfiguration, service: OIDAuthState.Type = OIDAuthState.self) throws {
         guard let viewController = window.rootViewController else {
             fatalError("empty vc in window, please add vc")
         }
