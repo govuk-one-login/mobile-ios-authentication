@@ -54,9 +54,9 @@ public final class AppAuthSession: LoginSession {
                                           prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
                 self.handleResponse(authState: authState, error: error)
             }
-            self.continuation = nil
         }
-        self.userAgent = nil
+        continuation = nil
+        userAgent = nil
     }
     
     /// Ensures `finalise` is public and can be called by the app
