@@ -56,8 +56,10 @@ public final class AppAuthSession: LoginSession {
                 do {
                     let response = try self.handleResponse(authState: authState, error: error)
                     continuation.resume(returning: response)
+                    self.userAgent = nil
                 } catch {
                     continuation.resume(throwing: error)
+                    self.userAgent = nil
                 }
             }
         }
@@ -74,27 +76,24 @@ public final class AppAuthSession: LoginSession {
             throw LoginError.generic(description: "User Agent Session does not exist")
         }
         userAgent.resumeExternalUserAgentFlow(with: url)
-        self.userAgent = nil
     }
     
     private func handleResponse(authState: OIDAuthState?, error: Error?) throws -> TokenResponse {
-        try checkNoError(error)
+        try handleIfError(error)
         let authState = try checkAuthState(authState)
         let token = try extractToken(authState: authState)
         let tokenResponse = try generateTokenResponse(token: token, authState: authState)
         return tokenResponse
     }
     
-    private func checkNoError(_ error: Error?) throws {
+    private func handleIfError(_ error: Error?) throws {
         if let error {
-            userAgent = nil
             throw LoginError.generic(description: error.localizedDescription)
         }
     }
     
     private func checkAuthState(_ authState: OIDAuthState?) throws -> OIDAuthState {
-        guard let authState = authState else {
-            userAgent = nil
+        guard let authState else {
             throw LoginError.generic(description: "No authState")
         }
         return authState
@@ -112,7 +111,6 @@ public final class AppAuthSession: LoginSession {
               let idToken = token.idToken,
               let tokenType = token.tokenType,
               let expiryDate = token.accessTokenExpirationDate else {
-            userAgent = nil
             throw LoginError.generic(description: "Missing authState property")
         }
         return TokenResponse(accessToken: accessToken,

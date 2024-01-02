@@ -7,6 +7,7 @@ final class LoginSessionConfigurationTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
+        
         sut = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
                                         tokenEndpoint: URL(string: "https://www.google.com/token")!,
                                         responseType: .code,
