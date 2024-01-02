@@ -2,6 +2,6 @@ import UIKit
 
 public protocol LoginSession {
     init(window: UIWindow)
-    func present(configuration: LoginSessionConfiguration) async throws
-    func finalise(redirectURL url: URL) async throws -> TokenResponse
+    func performLoginFlow(configuration: LoginSessionConfiguration) async throws -> TokenResponse
+    func finalise(redirectURL url: URL) throws
 }

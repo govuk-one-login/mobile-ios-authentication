@@ -32,24 +32,34 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_finaliseAuthService_rejectsIncorrectStateParameter() async throws {
-        try await sut.present(configuration: .mock)
+    func test_finaliseAuthService_rejectsIncorrectStateParameter() throws {
+        let exp = expectation(description: "wait for token response")
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(configuration: .mock)
+            } catch LoginError.generic(let description) {
+                XCTAssertTrue(description.starts(with: "State mismatch"))
+                exp.fulfill()
+            }
+        }
+        
+        waitForTruth(self.sut.isActive, timeout: 2)
         
         let code = UUID().uuidString
         let randomState = UUID().uuidString
-        do {
-            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(code)&state=\(randomState)")!)
-        } catch LoginError.generic(let description) {
-            XCTAssertTrue(description.starts(with: "State mismatch"))
-        }
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(code)&state=\(randomState)")!)
+        
+        wait(for: [exp], timeout: 2)
     }
     
     @MainActor
     func test_finaliseAuthService_rejectsWhenNoAuthState() async throws {
-        try await sut.present(configuration: .mock, service: MockOIDAuthState_NothingReturned.self)
+        Task {
+            try await sut.performLoginFlow(configuration: .mock)
+        }
         
         do {
-            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+            try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         } catch LoginError.generic(let description) {
             XCTAssertTrue(description == "No authState")
         }
@@ -57,10 +67,12 @@ extension AppAuthSessionTests {
     
     @MainActor
     func test_finaliseAuthService_rejectsWhenAuthStateMissingToken() async throws {
-        try await sut.present(configuration: .mock, service: MockOIDAuthState_MissingAuthStateToken.self)
+        Task {
+            try await sut.performLoginFlow(configuration: .mock)
+        }
         
         do {
-            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+            try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         } catch LoginError.generic(let description) {
             XCTAssertTrue(description == "Missing authState Token Response")
         }
@@ -68,10 +80,12 @@ extension AppAuthSessionTests {
     
     @MainActor
     func test_finaliseAuthService_rejectsWhenAuthStateMissingProperty() async throws {
-        try await sut.present(configuration: .mock, service: MockOIDAuthState_MissingAuthStateProperty.self)
+        Task {
+            try await sut.performLoginFlow(configuration: .mock)
+        }
         
         do {
-            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+            try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         } catch LoginError.generic(let description) {
             XCTAssertTrue(description == "Missing authState property")
         }
