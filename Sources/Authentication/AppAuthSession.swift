@@ -53,6 +53,7 @@ public final class AppAuthSession: LoginSession {
                                           presenting: viewController,
                                           prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
                 self.handleResponse(authState: authState, error: error)
+                self.continuation = nil
             }
         }
     }
