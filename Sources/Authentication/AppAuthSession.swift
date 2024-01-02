@@ -55,8 +55,6 @@ public final class AppAuthSession: LoginSession {
                 self.handleResponse(authState: authState, error: error)
             }
         }
-        continuation = nil
-        userAgent = nil
     }
     
     /// Ensures `finalise` is public and can be called by the app
