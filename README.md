@@ -74,9 +74,9 @@ The struct also contains three enums to handle the language, the response and th
 
 A class to handle the login flow with the given auth provider and conforms to the `LoginSession` protocol. It uses the `UIWindow` to know where to display the login modal.
 
-`present` takes configuration, which comes from `LoginSessionConfiguration`, as a parameter and contains the login information to make the request. 
+`performLoginFlow` takes configuration, which comes from `LoginSessionConfiguration`, as a parameter and contains the login information to make the request. Any errors received in the authorization flow through the openID package are thrown. Otherwise, the token response is returned.
 
-`finalise` takes a URL to redirect to as a parameter and returns a token response. If `userAgent` was not assigned inside the `present` method an error is thrown. Otherwise, the token response is returned. 
+`finalise` takes a URL to redirect to as a parameter and returns a token response. If `userAgent` was not assigned inside the `present` method an error is thrown.
 
 ## Example Implementation
 
@@ -107,11 +107,11 @@ let configuration = LoginSessionConfiguration(authorizationEndpoint: url,
                                               vectorsOfTrust: "someVectorOfTrust",
                                               locale: .en)
                                               
-session.present(configuration: configuration)
+session.performLoginFlow(configuration: configuration)
 
 ```
 
-Your code should include a redirect URL handler method in either the SceneDelegate or AppDelegate. Therefore, once `present` has been called, the user logs in and selects a redirect link on the login modal. The device will redirect into the app and the url is passed into the call to `finalise`.
+Your code should include a redirect URL handler method in either the SceneDelegate or AppDelegate. Therefore, once `performLoginFlow` has been called, the user logs in and selects a redirect link on the login modal. The device will redirect into the app and the url is passed into the call to `finalise`.
 
 ```swift
 // SceneDelegate.swift

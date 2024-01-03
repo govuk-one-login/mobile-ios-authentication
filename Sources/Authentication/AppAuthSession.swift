@@ -15,7 +15,7 @@ public final class AppAuthSession: LoginSession {
         self.window = window
     }
     
-    /// Ensures `present` is public and can be called by the app
+    /// Ensures `performLoginFlow` is public and can be called by the app
     /// Presents the login modal
     ///
     /// - Parameters:
@@ -56,11 +56,10 @@ public final class AppAuthSession: LoginSession {
                 do {
                     let response = try self.handleResponse(authState: authState, error: error)
                     continuation.resume(returning: response)
-                    self.userAgent = nil
                 } catch {
                     continuation.resume(throwing: error)
-                    self.userAgent = nil
                 }
+                self.userAgent = nil
             }
         }
     }
