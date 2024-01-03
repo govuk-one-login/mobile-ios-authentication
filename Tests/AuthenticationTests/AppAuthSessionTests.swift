@@ -37,10 +37,14 @@ extension AppAuthSessionTests {
         Task {
             do {
                 _ = try await sut.performLoginFlow(configuration: .mock)
+                XCTFail("Expected state mismatch error, got success")
             } catch LoginError.generic(let description) {
                 XCTAssertTrue(description.starts(with: "State mismatch"))
-                exp.fulfill()
+            } catch {
+                XCTFail("Expected state mismatch error, got \(error)")
             }
+            
+            exp.fulfill()
         }
         
         waitForTruth(self.sut.isActive, timeout: 2)
