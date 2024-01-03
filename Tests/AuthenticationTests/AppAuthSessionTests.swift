@@ -32,7 +32,7 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_finaliseAuthService_rejectsIncorrectStateParameter() throws {
+    func test_authService_rejectsIncorrectStateParameter() throws {
         let exp = expectation(description: "wait for token response")
         Task {
             do {
@@ -45,15 +45,13 @@ extension AppAuthSessionTests {
         
         waitForTruth(self.sut.isActive, timeout: 2)
         
-        let code = UUID().uuidString
-        let randomState = UUID().uuidString
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(code)&state=\(randomState)")!)
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(UUID().uuidString)&state=\(UUID().uuidString)")!)
         
         wait(for: [exp], timeout: 2)
     }
     
     @MainActor
-    func test_finaliseAuthService_rejectsWhenNoAuthState() throws {
+    func test_authService_rejectsWhenNoAuthState() throws {
         let exp = expectation(description: "wait for token response")
         Task {
             do {
@@ -72,7 +70,7 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_finaliseAuthService_rejectsWhenAuthStateMissingToken() throws {
+    func test_authService_rejectsWhenAuthStateMissingToken() throws {
         let exp = expectation(description: "wait for token response")
         Task {
             do {
@@ -91,7 +89,7 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_finaliseAuthService_rejectsWhenAuthStateMissingProperty() throws {
+    func test_authService_rejectsWhenAuthStateMissingProperty() throws {
         let exp = expectation(description: "wait for token response")
         Task {
             do {
