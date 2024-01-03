@@ -27,7 +27,7 @@ public final class AppAuthSession: LoginSession {
     
     /// This is here for testing and allows `service` to be mocked
     @MainActor
-    func performLoginFlow(configuration: LoginSessionConfiguration, service: OIDAuthState.Type = OIDAuthState.self) async throws -> TokenResponse {
+    func performLoginFlow(configuration: LoginSessionConfiguration, service: OIDAuthState.Type) async throws -> TokenResponse {
         guard let viewController = window.rootViewController else {
             fatalError("empty vc in window, please add vc")
         }
