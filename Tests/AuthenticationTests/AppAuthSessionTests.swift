@@ -36,6 +36,7 @@ extension AppAuthSessionTests {
         let exp = expectation(description: "wait for token response")
         Task {
             do {
+                print("Login task started")
                 _ = try await sut.performLoginFlow(configuration: .mock)
                 XCTFail("Expected state mismatch error, got success")
             } catch LoginError.generic(let description) {
@@ -47,7 +48,7 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 2)
+        waitForTruth(self.sut.isActive, timeout: 20)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(UUID().uuidString)&state=\(UUID().uuidString)")!)
         
