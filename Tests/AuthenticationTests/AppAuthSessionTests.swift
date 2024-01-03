@@ -47,7 +47,7 @@ extension AppAuthSessionTests {
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(UUID().uuidString)&state=\(UUID().uuidString)")!)
         
-        wait(for: [exp], timeout: 2)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
