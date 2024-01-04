@@ -5,7 +5,9 @@ import AppAuth
 public final class AppAuthSession: LoginSession {
     private let window: UIWindow
     private var userAgent: OIDExternalUserAgentSession?
-    private var continuation: CheckedContinuation<TokenResponse, Error>?
+    var isActive: Bool {
+        userAgent != nil
+    }
     
     /// - Parameters:
     ///    - window: UIWindow with a root view controller where you wish to show the login dialog
@@ -13,19 +15,19 @@ public final class AppAuthSession: LoginSession {
         self.window = window
     }
     
-    /// Ensures `present` is public and can be called by the app
+    /// Ensures `performLoginFlow` is public and can be called by the app
     /// Presents the login modal
     ///
     /// - Parameters:
     ///     - configuration: object that contains your LoginSessionConfiguration
     @MainActor
-    public func present(configuration: LoginSessionConfiguration) {
-        present(configuration: configuration, service: OIDAuthState.self)
+    public func performLoginFlow(configuration: LoginSessionConfiguration) async throws -> TokenResponse {
+        try await performLoginFlow(configuration: configuration, service: OIDAuthState.self)
     }
     
     /// This is here for testing and allows `service` to be mocked
     @MainActor
-    func present(configuration: LoginSessionConfiguration, service: OIDAuthState.Type = OIDAuthState.self) {
+    func performLoginFlow(configuration: LoginSessionConfiguration, service: OIDAuthState.Type) async throws -> TokenResponse {
         guard let viewController = window.rootViewController else {
             fatalError("empty vc in window, please add vc")
         }
@@ -47,10 +49,18 @@ public final class AppAuthSession: LoginSession {
             ]
         )
         
-        userAgent = service.authState(byPresenting: request,
-                                      presenting: viewController,
-                                      prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
-            self.handleResponse(authState: authState, error: error)
+        return try await withCheckedThrowingContinuation { continuation in
+            userAgent = service.authState(byPresenting: request,
+                                          presenting: viewController,
+                                          prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
+                do {
+                    let response = try self.handleResponse(authState: authState, error: error)
+                    continuation.resume(returning: response)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+                self.userAgent = nil
+            }
         }
     }
     
@@ -60,39 +70,29 @@ public final class AppAuthSession: LoginSession {
     /// - Parameter url: redirect URL from login modal
     /// - Returns: TokenResponse, tokens for the session
     @MainActor
-    public func finalise(redirectURL url: URL) async throws -> TokenResponse {
+    public func finalise(redirectURL url: URL) throws {
         guard let userAgent else {
             throw LoginError.generic(description: "User Agent Session does not exist")
         }
-        return try await withCheckedThrowingContinuation { continuation in
-            self.continuation = continuation
-            userAgent.resumeExternalUserAgentFlow(with: url)
-            self.userAgent = nil
-        }
+        userAgent.resumeExternalUserAgentFlow(with: url)
     }
     
-    private func handleResponse(authState: OIDAuthState?, error: Error?) {
-        do {
-            try checkNoError(error)
-            let authState = try checkAuthState(authState)
-            let token = try extractToken(authState: authState)
-            let tokenResponse = try generateTokenResponse(token: token, authState: authState)
-            continuation?.resume(returning: tokenResponse)
-        } catch {
-            continuation?.resume(throwing: error)
-        }
+    private func handleResponse(authState: OIDAuthState?, error: Error?) throws -> TokenResponse {
+        try handleIfError(error)
+        let authState = try checkAuthState(authState)
+        let token = try extractToken(authState: authState)
+        let tokenResponse = try generateTokenResponse(token: token, authState: authState)
+        return tokenResponse
     }
     
-    private func checkNoError(_ error: Error?) throws {
+    private func handleIfError(_ error: Error?) throws {
         if let error {
-            userAgent = nil
             throw LoginError.generic(description: error.localizedDescription)
         }
     }
     
     private func checkAuthState(_ authState: OIDAuthState?) throws -> OIDAuthState {
-        guard let authState = authState else {
-            userAgent = nil
+        guard let authState else {
             throw LoginError.generic(description: "No authState")
         }
         return authState
@@ -110,7 +110,6 @@ public final class AppAuthSession: LoginSession {
               let idToken = token.idToken,
               let tokenType = token.tokenType,
               let expiryDate = token.accessTokenExpirationDate else {
-            userAgent = nil
             throw LoginError.generic(description: "Missing authState property")
         }
         return TokenResponse(accessToken: accessToken,

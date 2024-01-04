@@ -15,7 +15,7 @@ let package = Package(
         .package(url: "https://github.com/openid/AppAuth-iOS.git",
                  branch: "master"),
         .package(url: "https://github.com/govuk-one-login/mobile-ios-networking.git",
-                branch: "main")
+                 branch: "main")
     ],
     targets: [
         .target(name: "Authentication",
@@ -25,14 +25,17 @@ let package = Package(
                 ]),
         .testTarget(name: "AuthenticationTests",
                     dependencies: [
-                        "Authentication",
-                        "UserDetails",
-                        .product(name: "MockNetworking", package: "mobile-ios-networking")
+                        "Authentication"
                     ]),
         
         .target(name: "UserDetails",
-               dependencies: [
-                .product(name: "Networking", package: "mobile-ios-networking")
-               ])
+                dependencies: [
+                    .product(name: "Networking", package: "mobile-ios-networking")
+                ]),
+        .testTarget(name: "UserDetailsTests",
+                    dependencies: [
+                        "UserDetails",
+                        .product(name: "MockNetworking", package: "mobile-ios-networking")
+                    ])
     ]
 )
