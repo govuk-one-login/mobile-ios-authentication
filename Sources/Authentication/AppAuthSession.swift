@@ -87,6 +87,8 @@ public final class AppAuthSession: LoginSession {
     
     private func handleIfError(_ error: Error?) throws {
         if let error {
+            print("Whole error description: \(error)")
+            print("Localised description: \(error.localizedDescription)")
             throw LoginError.generic(description: error.localizedDescription)
         }
     }
