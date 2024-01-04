@@ -72,6 +72,7 @@ public final class AppAuthSession: LoginSession {
     @MainActor
     public func finalise(redirectURL url: URL) throws {
         guard let userAgent else {
+            self.userAgent = nil
             throw LoginError.generic(description: "User Agent Session does not exist")
         }
         userAgent.resumeExternalUserAgentFlow(with: url)
@@ -95,6 +96,17 @@ public final class AppAuthSession: LoginSession {
                     throw LoginError.userCancelled
                 case -5:
                     throw LoginError.network
+                case -6:
+                    throw LoginError.non200
+                default:
+                    break
+                }
+            case OIDOAuthAuthorizationErrorDomain:
+                switch error.code {
+                case -2:
+                    throw LoginError.invalidRequest
+                case -61439:
+                    throw LoginError.clientError
                 default:
                     break
                 }

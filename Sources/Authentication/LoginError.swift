@@ -1,5 +1,8 @@
 public enum LoginError: Error {
+    case clientError
+    case invalidRequest
     case generic(description: String)
-    case userCancelled
     case network
+    case non200
+    case userCancelled
 }
