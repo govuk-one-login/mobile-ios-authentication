@@ -88,7 +88,7 @@ public final class AppAuthSession: LoginSession {
     private func handleIfError(_ error: Error?) throws {
         if let error {
             let range = NSRange(location: 0, length: error.localizedDescription.utf16.count)
-            let regex = try! NSRegularExpression(pattern: "Code=-[0-9]")
+            let regex = try! NSRegularExpression(pattern: "error -[0-9]")
             print("Regex matching in error: \(regex.firstMatch(in: error.localizedDescription, range: range))")
             print("Whole error description: \(error)")
             print("Localised description: \(error.localizedDescription)")
