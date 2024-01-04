@@ -89,6 +89,8 @@ public final class AppAuthSession: LoginSession {
         if let error {
             print("Whole error description: \(error)")
             print("Localised description: \(error.localizedDescription)")
+            let errorCode = OIDErrorCode(rawValue: -5)
+            print(OIDErrorUtilities.error(with: errorCode!, underlyingError: nil, description: nil))
             throw LoginError.generic(description: error.localizedDescription)
         }
     }
