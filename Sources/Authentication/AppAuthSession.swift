@@ -87,41 +87,25 @@ public final class AppAuthSession: LoginSession {
     }
     
     private func handleIfError(_ error: Error?) throws {
-        switch error {
-        case .some(let error as NSError):
-            switch error.domain {
-            case OIDGeneralErrorDomain:
-                switch error.code {
-                case -3:
-                    throw LoginError.userCancelled
-                case -5:
-                    throw LoginError.network
-                case -6:
-                    throw LoginError.non200
-                default:
-                    break
-                }
-            case OIDOAuthAuthorizationErrorDomain:
-                switch error.code {
-                case -2:
-                    throw LoginError.invalidRequest
-                case -61439:
-                    throw LoginError.clientError
-                default:
-                    break
-                }
-            case OIDOAuthTokenErrorDomain:
-                switch error.code {
-                case -2:
-                    throw LoginError.invalidRequest
-                default:
-                    break
-                }
-            default:
-                throw LoginError.generic(description: error.localizedDescription)
-            }
-        case .none:
-            break
+        guard let error = error as? NSError else {
+            return
+        }
+        
+        switch (error.domain, error.code) {
+        case (OIDGeneralErrorDomain, -3):
+            throw LoginError.userCancelled
+        case (OIDGeneralErrorDomain, -5):
+            throw LoginError.network
+        case (OIDGeneralErrorDomain, -6):
+            throw LoginError.non200
+        case (OIDOAuthAuthorizationErrorDomain, -2):
+            throw LoginError.invalidRequest
+        case (OIDOAuthAuthorizationErrorDomain, -61439):
+            throw LoginError.clientError
+        case (OIDOAuthTokenErrorDomain, -2):
+            throw LoginError.invalidRequest
+        default:
+            throw LoginError.generic(description: error.localizedDescription)
         }
     }
     
