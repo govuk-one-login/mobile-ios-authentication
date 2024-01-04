@@ -110,6 +110,13 @@ public final class AppAuthSession: LoginSession {
                 default:
                     break
                 }
+            case OIDOAuthTokenErrorDomain:
+                switch error.code {
+                case -2:
+                    throw LoginError.invalidRequest
+                default:
+                    break
+                }
             default:
                 throw LoginError.generic(description: error.localizedDescription)
             }
