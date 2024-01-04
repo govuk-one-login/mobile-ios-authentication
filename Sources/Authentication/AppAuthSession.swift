@@ -86,12 +86,23 @@ public final class AppAuthSession: LoginSession {
     }
     
     private func handleIfError(_ error: Error?) throws {
-        if let error {
-            print("Whole error description: \(error)")
-            print("Localised description: \(error.localizedDescription)")
-            let errorCode = OIDErrorCode(rawValue: -5)
-            print(OIDErrorUtilities.error(with: errorCode!, underlyingError: nil, description: nil))
-            throw LoginError.generic(description: error.localizedDescription)
+        switch error {
+        case .some(let error as NSError):
+            switch error.domain {
+            case OIDGeneralErrorDomain:
+                switch error.code {
+                case -3:
+                    throw LoginError.userCancelled
+                case -5:
+                    throw LoginError.network
+                default:
+                    break
+                }
+            default:
+                throw LoginError.generic(description: error.localizedDescription)
+            }
+        case .none:
+            break
         }
     }
     
