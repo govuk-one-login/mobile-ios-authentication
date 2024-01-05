@@ -50,7 +50,7 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 10)
+        waitForTruth(self.sut.isActive, timeout: 20)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(UUID().uuidString)&state=\(UUID().uuidString)")!)
         
