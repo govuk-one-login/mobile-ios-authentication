@@ -8,7 +8,7 @@ public class MockOIDAuthState_TokenInvalidRequest: OIDAuthState {
         prefersEphemeralSession: Bool,
         callback: @escaping OIDAuthStateAuthorizationCallback
     ) -> OIDExternalUserAgentSession {
-        let session = MockOIDExternalUserAgentSession_AuthorizationInvalidRequest()
+        let session = MockOIDExternalUserAgentSession_TokenInvalidRequest()
         session.callback = callback
         return session
     }
