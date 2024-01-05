@@ -4,7 +4,6 @@ import AppAuthCore
 public class MockOIDExternalUserAgentSession_MissingAuthStateProperty: NSObject,
                                                                        OIDExternalUserAgentSession {
 // swiftlint:enable type_name
-
     var callback: OIDAuthStateAuthorizationCallback?
     
     public func cancel() { }
