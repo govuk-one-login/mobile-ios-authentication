@@ -98,12 +98,10 @@ public final class AppAuthSession: LoginSession {
             throw LoginError.network
         case (OIDGeneralErrorDomain, -6):
             throw LoginError.non200
-        case (OIDOAuthAuthorizationErrorDomain, -2):
+        case (OIDOAuthAuthorizationErrorDomain, -2), (OIDOAuthTokenErrorDomain, -2):
             throw LoginError.invalidRequest
         case (OIDOAuthAuthorizationErrorDomain, -61439):
             throw LoginError.clientError
-        case (OIDOAuthTokenErrorDomain, -2):
-            throw LoginError.invalidRequest
         default:
             throw LoginError.generic(description: error.localizedDescription)
         }
