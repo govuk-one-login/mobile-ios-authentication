@@ -41,8 +41,8 @@ extension AppAuthSessionTests {
             do {
                 _ = try await sut.performLoginFlow(configuration: .mock)
                 XCTFail("Expected state mismatch error, got success")
-            } catch LoginError.generic(let description) {
-                XCTAssertTrue(description.starts(with: "State mismatch"))
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .clientError)
             } catch {
                 XCTFail("Expected state mismatch error, got \(error)")
             }
@@ -50,9 +50,147 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 10)
+        waitForTruth(self.sut.isActive, timeout: 20)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(UUID().uuidString)&state=\(UUID().uuidString)")!)
+        
+        wait(for: [exp], timeout: 2)
+    }
+    
+    @MainActor
+    func test_authService_rejectsUserCancelled() throws {
+        let exp = expectation(description: "Wait for token response")
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(configuration: .mock, service: MockOIDAuthState_UserCancelled.self)
+                XCTFail("Expected user cancelled error, got success")
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .userCancelled)
+            } catch {
+                XCTFail("Expected user cancelled error, got \(error)")
+            }
+            
+            exp.fulfill()
+        }
+        
+        waitForTruth(self.sut.isActive, timeout: 2)
+        
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+
+        wait(for: [exp], timeout: 2)
+    }
+    
+    @MainActor
+    func test_authService_rejectsNetworkError() throws {
+        let exp = expectation(description: "Wait for token response")
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(configuration: .mock, service: MockOIDAuthState_NetworkError.self)
+                XCTFail("Expected network error, got success")
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .network)
+            } catch {
+                XCTFail("Expected network error, got \(error)")
+            }
+            
+            exp.fulfill()
+        }
+        
+        waitForTruth(self.sut.isActive, timeout: 2)
+        
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        
+        wait(for: [exp], timeout: 2)
+    }
+    
+    @MainActor
+    func test_authService_rejectsNon200() throws {
+        let exp = expectation(description: "Wait for token response")
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(configuration: .mock, service: MockOIDAuthState_Non200.self)
+                XCTFail("Expected non 200 error, got success")
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .non200)
+            } catch {
+                XCTFail("Expected non 200 error, got \(error)")
+            }
+            
+            exp.fulfill()
+        }
+        
+        waitForTruth(self.sut.isActive, timeout: 2)
+        
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        
+        wait(for: [exp], timeout: 2)
+    }
+    
+    @MainActor
+    func test_authService_rejectsAuthorizationInvalidRequest() throws {
+        let exp = expectation(description: "Wait for token response")
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(configuration: .mock, service: MockOIDAuthState_AuthorizationInvalidRequest.self)
+                XCTFail("Expected authorization invalid request error, got success")
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .invalidRequest)
+            } catch {
+                XCTFail("Expected authorization invalid request error, got \(error)")
+            }
+            
+            exp.fulfill()
+        }
+        
+        waitForTruth(self.sut.isActive, timeout: 2)
+        
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        
+        wait(for: [exp], timeout: 2)
+    }
+    
+    @MainActor
+    func test_authService_rejectsClientError() throws {
+        let exp = expectation(description: "Wait for token response")
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(configuration: .mock, service: MockOIDAuthState_ClientError.self)
+                XCTFail("Expected client error, got success")
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .clientError)
+            } catch {
+                XCTFail("Expected client error, got \(error)")
+            }
+            
+            exp.fulfill()
+        }
+        
+        waitForTruth(self.sut.isActive, timeout: 2)
+        
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        
+        wait(for: [exp], timeout: 2)
+    }
+    
+    @MainActor
+    func test_authService_rejectsTokenInvalidRequest() throws {
+        let exp = expectation(description: "Wait for token response")
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(configuration: .mock, service: MockOIDAuthState_TokenInvalidRequest.self)
+                XCTFail("Expected token invalid request error, got success")
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .invalidRequest)
+            } catch {
+                XCTFail("Expected token invalid request error, got \(error)")
+            }
+            
+            exp.fulfill()
+        }
+        
+        waitForTruth(self.sut.isActive, timeout: 2)
+        
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
         wait(for: [exp], timeout: 2)
     }

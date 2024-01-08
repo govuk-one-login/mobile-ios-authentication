@@ -72,6 +72,7 @@ public final class AppAuthSession: LoginSession {
     @MainActor
     public func finalise(redirectURL url: URL) throws {
         guard let userAgent else {
+            self.userAgent = nil
             throw LoginError.generic(description: "User Agent Session does not exist")
         }
         userAgent.resumeExternalUserAgentFlow(with: url)
@@ -86,7 +87,22 @@ public final class AppAuthSession: LoginSession {
     }
     
     private func handleIfError(_ error: Error?) throws {
-        if let error {
+        guard let error = error as? NSError else {
+            return
+        }
+        
+        switch (error.domain, error.code) {
+        case (OIDGeneralErrorDomain, -3):
+            throw LoginError.userCancelled
+        case (OIDGeneralErrorDomain, -5):
+            throw LoginError.network
+        case (OIDGeneralErrorDomain, -6):
+            throw LoginError.non200
+        case (OIDOAuthAuthorizationErrorDomain, -2), (OIDOAuthTokenErrorDomain, -2):
+            throw LoginError.invalidRequest
+        case (OIDOAuthAuthorizationErrorDomain, -61439):
+            throw LoginError.clientError
+        default:
             throw LoginError.generic(description: error.localizedDescription)
         }
     }
