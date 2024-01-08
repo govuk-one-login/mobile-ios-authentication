@@ -41,8 +41,8 @@ extension AppAuthSessionTests {
             do {
                 _ = try await sut.performLoginFlow(configuration: .mock)
                 XCTFail("Expected state mismatch error, got success")
-            } catch LoginError.clientError {
-                XCTAssertTrue(true)
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .clientError)
             } catch {
                 XCTFail("Expected state mismatch error, got \(error)")
             }
@@ -64,8 +64,8 @@ extension AppAuthSessionTests {
             do {
                 _ = try await sut.performLoginFlow(configuration: .mock, service: MockOIDAuthState_UserCancelled.self)
                 XCTFail("Expected user cancelled error, got success")
-            } catch LoginError.userCancelled {
-                XCTAssertTrue(true)
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .userCancelled)
             } catch {
                 XCTFail("Expected user cancelled error, got \(error)")
             }
@@ -87,8 +87,8 @@ extension AppAuthSessionTests {
             do {
                 _ = try await sut.performLoginFlow(configuration: .mock, service: MockOIDAuthState_NetworkError.self)
                 XCTFail("Expected network error, got success")
-            } catch LoginError.network {
-                XCTAssertTrue(true)
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .network)
             } catch {
                 XCTFail("Expected network error, got \(error)")
             }
@@ -110,8 +110,8 @@ extension AppAuthSessionTests {
             do {
                 _ = try await sut.performLoginFlow(configuration: .mock, service: MockOIDAuthState_Non200.self)
                 XCTFail("Expected non 200 error, got success")
-            } catch LoginError.non200 {
-                XCTAssertTrue(true)
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .non200)
             } catch {
                 XCTFail("Expected non 200 error, got \(error)")
             }
@@ -133,8 +133,8 @@ extension AppAuthSessionTests {
             do {
                 _ = try await sut.performLoginFlow(configuration: .mock, service: MockOIDAuthState_AuthorizationInvalidRequest.self)
                 XCTFail("Expected authorization invalid request error, got success")
-            } catch LoginError.invalidRequest {
-                XCTAssertTrue(true)
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .invalidRequest)
             } catch {
                 XCTFail("Expected authorization invalid request error, got \(error)")
             }
@@ -156,8 +156,8 @@ extension AppAuthSessionTests {
             do {
                 _ = try await sut.performLoginFlow(configuration: .mock, service: MockOIDAuthState_ClientError.self)
                 XCTFail("Expected client error, got success")
-            } catch LoginError.clientError {
-                XCTAssertTrue(true)
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .clientError)
             } catch {
                 XCTFail("Expected client error, got \(error)")
             }
@@ -179,8 +179,8 @@ extension AppAuthSessionTests {
             do {
                 _ = try await sut.performLoginFlow(configuration: .mock, service: MockOIDAuthState_TokenInvalidRequest.self)
                 XCTFail("Expected token invalid request error, got success")
-            } catch LoginError.invalidRequest {
-                XCTAssertTrue(true)
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .invalidRequest)
             } catch {
                 XCTFail("Expected token invalid request error, got \(error)")
             }
