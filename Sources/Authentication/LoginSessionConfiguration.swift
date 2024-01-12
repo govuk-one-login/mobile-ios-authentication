@@ -24,6 +24,7 @@ public struct LoginSessionConfiguration {
         case email
         case phone
         case offline_access
+        case sts
     }
     
     public enum UILocale: String {
