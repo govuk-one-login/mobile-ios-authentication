@@ -19,11 +19,27 @@ public struct LoginSessionConfiguration {
         case code
     }
     
-    public enum Scope: String, CaseIterable {
+    public enum Scope: Equatable {
         case openid
         case email
         case phone
         case offline_access
+        case custom(String)
+        
+        var rawValue: String {
+            switch self {
+            case .openid:
+                "openid"
+            case .email:
+                "email"
+            case .phone:
+                "phone"
+            case .offline_access:
+                "offline_access"
+            case .custom(let scope):
+                scope
+            }
+        }
     }
     
     public enum UILocale: String {
