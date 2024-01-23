@@ -28,7 +28,7 @@ final class AttestationService {
         do {
             attestation = try await service.attestKey(keyID!, clientDataHash: Data(SHA256.hash(data: challenge)))
         } catch {
-            print("error making network call to /challenge or Apple attest service")
+            throw AttestError.attestKey
         }
 
         // Send the attestation object to your server for verification.
@@ -51,11 +51,10 @@ final class AttestationService {
             jsonData = try JSONSerialization.data(withJSONObject: attestRequest, options: [])
             urlRequest.httpBody = jsonData
         } catch {
-            print("error serializing data: \(error)")
-            return
+            throw AttestError.serializingRequestBody
         }
         
-        // send attestation request to server
+        // Send attestation request to server
         let task = URLSession.shared.dataTask(with: urlRequest) { _, response, error in
             guard error == nil else {
                 // request sending failed, try again later
@@ -136,6 +135,8 @@ final class AttestationService {
 }
 
 enum AttestError: Error {
+    case attestKey
     case getChallenge
+    case serializingRequestBody
     case serializingChallenge
 }
