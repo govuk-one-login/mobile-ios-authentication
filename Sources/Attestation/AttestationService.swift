@@ -20,8 +20,9 @@ final class AttestationService {
     private var verificationSatisfied: Bool?
     
     public func generate() {
+        // Ensure device supports app attest
         if service.isSupported {
-            // Perform key generation and attestation.
+            // Perform key generation.
             service.generateKey { keyId, error in
                 guard error == nil else { print("error generating key"); return }
                 
@@ -33,6 +34,7 @@ final class AttestationService {
     }
     
     public func verify() async throws {
+        // Get keyId and server challenge, send to Apple and get attestation object
         guard let keyID else { throw AttestationError.noKey }
         let challenge = try await getChallenge()
         guard let attestation = try? await service.attestKey(keyID, clientDataHash: challenge) else { throw AttestationError.attestKey }
@@ -41,7 +43,7 @@ final class AttestationService {
         
         // Set up request body
         let challengeId = try serializeChallenge(challenge).challengeId
-        let attestRequest: [String: Any] = ["challengeId": challengeId, "keyId": keyID, "attestation": attestation]
+        let attestRequest: [String: Any] = [ "challengeId": challengeId, "keyId": keyID, "attestation": attestation ]
         guard let jsonData = try? JSONSerialization.data(withJSONObject: attestRequest) else { throw AttestationError.serializingRequestBody }
         
         // Set up request
@@ -65,6 +67,7 @@ final class AttestationService {
     }
     
     public func makeSignedRequest() async throws {
+        // Get keyId and ensure verification has been received
         guard let keyID else { throw AttestationError.noKey }
         guard let verificationSatisfied, verificationSatisfied else { throw AttestationError.notVerified }
         
@@ -72,7 +75,7 @@ final class AttestationService {
         
         // Set up request body
         let challenge = try await getChallenge()
-        let request = [ "challenge": challenge ]
+        let request = [ "challenge": challenge /* Add additional parts of the request along with the challenge */ ]
         guard let clientData = try? JSONEncoder().encode(request) else { throw AttestationError.serializingRequestBody }
         let clientDataHash = Data(SHA256.hash(data: clientData))
         
