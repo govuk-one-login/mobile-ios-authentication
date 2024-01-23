@@ -7,6 +7,7 @@ let package = Package(
     name: "Authentication",
     platforms: [.iOS(.v13)],
     products: [
+        .library(name: "Attestation", targets: ["Attestation"]),
         .library(name: "Authentication", targets: ["Authentication"]),
         .library(name: "UserDetails", targets: ["UserDetails"])
         
@@ -18,6 +19,11 @@ let package = Package(
                  branch: "main")
     ],
     targets: [
+        .target(name: "Attestation",
+                dependencies: [
+                    .product(name: "Networking", package: "mobile-ios-networking")
+                ]),
+        
         .target(name: "Authentication",
                 dependencies: [
                     .product(name: "AppAuth", package: "AppAuth-iOS"),
