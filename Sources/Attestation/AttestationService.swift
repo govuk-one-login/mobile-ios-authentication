@@ -8,6 +8,7 @@ enum AttestationError: Error {
     case getChallenge
     case noKey
     case notVerified
+    case network
     case serializingRequestBody
     case serializingChallenge
 }
@@ -53,20 +54,17 @@ final class AttestationService {
         urlRequest.httpBody = jsonData
         
         // Send attestation request to server
-        let task = URLSession.shared.dataTask(with: urlRequest) { _, response, error in
-            guard error == nil else {
-                // request sending failed, try again later
-                print("Failed validity checks with error: \(error!)")
-                return
-            }
-            
-            guard let httpResponse = response as? HTTPURLResponse else { return }
-            self.verificationSatisfied = httpResponse.statusCode == 200
+        do {
+            let (_, response) = try await URLSession.shared.data(for: urlRequest)
+            let httpResponse = response as? HTTPURLResponse
+            self.verificationSatisfied = httpResponse?.statusCode == 200
+        } catch {
+            // Handle errors from network call to attest endpoint
+            throw AttestationError.network
         }
-        task.resume()
     }
     
-    public func makeSignedRequest() async throws {
+    public func makeSignedRequest() async throws -> Data {
         // Get keyId and ensure verification has been received
         guard let keyID else { throw AttestationError.noKey }
         guard let verificationSatisfied, verificationSatisfied else { throw AttestationError.notVerified }
@@ -80,7 +78,7 @@ final class AttestationService {
         let clientDataHash = Data(SHA256.hash(data: clientData))
         
         guard let assertion = try? await service.generateAssertion(keyID, clientDataHash: clientDataHash) else { throw AttestationError.getAssertion }
-                
+        
         // Send the assertion and request to your server.
         
         // Set up request body
@@ -94,16 +92,12 @@ final class AttestationService {
         urlRequest.httpBody = jsonData
         
         // Send request with assertion to server
-        let task = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
-            guard error == nil else {
-                // request sending failed, try again later
-                print("Failed request with error: \(error!)")
-                return
-            }
-            
-            // Return data if successful
+        do {
+            return try await networkClient.makeRequest(urlRequest)
+        } catch {
+            // Handle errors from network call to /hello-world endpoint
+            throw AttestationError.network
         }
-        task.resume()
     }
     
     private func getChallenge() async throws -> Data {
