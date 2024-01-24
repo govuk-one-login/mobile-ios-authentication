@@ -16,12 +16,12 @@ public enum AttestationError: Error {
 
 @available(iOS 14.0, *)
 public final class AttestationService {
-    private let service = DCAppAttestService.shared
-    private let networkClient = NetworkClient()
-    private var keyID: String?
-    private var verificationSatisfied: Bool?
+    private static let service = DCAppAttestService.shared
+    private static let networkClient = NetworkClient()
+    private static var keyID: String?
+    private static var verificationSatisfied: Bool?
     
-    public func generate() async throws {
+    public static func generate() async throws {
         // Ensure device supports app attest.
         if service.isSupported {
             // Perform key generation.
@@ -35,7 +35,7 @@ public final class AttestationService {
         }
     }
     
-    public func verify() async throws {
+    public static func verify() async throws {
         // Get keyId and server challenge, send to Apple and get attestation object.
         guard let keyID else { throw AttestationError.noKey }
         
@@ -75,7 +75,7 @@ public final class AttestationService {
         }
     }
     
-    public func makeSignedRequest() async throws -> Data {
+    public static func makeSignedRequest() async throws -> Data {
         // Get keyID and ensure verification has been received.
         guard let keyID else { throw AttestationError.noKey }
         guard let verificationSatisfied, verificationSatisfied else { throw AttestationError.notVerified }
@@ -123,7 +123,7 @@ public final class AttestationService {
         }
     }
     
-    private func getChallenge() async throws -> Data {
+    private static func getChallenge() async throws -> Data {
         // Perform network call to /challenge endpoint to get challenge for encoding.
         var challengeUrlRequest = URLRequest(url: URL(string: "https://mobile.build.account.gov.uk/challenge")!)
         challengeUrlRequest.httpMethod = "GET"
@@ -134,7 +134,7 @@ public final class AttestationService {
         }
     }
     
-    private func deserializeChallenge(_ challenge: Data) throws -> Challenge {
+    private static func deserializeChallenge(_ challenge: Data) throws -> Challenge {
         // Deserialize data into Challenge object.
         do {
             return try JSONDecoder().decode(Challenge.self, from: challenge)
