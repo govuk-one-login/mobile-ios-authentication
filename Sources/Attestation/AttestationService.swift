@@ -2,7 +2,7 @@ import CryptoKit
 import DeviceCheck
 import Networking
 
-enum AttestationError: Error {
+public enum AttestationError: Error {
     case attestKey
     case getAssertion
     case getChallenge
@@ -15,7 +15,7 @@ enum AttestationError: Error {
 }
 
 @available(iOS 14.0, *)
-final class AttestationService {
+public final class AttestationService {
     private let service = DCAppAttestService.shared
     private let networkClient = NetworkClient()
     private var keyID: String?
