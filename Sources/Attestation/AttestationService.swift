@@ -51,12 +51,12 @@ final class AttestationService {
         
         // Set up request body.
         let challengeId = try deserializeChallenge(challenge).challengeId
-        let payload: [String: Any] = [
+        let payload: [String: String] = [
             "keyId": keyID,
             "challengeId": challengeId,
             "attestation": attestation.base64EncodedString()
         ]
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: payload) else { throw AttestationError.serializingRequestBody }
+        guard let jsonData = try? JSONEncoder().encode(payload) else { throw AttestationError.serializingRequestBody }
         
         // Set up request.
         var urlRequest = URLRequest(url: URL(string: "https://mobile.build.account.gov.uk/attest")!)
@@ -85,13 +85,13 @@ final class AttestationService {
         // Get assertion object from the App Attest service.
         let challenge = try await getChallenge()
         let challengeObj = try deserializeChallenge(challenge)
-        let digest: [String: Any] = [
+        let digest: [String: String] = [
             "name": "Jamie",
             "challenge": challengeObj.challenge
             // Add additional parts of the request along with the challenge.
         ]
         
-        guard let clientData = try? JSONSerialization.data(withJSONObject: digest) else { throw AttestationError.serializingRequestBody }
+        guard let clientData = try? JSONEncoder().encode(digest) else { throw AttestationError.serializingRequestBody }
         let clientDataHash = Data(SHA256.hash(data: clientData))
         
         guard let assertion = try? await service.generateAssertion(keyID, clientDataHash: clientDataHash) else { throw AttestationError.getAssertion }
@@ -102,7 +102,7 @@ final class AttestationService {
         let payload: [String: Any] = [
             "challengeId": challengeObj.challengeId,
             "keyId": keyID,
-            "assertion": assertion,
+            "assertion": assertion.base64EncodedString(),
             "clientData": digest
         ]
         
