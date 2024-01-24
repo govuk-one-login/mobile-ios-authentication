@@ -38,15 +38,25 @@ final class AttestationService {
     public func verify() async throws {
         // Get keyId and server challenge, send to Apple and get attestation object.
         guard let keyID else { throw AttestationError.noKey }
+        
+        // Get attestation object from the App Attest service.
         let challenge = try await getChallenge()
-        guard let attestation = try? await service.attestKey(keyID, clientDataHash: challenge) else { throw AttestationError.attestKey }
+        let digest = [ "challenge": challenge ]
+        guard let clientData = try? JSONEncoder().encode(digest) else { throw AttestationError.serializingRequestBody }
+        let clientDataHash = Data(SHA256.hash(data: clientData))
+        
+        guard let attestation = try? await service.attestKey(keyID, clientDataHash: clientDataHash) else { throw AttestationError.attestKey }
         
         // Send the attestation object to your server for verification.
         
         // Set up request body.
         let challengeId = try deserializeChallenge(challenge).challengeId
-        let attestRequest: [String: Any] = [ "challengeId": challengeId, "keyId": keyID, "attestation": attestation ]
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: attestRequest) else { throw AttestationError.serializingRequestBody }
+        let payload: [String: Any] = [
+            "keyId": keyID,
+            "challengeId": challengeId,
+            "attestation": attestation.base64EncodedString()
+        ]
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: payload) else { throw AttestationError.serializingRequestBody }
         
         // Set up request.
         var urlRequest = URLRequest(url: URL(string: "https://mobile.build.account.gov.uk/attest")!)
@@ -72,10 +82,16 @@ final class AttestationService {
         
         // Send the assertion object as part of your request.
         
-        // Set up request body.
+        // Get assertion object from the App Attest service.
         let challenge = try await getChallenge()
-        let request = [ "challenge": challenge /* Add additional parts of the request along with the challenge. */ ]
-        guard let clientData = try? JSONEncoder().encode(request) else { throw AttestationError.serializingRequestBody }
+        let challengeObj = try deserializeChallenge(challenge)
+        let digest: [String: Any] = [
+            "name": "Jamie",
+            "challenge": challengeObj.challenge
+            // Add additional parts of the request along with the challenge.
+        ]
+        
+        guard let clientData = try? JSONSerialization.data(withJSONObject: digest) else { throw AttestationError.serializingRequestBody }
         let clientDataHash = Data(SHA256.hash(data: clientData))
         
         guard let assertion = try? await service.generateAssertion(keyID, clientDataHash: clientDataHash) else { throw AttestationError.getAssertion }
@@ -83,8 +99,14 @@ final class AttestationService {
         // Send the assertion and request to your server.
         
         // Set up request body.
-        let assertRequest: [String: Any] = [ "assertion": assertion ]
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: assertRequest) else { throw AttestationError.serializingRequestBody }
+        let payload: [String: Any] = [
+            "challengeId": challengeObj.challengeId,
+            "keyId": keyID,
+            "assertion": assertion,
+            "clientData": digest
+        ]
+        
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: payload) else { throw AttestationError.serializingRequestBody }
         
         // Set up request.
         var urlRequest = URLRequest(url: URL(string: "https://mobile.build.account.gov.uk/hello-world")!)
@@ -103,7 +125,8 @@ final class AttestationService {
     
     private func getChallenge() async throws -> Data {
         // Perform network call to /challenge endpoint to get challenge for encoding.
-        let challengeUrlRequest = URLRequest(url: URL(string: "https://mobile.build.account.gov.uk/challenge")!)
+        var challengeUrlRequest = URLRequest(url: URL(string: "https://mobile.build.account.gov.uk/challenge")!)
+        challengeUrlRequest.httpMethod = "GET"
         do {
             return try await networkClient.makeRequest(challengeUrlRequest)
         } catch {
