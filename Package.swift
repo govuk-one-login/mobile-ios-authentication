@@ -13,9 +13,11 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/openid/AppAuth-iOS.git",
-                 branch: "master"),
+                 .upToNextMajor(from: "1.0.0")
+        ),
         .package(url: "https://github.com/govuk-one-login/mobile-ios-networking.git",
-                 branch: "main")
+                 .upToNextMajor(from: "2.0.0")
+        )
     ],
     targets: [
         .target(name: "Authentication",
