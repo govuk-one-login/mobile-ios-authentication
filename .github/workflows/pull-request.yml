@@ -49,7 +49,7 @@ jobs:
           
       - name: Run SonarCloud Scanning
         run: |
-          bash xccov-to-sonarqube-generic.sh result.xcresult/ >Coverage.xml
+          bash xccov-to-sonarqube-generic.sh result.xcresult > sonarqube-generic-coverage.xml
           
           brew install sonar-scanner
           
@@ -57,7 +57,7 @@ jobs:
           
           sonar-scanner \
             -Dsonar.token=$SONAR_TOKEN \
-            -Dsonar.coverageReportPaths="Coverage.xml" \
+            -Dsonar.coverageReportPaths="sonarqube-generic-coverage.xml" \
             -Dsonar.pullrequest.key=$pull_number \
             -Dsonar.pullrequest.branch=${{github.head_ref}} \
             -Dsonar.pullrequest.base=${{github.base_ref}}
