@@ -43,8 +43,9 @@ jobs:
       - name: Build and Test
         run: |
           xcodebuild -scheme Authentication-Package test \
-           -destination "platform=iOS Simulator,name=iPhone 15,OS=17.2" \
-           -enableCodeCoverage YES -resultBundlePath result.xcresult
+           -destination "platform=macOS,variant=Mac Catalyst" \
+           -enableCodeCoverage YES \
+           -resultBundlePath result.xcresult
           
       - name: Run SonarCloud Scanning
         run: |
