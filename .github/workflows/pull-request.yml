@@ -27,6 +27,7 @@ jobs:
           
       - name: Run Linter
         run: |
+          brew install swiftlint
           swiftlint --strict
 
       - name: Validate Pull Request Name
