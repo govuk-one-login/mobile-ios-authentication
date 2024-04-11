@@ -32,7 +32,7 @@ jobs:
 
       - name: Validate Pull Request Name
         id: versioning
-        uses: Oliver-Binns/Versioning@3fe853c28bce81e7cfdedf3967734b785c256181 # 1.0.0
+        uses: Oliver-Binns/Versioning@3fe853c28bce81e7cfdedf3967734b785c256181 # pin@v1.0.0
         with:
           ACTION_TYPE: 'Validate'
 
@@ -66,7 +66,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check SonarCloud Results
-        uses: sonarsource/sonarqube-quality-gate-action@72f24ebf1f81eda168a979ce14b8203273b7c3ad # pin@master
+        uses: sonarsource/sonarqube-quality-gate-action@d304d050d930b02a896b0f85935344f023928496 # pin@v1.1.0
         # Force to fail step after specific time
         timeout-minutes: 5
         env:

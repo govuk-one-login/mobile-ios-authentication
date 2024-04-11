@@ -27,7 +27,7 @@ jobs:
           sudo xcode-select -s /Applications/Xcode_15.2.app
 
       - name: Build and Test
-        run: |+
+        run: |
           xcodebuild -scheme Authentication-Package test \
            -destination "platform=macOS,variant=Mac Catalyst" \
            -enableCodeCoverage YES \
@@ -47,7 +47,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Increment Version
         id: versioning
-        uses: Oliver-Binns/Versioning@3fe853c28bce81e7cfdedf3967734b785c256181 # 1.0.0
+        uses: Oliver-Binns/Versioning@3fe853c28bce81e7cfdedf3967734b785c256181 # pin@v1.0.0
         with:
           ACTION_TYPE: 'Release'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
