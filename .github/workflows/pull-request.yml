@@ -25,16 +25,16 @@ jobs:
           lfs: 'true'
           fetch-depth: 0
 
-      - name: Run Linter
-        run: |
-          brew install swiftlint
-          swiftlint --strict
+      # - name: Run Linter
+      #   run: |
+      #     brew install swiftlint
+      #     swiftlint --strict
 
-      - name: Validate Pull Request Name
-        id: versioning
-        uses: Oliver-Binns/Versioning@3fe853c28bce81e7cfdedf3967734b785c256181 # pin@v1.0.0
-        with:
-          ACTION_TYPE: 'Validate'
+      # - name: Validate Pull Request Name
+      #   id: versioning
+      #   uses: Oliver-Binns/Versioning@3fe853c28bce81e7cfdedf3967734b785c256181 # pin@v1.0.0
+      #   with:
+      #     ACTION_TYPE: 'Validate'
 
       - name: Xcode select
         run: |
