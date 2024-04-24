@@ -123,14 +123,13 @@ public final class AppAuthSession: LoginSession {
     
     private func generateTokenResponse(token: OIDTokenResponse, authState: OIDAuthState) throws -> TokenResponse {
         guard let accessToken = token.accessToken,
-              let idToken = token.idToken,
               let tokenType = token.tokenType,
               let expiryDate = token.accessTokenExpirationDate else {
             throw LoginError.generic(description: "Missing authState property")
         }
         return TokenResponse(accessToken: accessToken,
                              refreshToken: authState.refreshToken,
-                             idToken: idToken,
+                             idToken: token.idToken,
                              tokenType: tokenType,
                              expiryDate: expiryDate)
     }
