@@ -38,7 +38,12 @@ jobs:
           
       - name: Check for Breaking Changes
         run: |
-          swift package diagnose-api-breaking-changes origin/main
+          swift package \
+            -Xswiftc "-sdk" \
+            -Xswiftc "`xcrun --sdk iphonesimulator --show-sdk-path`" \
+            -Xswiftc "-target" \
+            -Xswiftc "arm64-apple-ios17.2-simulator" \
+            diagnose-api-breaking-changes origin/main
 
       - name: Xcode select
         run: |
@@ -47,9 +52,9 @@ jobs:
       - name: Build and Test
         run: |
           xcodebuild -scheme Authentication-Package test \
-           -destination "platform=macOS,arch=arm64,variant=Mac Catalyst" \
-           -enableCodeCoverage YES \
-           -resultBundlePath result.xcresult
+            -destination "platform=macOS,arch=arm64,variant=Mac Catalyst" \
+            -enableCodeCoverage YES \
+            -resultBundlePath result.xcresult
           
       - name: Run SonarCloud Scanning
         run: |
