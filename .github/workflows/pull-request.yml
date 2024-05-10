@@ -35,6 +35,10 @@ jobs:
         uses: Oliver-Binns/Versioning@4695fba9f63bed5b557094f9a64f7a2b1a7639e8 # pin@v1.1.0
         with:
           ACTION_TYPE: 'Validate'
+          
+      - name: Check for Breaking Changes
+        run: |
+          swift package diagnose-api-breaking-changes main
 
       - name: Xcode select
         run: |
