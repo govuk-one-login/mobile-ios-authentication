@@ -91,6 +91,8 @@ public final class AppAuthSession: LoginSession {
             return
         }
         
+        print("AppAuth error: \(error)")
+        
         switch (error.domain, error.code) {
         case (OIDGeneralErrorDomain, -3):
             throw LoginError.userCancelled
