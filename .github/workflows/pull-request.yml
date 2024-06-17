@@ -45,7 +45,7 @@ jobs:
           xcodebuild -scheme Authentication-Package test \
            -destination "platform=macOS,arch=arm64,variant=Mac Catalyst" \
            -enableCodeCoverage YES \
-           -resultBundlePath result.xcresult
+           -resultBundlePath result.xcresult | xcbeautify
           
       - name: Run SonarCloud Scanning
         run: |
