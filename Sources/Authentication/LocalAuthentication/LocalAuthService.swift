@@ -9,5 +9,6 @@ public enum AuthType {
 }
 
 public protocol LocalAuthService {
-    func hasLocalAuthSetup(navigationController: UINavigationController) -> AuthType
+    func hasLocalAuthSetup(navigationController: UINavigationController,
+                           completion: @escaping (AuthType) -> Void)
 }
