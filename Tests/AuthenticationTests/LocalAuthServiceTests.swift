@@ -21,20 +21,20 @@ extension LocalAuthServiceTests {
         XCTAssertTrue(sut.didCall_evaluateLocalAuth)
     }
     
-    func test_localAuthReturnsFinger() throws {
-        sut.localAuthValue = .finger
+    func test_localAuthReturnsTouch() throws {
+        sut.localAuthValue = .touch
 
         sut.evaluateLocalAuth(navigationController: .init()) { type in
-            XCTAssertTrue(type == .finger)
+            XCTAssertTrue(type == .touch)
         }
         XCTAssertTrue(sut.didCall_evaluateLocalAuth)
     }
     
-    func test_localAuthReturnsPass() throws {
-        sut.localAuthValue = .pass
+    func test_localAuthReturnsPasscode() throws {
+        sut.localAuthValue = .passcode
 
         sut.evaluateLocalAuth(navigationController: .init()) { type in
-            XCTAssertTrue(type == .pass)
+            XCTAssertTrue(type == .passcode)
         }
         XCTAssertTrue(sut.didCall_evaluateLocalAuth)
     }

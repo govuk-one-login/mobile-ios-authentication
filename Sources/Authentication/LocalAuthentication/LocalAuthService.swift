@@ -4,8 +4,8 @@ import UIKit
 public enum AuthType {
     case none
     case face
-    case finger
-    case pass
+    case touch
+    case passcode
 }
 
 public protocol LocalAuthService {
