@@ -37,16 +37,24 @@ public final class AppAuthSession: LoginSession {
             tokenEndpoint: configuration.tokenEndpoint
         )
         
+        var additionalParams: [String: String] {
+            var baseParams = [
+                "vtr": configuration.vectorsOfTrust.description,
+                "ui_locales": configuration.locale.rawValue
+            ]
+            if let persistentSessionId = configuration.persistentSessionId {
+                baseParams["X-Session-ID"] = persistentSessionId
+            }
+            return baseParams
+        }
+        
         let request = OIDAuthorizationRequest(
             configuration: config,
             clientId: configuration.clientID,
             scopes: configuration.scopes.map(\.rawValue),
             redirectURL: URL(string: configuration.redirectURI)!,
             responseType: configuration.responseType.rawValue,
-            additionalParameters: [
-                "vtr": configuration.vectorsOfTrust.description,
-                "ui_locales": configuration.locale.rawValue
-            ]
+            additionalParameters: additionalParams
         )
         
         return try await withCheckedThrowingContinuation { continuation in

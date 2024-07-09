@@ -14,6 +14,7 @@ public struct LoginSessionConfiguration {
     
     public let vectorsOfTrust: [String]
     public let locale: UILocale
+    public let persistentSessionId: String?
     
     public enum ResponseType: String {
         case code
@@ -55,7 +56,8 @@ public struct LoginSessionConfiguration {
                 prefersEphemeralWebSession: Bool = true,
                 redirectURI: String,
                 vectorsOfTrust: [String] = ["Cl.Cm.P0"],
-                locale: UILocale = .en) {
+                locale: UILocale = .en,
+                persistentSessionId: String? = nil) {
         self.authorizationEndpoint = authorizationEndpoint
         self.tokenEndpoint = tokenEndpoint
         self.responseType = responseType
@@ -65,5 +67,6 @@ public struct LoginSessionConfiguration {
         self.redirectURI = redirectURI
         self.vectorsOfTrust = vectorsOfTrust
         self.locale = locale
+        self.persistentSessionId = persistentSessionId
     }
 }
