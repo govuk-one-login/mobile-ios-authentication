@@ -49,7 +49,7 @@ public final class AppAuthSession: LoginSession {
                     "ui_locales": configuration.locale.rawValue
                 ]
                 if let persistentSessionId = configuration.persistentSessionId {
-                    params["X-Session-ID"] = persistentSessionId
+                    params["govuk_signin_session_id"] = persistentSessionId
                 }
                 return params
             }()
