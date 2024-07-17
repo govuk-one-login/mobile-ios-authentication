@@ -16,7 +16,8 @@ final class LoginSessionConfigurationTests: XCTestCase {
                                         prefersEphemeralWebSession: true,
                                         redirectURI: "https://www.google.com/redirect",
                                         vectorsOfTrust: ["1"],
-                                        locale: .en)
+                                        locale: .en,
+                                        persistentSessionId: "123456789")
     }
     
     override func tearDown() {
@@ -63,6 +64,10 @@ extension LoginSessionConfigurationTests {
         XCTAssertEqual(sut.locale, .en)
     }
     
+    func testPersistentSessionId() {
+        XCTAssertEqual(sut.persistentSessionId, "123456789")
+    }
+    
     func testDefaultValues() {
         sut = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
                                         tokenEndpoint: URL(string: "https://www.google.com/token")!,
@@ -73,5 +78,6 @@ extension LoginSessionConfigurationTests {
         XCTAssertTrue(sut.prefersEphemeralWebSession)
         XCTAssertEqual(sut.vectorsOfTrust, ["Cl.Cm.P0"])
         XCTAssertEqual(sut.vectorsOfTrust.description, "[\"Cl.Cm.P0\"]")
+        XCTAssertNil(sut.persistentSessionId)
     }
 }

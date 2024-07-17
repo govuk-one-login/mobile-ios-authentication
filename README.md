@@ -66,6 +66,7 @@ Handles creating the `config` found in `LoginSession`. It requires the following
    
   let vectorsOfTrust: String
   let locale: UILocale
+  let persistentSessionID: String?
 ```
 
 The struct also contains three enums to handle the language, the response and the scopes required for sending the `OIDAuthorizationRequest` within the AppAuthSession. 
@@ -91,7 +92,7 @@ import UserDetails
 ...
 
 let session: LoginSession
-    
+
   init(session: LoginSession) {
     self.session = session
   }
@@ -105,8 +106,9 @@ let configuration = LoginSessionConfiguration(authorizationEndpoint: url,
                                               prefersEphemeralWebSession: true,
                                               redirectURI: "someRedirectURI",
                                               vectorsOfTrust: "someVectorOfTrust",
-                                              locale: .en)
-                                              
+                                              locale: .en,
+                                              persistentSessionId: nil)
+
 session.performLoginFlow(configuration: configuration)
 
 ```

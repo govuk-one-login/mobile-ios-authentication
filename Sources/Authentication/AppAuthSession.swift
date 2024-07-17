@@ -43,10 +43,16 @@ public final class AppAuthSession: LoginSession {
             scopes: configuration.scopes.map(\.rawValue),
             redirectURL: URL(string: configuration.redirectURI)!,
             responseType: configuration.responseType.rawValue,
-            additionalParameters: [
-                "vtr": configuration.vectorsOfTrust.description,
-                "ui_locales": configuration.locale.rawValue
-            ]
+            additionalParameters: {
+                var params = [
+                    "vtr": configuration.vectorsOfTrust.description,
+                    "ui_locales": configuration.locale.rawValue
+                ]
+                if let persistentSessionId = configuration.persistentSessionId {
+                    params["govuk_signin_session_id"] = persistentSessionId
+                }
+                return params
+            }()
         )
         
         return try await withCheckedThrowingContinuation { continuation in
