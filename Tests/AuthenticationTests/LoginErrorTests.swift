@@ -19,5 +19,7 @@ extension LoginErrorTests {
         XCTAssertEqual(sut.localizedDescription, "non 200")
         sut = .userCancelled
         XCTAssertEqual(sut.localizedDescription, "user cancelled")
+        sut = .serverError
+        XCTAssertEqual(sut.localizedDescription, "server error")
     }
 }
