@@ -5,6 +5,7 @@ public enum LoginError: Error, Equatable {
     case network
     case non200
     case userCancelled
+    case serverError
     
     public var localizedDescription: String {
         switch self {
@@ -20,6 +21,8 @@ public enum LoginError: Error, Equatable {
             return "non 200"
         case .userCancelled:
             return "user cancelled"
+        case .serverError:
+            return "server error"
         }
     }
 }
