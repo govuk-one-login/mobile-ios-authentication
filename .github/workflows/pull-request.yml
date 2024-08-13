@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Run pull request workflow
-        uses: govuk-one-login/mobile-ios-pipelines@f195fc1dde1bd5828bb46976458249f7bfdf1b38
+        uses: govuk-one-login/mobile-ios-pipelines@7e0a50bf2e50ddd109b3cd685fac9e554ec28807
         with:
           action_type: 'Pull Request'
           package_scheme: Authentication-Package
