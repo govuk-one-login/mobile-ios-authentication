@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Run pull request workflow
-        uses: govuk-one-login/mobile-ios-pipelines@22e742f7acf42076c0238d8de04fa2c97e943654
+        uses: govuk-one-login/mobile-ios-pipelines@f00a968585eb852038b3012600a4061e3e87f224
         with:
           action_type: 'Pull Request'
           xcode_version: 15.2
