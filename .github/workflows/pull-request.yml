@@ -16,11 +16,11 @@ jobs:
 
     steps:
       - name: Run pull request workflow
-        uses: govuk-one-login/mobile-ios-pipelines@f00a968585eb852038b3012600a4061e3e87f224
+        uses: govuk-one-login/mobile-ios-pipelines@f195fc1dde1bd5828bb46976458249f7bfdf1b38
         with:
           action_type: 'Pull Request'
-          xcode_version: 15.2
           package_scheme: Authentication-Package
+          xcode_version: 15.2
           run_destination: platform=macOS,arch=arm64,variant=Mac Catalyst
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
