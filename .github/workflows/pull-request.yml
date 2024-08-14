@@ -25,4 +25,3 @@ jobs:
           xcode_version: 15.2
           run_destination: platform=macOS,arch=arm64,variant=Mac Catalyst
           sonar_token: ${{ secrets.SONAR_TOKEN }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
