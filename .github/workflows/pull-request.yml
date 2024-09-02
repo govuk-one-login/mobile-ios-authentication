@@ -42,7 +42,7 @@ jobs:
           
       - name: Build and Test
         run: |
-          set -o pipefail && xcodebuild -scheme Authentication-Package test \
+          set -o pipefail && xcodebuild -scheme Authentication test \
             -destination "platform=macOS,arch=arm64,variant=Mac Catalyst" \
             -enableCodeCoverage YES \
             -resultBundlePath result.xcresult | xcbeautify
