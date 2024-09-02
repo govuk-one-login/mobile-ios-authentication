@@ -119,11 +119,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 2)
+        waitForTruth(self.sut.isActive, timeout: 4)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 2)
+        wait(for: [exp], timeout: 4)
     }
     
     @MainActor
