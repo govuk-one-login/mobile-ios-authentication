@@ -20,33 +20,14 @@ To use Authentication in a SwiftPM project:
 ]),
 ```
 
-3. Add `import Authentication` and `import UserDetails` in your source code.
+3. Add `import Authentication` in your source code.
 
 ## Package description
 
-The Authentication package authenticates a users details and enables them to log into their account securely. This is done by providing them with a login session and token.
-
-The package also integrates [openID](https://openid.net/developers/how-connect-works/) AppAuth and conforms to its standards, and also uses `NetworkClient` from the [Networking](https://github.com/govuk-one-login/mobile-ios-networking) package.
+The Authentication package implements OpenID Connect to authenticate a user with a remote server.
+Once authenticated, the package returns a set of tokens (refresh, access, id) that can be used for authorization to request remote resources (APIs).
 
 ### Types
-
-#### UserInfo
-
-A struct which conforms to `Codable`. It requires the following to be implemented:
-
-```swift
-public struct UserInfo: Codable {
-  let sub: String
-  let phoneNumberVerified: Bool
-  let phoneNumber: String?
-  let emailVerified: Bool
-  public let email: String
-}
-```
-
-#### UserService
-
-`UserService` implements the `UserServicing` protocol in order to make a request with an authentication token. The request will fetch the `UserInfo` object.
 
 #### LoginSessionConfiguration
 
@@ -87,8 +68,6 @@ To use the Authentication package, first, make sure your module or app has a dep
 
 ```swift
 import Authentication
-import UserDetails
-
 ...
 
 let session: LoginSession
@@ -158,16 +137,13 @@ struct PlaygroundApp: App {
 
 ```
 
-To get a token, call the finalise method on the session. The token can then be used to get an authenticatedClient, which in turn is used to create an instance of UserService.
+To get a token, call the finalise method on the session.
 
-`fetchUserInfo` can then be called on the UserService object to receive the required data.
 
 ```swift
 do {
   let tokens = try await session.finalise(redirectURL: url)
   let authenticatedClient = NetworkClient(authenticationProvider: tokens)
-  let service = UserService(client: authenticatedClient)
-  let userInfo = try await service.fetchUserInfo()
 } catch {
   // handle errors
 }
