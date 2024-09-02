@@ -24,7 +24,7 @@ To use Authentication in a SwiftPM project:
 
 ## Package description
 
-The Authentication package implements OpenID Connect to authenticate a user with an remote server.
+The Authentication package implements OpenID Connect to authenticate a user with a remote server.
 Once authenticated, the package returns a set of tokens (refresh, access, id) that can be used for authorization to request remote resources (APIs).
 
 ### Types
