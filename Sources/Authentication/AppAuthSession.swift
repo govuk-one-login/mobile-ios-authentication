@@ -22,12 +22,12 @@ public final class AppAuthSession: LoginSession {
     ///     - configuration: object that contains your LoginSessionConfiguration
     @MainActor
     public func performLoginFlow(configuration: LoginSessionConfiguration) async throws -> TokenResponse {
-        try await performLoginFlow(configuration: configuration, service: OIDAuthState.self)
+        try await performLoginFlow(configuration: configuration, service: OIDAuthorizationService.self)
     }
     
     /// This is here for testing and allows `service` to be mocked
     @MainActor
-    func performLoginFlow(configuration: LoginSessionConfiguration, service: OIDAuthState.Type) async throws -> TokenResponse {
+    func performLoginFlow(configuration: LoginSessionConfiguration, service: OIDAuthorizationService.Type) async throws -> TokenResponse {
         guard let viewController = window.rootViewController else {
             fatalError("empty vc in window, please add vc")
         }
@@ -37,7 +37,7 @@ public final class AppAuthSession: LoginSession {
             tokenEndpoint: configuration.tokenEndpoint
         )
         
-        let request = OIDAuthorizationRequest(
+        let authRequest = OIDAuthorizationRequest(
             configuration: config,
             clientId: configuration.clientID,
             scopes: configuration.scopes.map(\.rawValue),
@@ -56,12 +56,37 @@ public final class AppAuthSession: LoginSession {
         )
         
         return try await withCheckedThrowingContinuation { continuation in
-            userAgent = service.authState(byPresenting: request,
-                                          presenting: viewController,
-                                          prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
+            userAgent = service.present(authRequest,
+                                        presenting: viewController,
+                                        prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authResponse, error in
                 do {
-                    let response = try self.handleResponse(authState: authState, error: error)
-                    continuation.resume(returning: response)
+                    try self.handleIfError(error)
+                    guard let authResponse else {
+                        throw LoginError.generic(description: "No Authorization Response")
+                    }
+                    guard let tokenRequest = authResponse.tokenExchangeRequest(withAdditionalParameters: nil,
+                                                                               additionalHeaders: {
+                        if let headers = configuration.attestationHeaders {
+                            return [
+                                "OAuth-Client-Attestation": headers.attestation,
+                                "OAuth-Client-Attestation-PoP": headers.attestationPoP
+                            ]
+                        } else {
+                            return nil
+                        }
+                    }()
+                    ) else {
+                        throw LoginError.generic(description: "Couldn't create TokenRequest")
+                    }
+                    service.perform(tokenRequest,
+                                    originalAuthorizationResponse: authResponse) { tokenResponse, error in
+                        do {
+                            let response = try self.handleTokenResponse(tokenResponse: tokenResponse, error: error)
+                            continuation.resume(returning: response)
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
+                    }
                 } catch {
                     continuation.resume(throwing: error)
                 }
@@ -84,12 +109,12 @@ public final class AppAuthSession: LoginSession {
         userAgent.resumeExternalUserAgentFlow(with: url)
     }
     
-    private func handleResponse(authState: OIDAuthState?, error: Error?) throws -> TokenResponse {
+    private func handleTokenResponse(tokenResponse: OIDTokenResponse?, error: Error?) throws -> TokenResponse {
         try handleIfError(error)
-        let authState = try checkAuthState(authState)
-        let token = try extractToken(authState: authState)
-        let tokenResponse = try generateTokenResponse(token: token, authState: authState)
-        return tokenResponse
+        guard let tokenResponse else {
+            throw LoginError.generic(description: "No Token Response")
+        }
+        return try generateTokenResponse(token: tokenResponse)
     }
     
     private func handleIfError(_ error: Error?) throws {
@@ -115,28 +140,14 @@ public final class AppAuthSession: LoginSession {
         }
     }
     
-    private func checkAuthState(_ authState: OIDAuthState?) throws -> OIDAuthState {
-        guard let authState else {
-            throw LoginError.generic(description: "No authState")
-        }
-        return authState
-    }
-    
-    private func extractToken(authState: OIDAuthState) throws -> OIDTokenResponse {
-        guard let token = authState.lastTokenResponse else {
-            throw LoginError.generic(description: "Missing authState Token Response")
-        }
-        return token
-    }
-    
-    private func generateTokenResponse(token: OIDTokenResponse, authState: OIDAuthState) throws -> TokenResponse {
+    private func generateTokenResponse(token: OIDTokenResponse) throws -> TokenResponse {
         guard let accessToken = token.accessToken,
               let tokenType = token.tokenType,
               let expiryDate = token.accessTokenExpirationDate else {
             throw LoginError.generic(description: "Missing authState property")
         }
         return TokenResponse(accessToken: accessToken,
-                             refreshToken: authState.refreshToken,
+                             refreshToken: token.refreshToken,
                              idToken: token.idToken,
                              tokenType: tokenType,
                              expiryDate: expiryDate)
