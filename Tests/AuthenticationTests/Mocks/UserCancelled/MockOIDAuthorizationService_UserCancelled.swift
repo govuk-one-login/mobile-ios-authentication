@@ -1,13 +1,13 @@
 import AppAuthCore
 import UIKit
 
-public class MockOIDAuthState_UserCancelled: OIDAuthState {
-    public override class func authState(
-        byPresenting authorizationRequest: OIDAuthorizationRequest,
+public class MockOIDAuthorizationService_UserCancelled: OIDAuthorizationService {
+    public override class func present(
+        _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,
         prefersEphemeralSession: Bool,
-        callback: @escaping OIDAuthStateAuthorizationCallback
-    ) -> OIDExternalUserAgentSession {
+        callback: @escaping OIDAuthorizationCallback
+    ) -> any OIDExternalUserAgentSession {
         let session = MockOIDExternalUserAgentSession_UserCancelled()
         session.callback = callback
         return session

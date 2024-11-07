@@ -4,7 +4,7 @@ import AppAuthCore
 public class MockOIDExternalUserAgentSession_TokenInvalidRequest: NSObject,
                                                                   OIDExternalUserAgentSession {
 // swiftlint:enable type_name
-    var callback: OIDAuthStateAuthorizationCallback?
+    var callback: OIDAuthorizationCallback?
     
     public func cancel() { }
     
@@ -13,9 +13,9 @@ public class MockOIDExternalUserAgentSession_TokenInvalidRequest: NSObject,
     public func failExternalUserAgentFlowWithError(_ error: Error) { }
     
     public func resumeExternalUserAgentFlow(with URL: URL) -> Bool {
-        let authState: OIDAuthState? = nil
+        let authorizationState: OIDAuthorizationResponse? = nil
         let error: Error? = NSError(domain: OIDOAuthTokenErrorDomain, code: -2)
-        callback?(authState, error)
+        callback?(authorizationState, error)
         return true
     }
 }

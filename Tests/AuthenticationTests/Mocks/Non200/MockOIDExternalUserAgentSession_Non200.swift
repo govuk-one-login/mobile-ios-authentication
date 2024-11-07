@@ -2,7 +2,7 @@ import AppAuthCore
 
 public class MockOIDExternalUserAgentSession_Non200: NSObject,
                                                      OIDExternalUserAgentSession {
-    var callback: OIDAuthStateAuthorizationCallback?
+    var callback: OIDAuthorizationCallback?
     
     public func cancel() { }
     
@@ -11,9 +11,9 @@ public class MockOIDExternalUserAgentSession_Non200: NSObject,
     public func failExternalUserAgentFlowWithError(_ error: Error) { }
     
     public func resumeExternalUserAgentFlow(with URL: URL) -> Bool {
-        let authState: OIDAuthState? = nil
+        let authorizationState: OIDAuthorizationResponse? = nil
         let error: Error? = NSError(domain: OIDGeneralErrorDomain, code: -6)
-        callback?(authState, error)
+        callback?(authorizationState, error)
         return true
     }
 }
