@@ -58,30 +58,16 @@ public final class AppAuthSession: LoginSession {
         return try await withCheckedThrowingContinuation { continuation in
             userAgent = service.present(authRequest,
                                         presenting: viewController,
-                                        prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authResponse, error in
+                                        prefersEphemeralSession: configuration.prefersEphemeralWebSession) { [unowned self] authResponse, error in
                 do {
-                    try self.handleIfError(error)
-                    guard let authResponse else {
-                        throw LoginError.generic(description: "No Authorization Response")
-                    }
-                    guard let tokenRequest = authResponse.tokenExchangeRequest(withAdditionalParameters: nil,
-                                                                               additionalHeaders: {
-                        if let headers = configuration.attestationHeaders {
-                            return [
-                                "OAuth-Client-Attestation": headers.attestation,
-                                "OAuth-Client-Attestation-PoP": headers.attestationPoP
-                            ]
-                        } else {
-                            return nil
-                        }
-                    }()
-                    ) else {
-                        throw LoginError.generic(description: "Couldn't create TokenRequest")
-                    }
+                    let tokenRequest = try handleAuthorizationResponse(authResponse,
+                                                                       error: error,
+                                                                       attestationHeaders: configuration.attestationHeaders)
                     service.perform(tokenRequest,
-                                    originalAuthorizationResponse: authResponse) { tokenResponse, error in
+                                    originalAuthorizationResponse: authResponse) { [unowned self] tokenResponse, error in
                         do {
-                            let response = try self.handleTokenResponse(tokenResponse: tokenResponse, error: error)
+                            let response = try handleTokenResponse(tokenResponse,
+                                                                   error: error)
                             continuation.resume(returning: response)
                         } catch {
                             continuation.resume(throwing: error)
@@ -109,7 +95,32 @@ public final class AppAuthSession: LoginSession {
         userAgent.resumeExternalUserAgentFlow(with: url)
     }
     
-    private func handleTokenResponse(tokenResponse: OIDTokenResponse?, error: Error?) throws -> TokenResponse {
+    private func handleAuthorizationResponse(_ authorizationResponse: OIDAuthorizationResponse?,
+                                             error: Error?,
+                                             attestationHeaders: AttestationHeaders?) throws -> OIDTokenRequest {
+        try handleIfError(error)
+        guard let authorizationResponse else {
+            throw LoginError.generic(description: "No Authorization Response")
+        }
+        guard let tokenRequest = authorizationResponse.tokenExchangeRequest(withAdditionalParameters: nil,
+                                                                            additionalHeaders: {
+            if let attestationHeaders {
+                return [
+                    "OAuth-Client-Attestation": attestationHeaders.attestation,
+                    "OAuth-Client-Attestation-PoP": attestationHeaders.attestationPoP
+                ]
+            } else {
+                return nil
+            }
+        }()
+        ) else {
+            throw LoginError.generic(description: "Couldn't create TokenRequest")
+        }
+        return tokenRequest
+    }
+    
+    private func handleTokenResponse(_ tokenResponse: OIDTokenResponse?,
+                                     error: Error?) throws -> TokenResponse {
         try handleIfError(error)
         guard let tokenResponse else {
             throw LoginError.generic(description: "No Token Response")
