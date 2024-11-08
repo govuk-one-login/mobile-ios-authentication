@@ -2,9 +2,9 @@ import AppAuthCore
 
 // swiftlint:disable type_name
 public class MockOIDExternalUserAgentSession_MissingAuthStateToken: NSObject,
-                                                                       OIDExternalUserAgentSession {
+                                                                    OIDExternalUserAgentSession {
 // swiftlint:enable type_name
-    var callback: OIDAuthStateAuthorizationCallback?
+    var callback: OIDAuthorizationCallback?
     
     public func cancel() { }
     
@@ -21,12 +21,20 @@ public class MockOIDExternalUserAgentSession_MissingAuthStateToken: NSObject,
                                                   redirectURL: Foundation.URL(string: "https://www.google.com")!,
                                                   responseType: "code",
                                                   additionalParameters: .init())
-        let authResponse = OIDAuthorizationResponse(request: authRequest, parameters: .init())
-
-        let authState: OIDAuthState? = OIDAuthState(authorizationResponse: authResponse,
-                                                    tokenResponse: nil)
+        
+        let authorizationState = MockAuthorizationResponse_MissingTokenState(request: authRequest, parameters: .init())
+        
         let error: Error? = nil
-        callback?(authState, error)
+        callback?(authorizationState, error)
         return true
+    }
+}
+
+class MockAuthorizationResponse_MissingTokenState: OIDAuthorizationResponse {
+    override func tokenExchangeRequest(
+        withAdditionalParameters additionalParameters: [String : String]?,
+        additionalHeaders: [String : String]?
+    ) -> OIDTokenRequest? {
+        nil
     }
 }

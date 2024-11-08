@@ -4,7 +4,7 @@ import AppAuthCore
 public class MockOIDExternalUserAgentSession_MissingAuthStateProperty: NSObject,
                                                                        OIDExternalUserAgentSession {
 // swiftlint:enable type_name
-    var callback: OIDAuthStateAuthorizationCallback?
+    var callback: OIDAuthorizationCallback?
     
     public func cancel() { }
     
@@ -21,9 +21,21 @@ public class MockOIDExternalUserAgentSession_MissingAuthStateProperty: NSObject,
                                                   redirectURL: Foundation.URL(string: "https://www.google.com")!,
                                                   responseType: "code",
                                                   additionalParameters: .init())
-        let authResponse = OIDAuthorizationResponse(request: authRequest, parameters: .init())
-        
-        let tokenRequest = OIDTokenRequest(configuration: serviceConfiguration,
+        let authorizationResponse = MockAuthorizationResponse_MissingAuthState(request: authRequest, parameters: .init())
+        let error: Error? = nil
+        callback?(authorizationResponse, error)
+        return true
+    }
+}
+
+class MockAuthorizationResponse_MissingAuthState: OIDAuthorizationResponse {
+    override func tokenExchangeRequest(
+        withAdditionalParameters additionalParameters: [String : String]?,
+        additionalHeaders: [String : String]?
+    ) -> OIDTokenRequest? {
+        let serviceConfiguration = OIDServiceConfiguration(authorizationEndpoint: Foundation.URL(string: "https://www.google.com")!,
+                                                           tokenEndpoint: Foundation.URL(string: "https://www.google.com")!)
+        return OIDTokenRequest(configuration: serviceConfiguration,
                                            grantType: "",
                                            authorizationCode: nil,
                                            redirectURL: nil,
@@ -34,11 +46,5 @@ public class MockOIDExternalUserAgentSession_MissingAuthStateProperty: NSObject,
                                            codeVerifier: nil,
                                            additionalParameters: .init(),
                                            additionalHeaders: .init())
-        let tokenResponse = OIDTokenResponse(request: tokenRequest, parameters: .init())
-        let authState: OIDAuthState? = OIDAuthState(authorizationResponse: authResponse,
-                                                    tokenResponse: tokenResponse)
-        let error: Error? = nil
-        callback?(authState, error)
-        return true
     }
 }
