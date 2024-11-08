@@ -11,9 +11,7 @@ public class MockOIDExternalUserAgentSession_NothingReturned: NSObject,
     public func failExternalUserAgentFlowWithError(_ error: Error) { }
     
     public func resumeExternalUserAgentFlow(with URL: URL) -> Bool {
-        let authorizationState: OIDAuthorizationResponse? = nil
-        let error: Error? = nil
-        callback?(authorizationState, error)
+        callback?(nil, nil)
         return true
     }
 }

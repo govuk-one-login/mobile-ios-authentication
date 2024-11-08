@@ -80,8 +80,10 @@ public final class AppAuthSession: LoginSession {
                         originalAuthorizationResponse: authResponse
                     ) { [unowned self] tokenResponse, error in
                         do {
-                            let response = try handleTokenResponse(tokenResponse,
-                                                                   error: error)
+                            let response = try handleTokenResponse(
+                                tokenResponse,
+                                error: error
+                            )
                             continuation.resume(returning: response)
                         } catch {
                             continuation.resume(throwing: error)
@@ -169,7 +171,9 @@ public final class AppAuthSession: LoginSession {
         }
     }
     
-    private func generateTokenResponse(token: OIDTokenResponse) throws -> TokenResponse {
+    private func generateTokenResponse(
+        token: OIDTokenResponse
+    ) throws -> TokenResponse {
         guard let accessToken = token.accessToken,
               let tokenType = token.tokenType,
               let expiryDate = token.accessTokenExpirationDate else {

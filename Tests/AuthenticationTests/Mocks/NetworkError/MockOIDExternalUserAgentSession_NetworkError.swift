@@ -11,9 +11,11 @@ public class MockOIDExternalUserAgentSession_NetworkError: NSObject,
     public func failExternalUserAgentFlowWithError(_ error: Error) { }
     
     public func resumeExternalUserAgentFlow(with URL: URL) -> Bool {
-        let authorizationState: OIDAuthorizationResponse? = nil
-        let error: Error? = NSError(domain: OIDGeneralErrorDomain, code: -5)
-        callback?(authorizationState, error)
+        let error: Error? = NSError(
+            domain: OIDGeneralErrorDomain,
+            code: -5
+        )
+        callback?(nil, error)
         return true
     }
 }

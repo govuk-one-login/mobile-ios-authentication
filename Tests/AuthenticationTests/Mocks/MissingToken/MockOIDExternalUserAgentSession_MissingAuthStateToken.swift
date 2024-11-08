@@ -13,27 +13,38 @@ public class MockOIDExternalUserAgentSession_MissingAuthStateToken: NSObject,
     public func failExternalUserAgentFlowWithError(_ error: Error) { }
     
     public func resumeExternalUserAgentFlow(with URL: URL) -> Bool {
-        let serviceConfiguration = OIDServiceConfiguration(authorizationEndpoint: Foundation.URL(string: "https://www.google.com")!,
-                                                           tokenEndpoint: Foundation.URL(string: "https://www.google.com")!)
-        let authRequest = OIDAuthorizationRequest(configuration: serviceConfiguration,
-                                                  clientId: "",
-                                                  scopes: nil,
-                                                  redirectURL: Foundation.URL(string: "https://www.google.com")!,
-                                                  responseType: "code",
-                                                  additionalParameters: .init())
+        let serviceConfiguration = OIDServiceConfiguration(
+            authorizationEndpoint: Foundation.URL(
+                string: "https://www.google.com"
+            )!,
+            tokenEndpoint: Foundation.URL(
+                string: "https://www.google.com"
+            )!
+        )
+        let authRequest = OIDAuthorizationRequest(
+            configuration: serviceConfiguration,
+            clientId: "",
+            scopes: nil,
+            redirectURL: Foundation.URL(
+                string: "https://www.google.com"
+            )!,
+            responseType: "code",
+            additionalParameters: .init()
+        )
+        let authorizationState = MockAuthorizationResponse_MissingTokenState(
+            request: authRequest,
+            parameters: .init()
+        )
         
-        let authorizationState = MockAuthorizationResponse_MissingTokenState(request: authRequest, parameters: .init())
-        
-        let error: Error? = nil
-        callback?(authorizationState, error)
+        callback?(authorizationState, nil)
         return true
     }
 }
 
 class MockAuthorizationResponse_MissingTokenState: OIDAuthorizationResponse {
     override func tokenExchangeRequest(
-        withAdditionalParameters additionalParameters: [String : String]?,
-        additionalHeaders: [String : String]?
+        withAdditionalParameters additionalParameters: [String: String]?,
+        additionalHeaders: [String: String]?
     ) -> OIDTokenRequest? {
         nil
     }

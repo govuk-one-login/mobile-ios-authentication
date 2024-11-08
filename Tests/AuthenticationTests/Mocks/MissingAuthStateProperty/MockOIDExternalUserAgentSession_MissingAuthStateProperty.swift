@@ -13,38 +13,57 @@ public class MockOIDExternalUserAgentSession_MissingAuthStateProperty: NSObject,
     public func failExternalUserAgentFlowWithError(_ error: Error) { }
     
     public func resumeExternalUserAgentFlow(with URL: URL) -> Bool {
-        let serviceConfiguration = OIDServiceConfiguration(authorizationEndpoint: Foundation.URL(string: "https://www.google.com")!,
-                                                           tokenEndpoint: Foundation.URL(string: "https://www.google.com")!)
-        let authRequest = OIDAuthorizationRequest(configuration: serviceConfiguration,
-                                                  clientId: "",
-                                                  scopes: nil,
-                                                  redirectURL: Foundation.URL(string: "https://www.google.com")!,
-                                                  responseType: "code",
-                                                  additionalParameters: .init())
-        let authorizationResponse = MockAuthorizationResponse_MissingAuthState(request: authRequest, parameters: .init())
-        let error: Error? = nil
-        callback?(authorizationResponse, error)
+        let serviceConfiguration = OIDServiceConfiguration(
+            authorizationEndpoint: Foundation.URL(
+                string: "https://www.google.com"
+            )!,
+            tokenEndpoint: Foundation.URL(
+                string: "https://www.google.com"
+            )!
+        )
+        let authRequest = OIDAuthorizationRequest(
+            configuration: serviceConfiguration,
+            clientId: "",
+            scopes: nil,
+            redirectURL: Foundation.URL(string: "https://www.google.com")!,
+            responseType: "code",
+            additionalParameters: .init()
+        )
+        let authorizationResponse = MockAuthorizationResponse_MissingAuthState(
+            request: authRequest,
+            parameters: .init()
+        )
+        
+        callback?(authorizationResponse, nil)
         return true
     }
 }
 
 class MockAuthorizationResponse_MissingAuthState: OIDAuthorizationResponse {
     override func tokenExchangeRequest(
-        withAdditionalParameters additionalParameters: [String : String]?,
-        additionalHeaders: [String : String]?
+        withAdditionalParameters additionalParameters: [String: String]?,
+        additionalHeaders: [String: String]?
     ) -> OIDTokenRequest? {
-        let serviceConfiguration = OIDServiceConfiguration(authorizationEndpoint: Foundation.URL(string: "https://www.google.com")!,
-                                                           tokenEndpoint: Foundation.URL(string: "https://www.google.com")!)
-        return OIDTokenRequest(configuration: serviceConfiguration,
-                                           grantType: "",
-                                           authorizationCode: nil,
-                                           redirectURL: nil,
-                                           clientID: "",
-                                           clientSecret: nil,
-                                           scope: nil,
-                                           refreshToken: nil,
-                                           codeVerifier: nil,
-                                           additionalParameters: .init(),
-                                           additionalHeaders: .init())
+        let serviceConfiguration = OIDServiceConfiguration(
+            authorizationEndpoint: Foundation.URL(
+                string: "https://www.google.com"
+            )!,
+            tokenEndpoint: Foundation.URL(
+                string: "https://www.google.com"
+            )!
+        )
+        return OIDTokenRequest(
+            configuration: serviceConfiguration,
+            grantType: "",
+            authorizationCode: nil,
+            redirectURL: nil,
+            clientID: "",
+            clientSecret: nil,
+            scope: nil,
+            refreshToken: nil,
+            codeVerifier: nil,
+            additionalParameters: .init(),
+            additionalHeaders: .init()
+        )
     }
 }

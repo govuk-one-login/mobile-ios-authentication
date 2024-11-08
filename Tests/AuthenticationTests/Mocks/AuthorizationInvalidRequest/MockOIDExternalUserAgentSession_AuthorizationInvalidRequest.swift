@@ -13,9 +13,11 @@ public class MockOIDExternalUserAgentSession_AuthorizationInvalidRequest: NSObje
     public func failExternalUserAgentFlowWithError(_ error: Error) { }
     
     public func resumeExternalUserAgentFlow(with URL: URL) -> Bool {
-        let authorizationState: OIDAuthorizationResponse? = nil
-        let error: Error? = NSError(domain: OIDOAuthAuthorizationErrorDomain, code: -2)
-        callback?(authorizationState, error)
+        let error: Error? = NSError(
+            domain: OIDOAuthAuthorizationErrorDomain,
+            code: -2
+        )
+        callback?(nil, error)
         return true
     }
 }
