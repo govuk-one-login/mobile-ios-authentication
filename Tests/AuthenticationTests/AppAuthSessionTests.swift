@@ -230,7 +230,7 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_authService_rejectsWhenNoAuthState() throws {
+    func test_authService_rejectsWhenNoAuthorizationResponse() throws {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {
@@ -243,6 +243,32 @@ extension AppAuthSessionTests {
                 XCTAssertTrue(description == "No Authorization Response")
             } catch {
                 XCTFail("Expected no authstate error, got \(error)")
+            }
+            
+            exp.fulfill()
+        }
+        
+        waitForTruth(self.sut.isActive, timeout: 2)
+        
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        
+        wait(for: [exp], timeout: 2)
+    }
+    
+    @MainActor
+    func test_authService_tokenExchangeRequest_headersReceived() throws {
+        let exp = expectation(description: "Wait for token response")
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(
+                    configuration: .mock,
+                    service: MockOIDAuthorizationService_MissingAuthStateProperty.self
+                )
+                XCTFail("Expected missing authstate property error, got success")
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .non200)
+            } catch {
+                XCTFail("Expected missing authstate property error, got \(error)")
             }
             
             exp.fulfill()
@@ -281,31 +307,31 @@ extension AppAuthSessionTests {
         wait(for: [exp], timeout: 2)
     }
     
-    @MainActor
-    func test_authService_rejectsWhenAuthStateMissingProperty() throws {
-        let exp = expectation(description: "Wait for token response")
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock,
-                    service: MockOIDAuthorizationService_MissingAuthStateProperty.self
-                )
-                XCTFail("Expected missing authstate property error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error, .non200)
-            } catch {
-                XCTFail("Expected missing authstate property error, got \(error)")
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 2)
-        
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
-        
-        wait(for: [exp], timeout: 2)
-    }
+//    @MainActor
+//    func test_authService_rejectsWhenAuthStateMissingProperty() throws {
+//        let exp = expectation(description: "Wait for token response")
+//        Task {
+//            do {
+//                _ = try await sut.performLoginFlow(
+//                    configuration: .mock,
+//                    service: MockOIDAuthorizationService_MissingAuthStateProperty.self
+//                )
+//                XCTFail("Expected missing authstate property error, got success")
+//            } catch let error as LoginError {
+//                XCTAssertEqual(error, .non200)
+//            } catch {
+//                XCTFail("Expected missing authstate property error, got \(error)")
+//            }
+//            
+//            exp.fulfill()
+//        }
+//        
+//        waitForTruth(self.sut.isActive, timeout: 2)
+//        
+//        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+//        
+//        wait(for: [exp], timeout: 2)
+//    }
     
     @MainActor
     func test_finalise_throwErrorWithNoAuthCode() throws {

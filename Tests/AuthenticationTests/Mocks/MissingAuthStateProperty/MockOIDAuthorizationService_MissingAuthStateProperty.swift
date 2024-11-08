@@ -18,7 +18,10 @@ public class MockOIDAuthorizationService_MissingAuthStateProperty: OIDAuthorizat
         originalAuthorizationResponse authorizationResponse: OIDAuthorizationResponse?,
         callback: @escaping OIDTokenCallback
     ) {
-        let error: Error? = NSError(domain: OIDGeneralErrorDomain, code: -6)
+        let error: Error? = NSError(
+            domain: OIDGeneralErrorDomain,
+            code: -6
+        )
         callback(nil, error)
     }
 }

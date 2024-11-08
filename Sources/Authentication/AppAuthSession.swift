@@ -123,15 +123,16 @@ public final class AppAuthSession: LoginSession {
         guard let tokenRequest = authorizationResponse.tokenExchangeRequest(
             withAdditionalParameters: nil,
             additionalHeaders: {
-            if let attestationHeaders {
-                return [
-                    "OAuth-Client-Attestation": attestationHeaders.attestation,
-                    "OAuth-Client-Attestation-PoP": attestationHeaders.attestationPoP
-                ]
-            } else {
-                return nil
-            }
-        }()) else {
+                if let attestationHeaders {
+                    return [
+                        "OAuth-Client-Attestation": attestationHeaders.attestation,
+                        "OAuth-Client-Attestation-PoP": attestationHeaders.attestationPoP
+                    ]
+                } else {
+                    return nil
+                }
+            }()
+        ) else {
             throw LoginError.generic(description: "Couldn't create TokenRequest")
         }
         return tokenRequest
