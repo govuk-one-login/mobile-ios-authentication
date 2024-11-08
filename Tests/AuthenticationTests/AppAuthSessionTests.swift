@@ -24,17 +24,6 @@ final class AppAuthSessionTests: XCTestCase {
 }
 
 extension AppAuthSessionTests {
-    func test_finalise_throwErrorWithNoAuthCode() async throws {
-        do {
-            _ = try await sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
-            XCTFail("Expected user agent session does not exist error, got success")
-        } catch LoginError.generic(let description) {
-            XCTAssertTrue(description == "User Agent Session does not exist")
-        } catch {
-            XCTFail("Expected user agent session does not exist error, got \(error)")
-        }
-    }
-    
     @MainActor
     func test_authService_rejectsIncorrectStateParameter() throws {
         let exp = expectation(description: "Wait for token response")
@@ -286,6 +275,18 @@ extension AppAuthSessionTests {
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
         wait(for: [exp], timeout: 2)
+    }
+    
+    @MainActor
+    func test_finalise_throwErrorWithNoAuthCode() throws {
+        do {
+            _ = try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+            XCTFail("Expected user agent session does not exist error, got success")
+        } catch LoginError.generic(let description) {
+            XCTAssertTrue(description == "User Agent Session does not exist")
+        } catch {
+            XCTFail("Expected user agent session does not exist error, got \(error)")
+        }
     }
 }
 

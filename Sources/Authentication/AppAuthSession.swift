@@ -21,13 +21,21 @@ public final class AppAuthSession: LoginSession {
     /// - Parameters:
     ///     - configuration: object that contains your LoginSessionConfiguration
     @MainActor
-    public func performLoginFlow(configuration: LoginSessionConfiguration) async throws -> TokenResponse {
-        try await performLoginFlow(configuration: configuration, service: OIDAuthorizationService.self)
+    public func performLoginFlow(
+        configuration: LoginSessionConfiguration
+    ) async throws -> TokenResponse {
+        try await performLoginFlow(
+            configuration: configuration,
+            service: OIDAuthorizationService.self
+        )
     }
     
     /// This is here for testing and allows `service` to be mocked
     @MainActor
-    func performLoginFlow(configuration: LoginSessionConfiguration, service: OIDAuthorizationService.Type) async throws -> TokenResponse {
+    func performLoginFlow(
+        configuration: LoginSessionConfiguration,
+        service: OIDAuthorizationService.Type
+    ) async throws -> TokenResponse {
         guard let viewController = window.rootViewController else {
             fatalError("empty vc in window, please add vc")
         }
@@ -56,15 +64,21 @@ public final class AppAuthSession: LoginSession {
         )
         
         return try await withCheckedThrowingContinuation { continuation in
-            userAgent = service.present(authRequest,
-                                        presenting: viewController,
-                                        prefersEphemeralSession: configuration.prefersEphemeralWebSession) { [unowned self] authResponse, error in
+            userAgent = service.present(
+                authRequest,
+                presenting: viewController,
+                prefersEphemeralSession: configuration.prefersEphemeralWebSession
+            ) { [unowned self] authResponse, error in
                 do {
-                    let tokenRequest = try handleAuthorizationResponse(authResponse,
-                                                                       error: error,
-                                                                       attestationHeaders: configuration.attestationHeaders)
-                    service.perform(tokenRequest,
-                                    originalAuthorizationResponse: authResponse) { [unowned self] tokenResponse, error in
+                    let tokenRequest = try handleAuthorizationResponse(
+                        authResponse,
+                        error: error,
+                        attestationHeaders: configuration.attestationHeaders
+                    )
+                    service.perform(
+                        tokenRequest,
+                        originalAuthorizationResponse: authResponse
+                    ) { [unowned self] tokenResponse, error in
                         do {
                             let response = try handleTokenResponse(tokenResponse,
                                                                    error: error)
@@ -95,15 +109,18 @@ public final class AppAuthSession: LoginSession {
         userAgent.resumeExternalUserAgentFlow(with: url)
     }
     
-    private func handleAuthorizationResponse(_ authorizationResponse: OIDAuthorizationResponse?,
-                                             error: Error?,
-                                             attestationHeaders: AttestationHeaders?) throws -> OIDTokenRequest {
+    private func handleAuthorizationResponse(
+        _ authorizationResponse: OIDAuthorizationResponse?,
+        error: Error?,
+        attestationHeaders: AttestationHeaders?
+    ) throws -> OIDTokenRequest {
         try handleIfError(error)
         guard let authorizationResponse else {
             throw LoginError.generic(description: "No Authorization Response")
         }
-        guard let tokenRequest = authorizationResponse.tokenExchangeRequest(withAdditionalParameters: nil,
-                                                                            additionalHeaders: {
+        guard let tokenRequest = authorizationResponse.tokenExchangeRequest(
+            withAdditionalParameters: nil,
+            additionalHeaders: {
             if let attestationHeaders {
                 return [
                     "OAuth-Client-Attestation": attestationHeaders.attestation,
@@ -112,15 +129,16 @@ public final class AppAuthSession: LoginSession {
             } else {
                 return nil
             }
-        }()
-        ) else {
+        }()) else {
             throw LoginError.generic(description: "Couldn't create TokenRequest")
         }
         return tokenRequest
     }
     
-    private func handleTokenResponse(_ tokenResponse: OIDTokenResponse?,
-                                     error: Error?) throws -> TokenResponse {
+    private func handleTokenResponse(
+        _ tokenResponse: OIDTokenResponse?,
+        error: Error?
+    ) throws -> TokenResponse {
         try handleIfError(error)
         guard let tokenResponse else {
             throw LoginError.generic(description: "No Token Response")
