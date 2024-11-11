@@ -70,7 +70,7 @@ public final class AppAuthSession: LoginSession {
                 prefersEphemeralSession: configuration.prefersEphemeralWebSession
             ) { [unowned self] authResponse, error in
                 do {
-                    let tokenRequest = try handleAuthorizationResponse(
+                    let tokenRequest = try handleAuthorizationResponseCreateTokenRequest(
                         authResponse,
                         error: error,
                         attestationHeaders: configuration.attestationHeaders
@@ -111,7 +111,7 @@ public final class AppAuthSession: LoginSession {
         userAgent.resumeExternalUserAgentFlow(with: url)
     }
     
-    private func handleAuthorizationResponse(
+    func handleAuthorizationResponseCreateTokenRequest(
         _ authorizationResponse: OIDAuthorizationResponse?,
         error: Error?,
         attestationHeaders: AttestationHeaders?
@@ -138,7 +138,7 @@ public final class AppAuthSession: LoginSession {
         return tokenRequest
     }
     
-    private func handleTokenResponse(
+    func handleTokenResponse(
         _ tokenResponse: OIDTokenResponse?,
         error: Error?
     ) throws -> TokenResponse {
@@ -172,7 +172,7 @@ public final class AppAuthSession: LoginSession {
         }
     }
     
-    private func generateTokenResponse(
+    func generateTokenResponse(
         token: OIDTokenResponse
     ) throws -> TokenResponse {
         guard let accessToken = token.accessToken,
