@@ -30,7 +30,7 @@ public final class AppAuthSession: LoginSession {
         )
     }
     
-    // swiftlint:disable:next function_body_length
+    // swiftlint:disable: function_body_length
     /// This is here for testing and allows `service` to be mocked
     @MainActor
     func performLoginFlow(
@@ -97,6 +97,7 @@ public final class AppAuthSession: LoginSession {
             }
         }
     }
+    // swiftlint:enable: function_body_length
     
     /// Ensures `finalise` is public and can be called by the app
     /// Handles the redirect URL from the login modal
