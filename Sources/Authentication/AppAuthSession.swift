@@ -133,7 +133,7 @@ public final class AppAuthSession: LoginSession {
                 }
             }()
         ) else {
-            throw LoginError.generic(description: "Couldn't create TokenRequest")
+            throw LoginError.generic(description: "Couldn't create Token Request")
         }
         return tokenRequest
     }
@@ -178,7 +178,7 @@ public final class AppAuthSession: LoginSession {
         guard let accessToken = token.accessToken,
               let tokenType = token.tokenType,
               let expiryDate = token.accessTokenExpirationDate else {
-            throw LoginError.generic(description: "Missing authState property")
+            throw LoginError.generic(description: "Missing token property")
         }
         return TokenResponse(accessToken: accessToken,
                              refreshToken: token.refreshToken,

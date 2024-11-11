@@ -25,17 +25,19 @@ final class AppAuthSessionTests: XCTestCase {
 }
 
 extension AppAuthSessionTests {
+    // MARK: Present tests
+
     @MainActor
     func test_authService_rejectsIncorrectStateParameter() throws {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {
                 _ = try await sut.performLoginFlow(configuration: .mock)
-                XCTFail("Expected state mismatch error, got success")
+                XCTFail("Expected client error, got success")
             } catch let error as LoginError {
                 XCTAssertEqual(error, .clientError)
             } catch {
-                XCTFail("Expected state mismatch error, got \(error)")
+                XCTFail("Expected client error, got \(error)")
             }
             
             exp.fulfill()
@@ -213,11 +215,11 @@ extension AppAuthSessionTests {
                     configuration: .mock,
                     service: MockOIDAuthorizationService_ServerError.self
                 )
-                XCTFail("Expected missing authstate property error, got success")
+                XCTFail("Expected server error, got success")
             } catch let error as LoginError {
                 XCTAssertEqual(error, .serverError)
             } catch {
-                XCTFail("Expected missing authstate property error, got \(error)")
+                XCTFail("Expected server error, got \(error)")
             }
             
             exp.fulfill()
@@ -230,96 +232,63 @@ extension AppAuthSessionTests {
         wait(for: [exp], timeout: 2)
     }
     
-    // MARK: Individual methods
+    // MARK: Perform tests
     
     @MainActor
-    func test_handleAuthorizationResponseCreateTokenRequest_noAuthorizationResponse() throws {
-        do {
-            _ = try sut.handleAuthorizationResponseCreateTokenRequest(nil,
-                                                                      error: nil,
-                                                                      attestationHeaders: nil)
-            XCTFail("Expected no authstate error, got success")
-        } catch LoginError.generic(let description) {
-            XCTAssertTrue(description == "No Authorization Response")
-        }
-    }
-    
-    @MainActor
-    func test_handleAuthorizationResponseCreateTokenRequest_addHeaders() throws {
-        let serviceConfiguration = OIDServiceConfiguration(
-            authorizationEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!,
-            tokenEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!
-        )
-        let authRequest = OIDAuthorizationRequest(
-            configuration: serviceConfiguration,
-            clientId: "",
-            scopes: nil,
-            redirectURL: Foundation.URL(
-                string: "https://www.google.com"
-            )!,
-            responseType: "code",
-            additionalParameters: .init()
-        )
-        let authorizationResponse = MockAuthorizationResponse_AddingHeaders(
-            request: authRequest,
-            parameters: .init()
-        )
-
-        
-        do {
-            let tokenRequest = try sut.handleAuthorizationResponseCreateTokenRequest(
-                authorizationResponse,
-                error: nil,
-                attestationHeaders: AttestationHeaders(
-                    attestation: "test_value_1",
-                    attestationPoP: "test_value_2"
+    func test_authService_perform_clientError() throws {
+        let exp = expectation(description: "Wait for token response")
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(
+                    configuration: .mock,
+                    service: MockOIDAuthorizationService_Perform_ClientError.self
                 )
-            )
-            XCTAssertEqual(tokenRequest.additionalHeaders?["OAuth-Client-Attestation"], "test_value_1")
-            XCTAssertEqual(tokenRequest.additionalHeaders?["OAuth-Client-Attestation-PoP"], "test_value_2")
-        } catch {
-            XCTFail("Expected no authstate error, got success")
+                XCTFail("Expected client error, got success")
+            } catch let error as LoginError {
+                XCTAssertEqual(error, .clientError)
+            } catch {
+                XCTFail("Expected client error, got \(error)")
+            }
+            
+            exp.fulfill()
         }
+        
+        waitForTruth(self.sut.isActive, timeout: 2)
+        
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        
+        wait(for: [exp], timeout: 2)
     }
     
     @MainActor
-    func test_handleAuthorizationResponseCreateTokenRequest_noTokenResponse() throws {
-        let serviceConfiguration = OIDServiceConfiguration(
-            authorizationEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!,
-            tokenEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!
-        )
-        let authRequest = OIDAuthorizationRequest(
-            configuration: serviceConfiguration,
-            clientId: "",
-            scopes: nil,
-            redirectURL: Foundation.URL(
-                string: "https://www.google.com"
-            )!,
-            responseType: "code",
-            additionalParameters: .init()
-        )
-        let authorizationResponse = MockAuthorizationResponse_MissingTokenRequest(
-            request: authRequest,
-            parameters: .init()
-        )
-        
-        do {
-            _ = try sut.handleAuthorizationResponseCreateTokenRequest(authorizationResponse,
-                                                                      error: nil,
-                                                                      attestationHeaders: nil)
-            XCTFail("Expected no authstate error, got success")
-        } catch LoginError.generic(let description) {
-            XCTAssertTrue(description == "Couldn't create TokenRequest")
+    func test_authService_perform() throws {
+        let exp = expectation(description: "Wait for token response")
+        Task {
+            do {
+                let tokens = try await sut.performLoginFlow(
+                    configuration: .mock,
+                    service: MockOIDAuthorizationService_Perform_Flow.self
+                )
+                XCTAssertEqual(tokens.accessToken, "1234567890")
+                XCTAssertEqual(tokens.tokenType, "mock token")
+                XCTAssertEqual(tokens.refreshToken, "0987654321")
+                XCTAssertEqual(tokens.idToken, "mock user")
+                XCTAssertNotNil(tokens.expiryDate)
+            } catch {
+                XCTFail("Expected tokens, got \(error)")
+            }
+            
+            exp.fulfill()
         }
+        
+        waitForTruth(self.sut.isActive, timeout: 2)
+        
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        
+        wait(for: [exp], timeout: 2)
     }
+    
+    // MARK: Finalise tests
     
     @MainActor
     func test_finalise_throwErrorWithNoAuthCode() throws {
