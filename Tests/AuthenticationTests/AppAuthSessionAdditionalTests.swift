@@ -1,5 +1,5 @@
-@testable import Authentication
 import AppAuthCore
+@testable import Authentication
 import XCTest
 
 extension AppAuthSessionTests {
@@ -94,7 +94,7 @@ extension AppAuthSessionTests {
     @MainActor
     func test_handleTokenResponse_noTokenResponse() throws {
         do {
-            let _ = try sut.handleTokenResponse(
+            _ = try sut.handleTokenResponse(
                 nil,
                 error: nil
             )
@@ -133,7 +133,7 @@ extension AppAuthSessionTests {
         )
         
         do {
-            let _ = try sut.handleTokenResponse(
+            _ = try sut.handleTokenResponse(
                 tokenResponse,
                 error: nil
             )

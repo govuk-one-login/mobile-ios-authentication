@@ -1,5 +1,5 @@
-@testable import Authentication
 import AppAuthCore
+@testable import Authentication
 import XCTest
 
 final class AppAuthSessionTests: XCTestCase {

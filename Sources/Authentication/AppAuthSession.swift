@@ -30,6 +30,7 @@ public final class AppAuthSession: LoginSession {
         )
     }
     
+    // swiftlint:disable:next function_body_length
     /// This is here for testing and allows `service` to be mocked
     @MainActor
     func performLoginFlow(
