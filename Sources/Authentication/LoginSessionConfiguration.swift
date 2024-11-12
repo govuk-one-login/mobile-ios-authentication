@@ -1,5 +1,5 @@
-import Foundation
 import AppAuthCore
+import Foundation
 
 public typealias TokenParameters = [String: String]
 public typealias TokenHeaders = [String: String]
