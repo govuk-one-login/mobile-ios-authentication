@@ -9,7 +9,6 @@ disabled_rules:
 - cyclomatic_complexity
 - multiple_closures_with_trailing_closure
 - todo
-- static_over_final_class
 
 analyzer_rules:
 - unused_import
@@ -54,4 +53,3 @@ custom_rules:
         Please use the format:
         // TODO: DCMAW-000
     regex: "(?i)(todo(?!(.*dcmaw-\\d{2,})))"
-    

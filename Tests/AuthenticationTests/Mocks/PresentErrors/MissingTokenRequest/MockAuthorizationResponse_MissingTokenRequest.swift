@@ -1,6 +1,6 @@
 import AppAuthCore
 
-final class MockAuthorizationResponse_MissingTokenRequest: OIDAuthorizationResponse {
+class MockAuthorizationResponse_MissingTokenRequest: OIDAuthorizationResponse {
     override func tokenExchangeRequest(
         withAdditionalParameters additionalParameters: [String: String]?,
         additionalHeaders: [String: String]?

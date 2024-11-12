@@ -1,6 +1,6 @@
 import AppAuthCore
 
-final class MockOIDExternalUserAgentSession_NetworkError: NSObject,
+class MockOIDExternalUserAgentSession_NetworkError: NSObject,
                                                           OIDExternalUserAgentSession {
     var callback: OIDAuthorizationCallback?
     
