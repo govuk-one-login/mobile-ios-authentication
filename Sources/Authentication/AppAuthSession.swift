@@ -30,7 +30,6 @@ public final class AppAuthSession: LoginSession {
         )
     }
     
-    // swiftlint:disable function_body_length
     /// This is here for testing and allows `service` to be mocked
     @MainActor
     func performLoginFlow(
@@ -41,32 +40,9 @@ public final class AppAuthSession: LoginSession {
             fatalError("empty vc in window, please add vc")
         }
         
-        let config = OIDServiceConfiguration(
-            authorizationEndpoint: configuration.authorizationEndpoint,
-            tokenEndpoint: configuration.tokenEndpoint
-        )
-        
-        let authRequest = OIDAuthorizationRequest(
-            configuration: config,
-            clientId: configuration.clientID,
-            scopes: configuration.scopes.map(\.rawValue),
-            redirectURL: URL(string: configuration.redirectURI)!,
-            responseType: configuration.responseType.rawValue,
-            additionalParameters: {
-                var params = [
-                    "vtr": configuration.vectorsOfTrust.description,
-                    "ui_locales": configuration.locale.rawValue
-                ]
-                if let persistentSessionId = configuration.persistentSessionId {
-                    params["govuk_signin_session_id"] = persistentSessionId
-                }
-                return params
-            }()
-        )
-        
         return try await withCheckedThrowingContinuation { continuation in
             userAgent = service.present(
-                authRequest,
+                configuration.authorizationRequest,
                 presenting: viewController,
                 prefersEphemeralSession: configuration.prefersEphemeralWebSession
             ) { [unowned self] authResponse, error in
@@ -74,7 +50,8 @@ public final class AppAuthSession: LoginSession {
                     let tokenRequest = try handleAuthorizationResponseCreateTokenRequest(
                         authResponse,
                         error: error,
-                        attestationHeaders: configuration.attestationHeaders
+                        tokenParameters: configuration.tokenParameters,
+                        tokenHeaders: configuration.tokenHeaders
                     )
                     service.perform(
                         tokenRequest,
@@ -97,7 +74,6 @@ public final class AppAuthSession: LoginSession {
             }
         }
     }
-    // swiftlint:enable function_body_length
     
     /// Ensures `finalise` is public and can be called by the app
     /// Handles the redirect URL from the login modal
@@ -116,24 +92,16 @@ public final class AppAuthSession: LoginSession {
     func handleAuthorizationResponseCreateTokenRequest(
         _ authorizationResponse: OIDAuthorizationResponse?,
         error: Error?,
-        attestationHeaders: AttestationHeaders?
+        tokenParameters: TokenParameters?,
+        tokenHeaders: TokenHeaders?
     ) throws -> OIDTokenRequest {
         try handleIfError(error)
         guard let authorizationResponse else {
             throw LoginError.generic(description: "No Authorization Response")
         }
         guard let tokenRequest = authorizationResponse.tokenExchangeRequest(
-            withAdditionalParameters: nil,
-            additionalHeaders: {
-                if let attestationHeaders {
-                    return [
-                        "OAuth-Client-Attestation": attestationHeaders.attestation,
-                        "OAuth-Client-Attestation-PoP": attestationHeaders.attestationPoP
-                    ]
-                } else {
-                    return nil
-                }
-            }()
+            withAdditionalParameters: tokenParameters,
+            additionalHeaders: tokenHeaders
         ) else {
             throw LoginError.generic(description: "Couldn't create Token Request")
         }

@@ -1,4 +1,8 @@
 import Foundation
+import AppAuthCore
+
+public typealias TokenParameters = [String: String]
+public typealias TokenHeaders = [String: String]
 
 public struct LoginSessionConfiguration {
     public let authorizationEndpoint: URL
@@ -14,8 +18,9 @@ public struct LoginSessionConfiguration {
     
     public let vectorsOfTrust: [String]
     public let locale: UILocale
-    public let attestationHeaders: AttestationHeaders?
     public let persistentSessionId: String?
+    public let tokenParameters: TokenParameters?
+    public let tokenHeaders: TokenHeaders?
     
     public enum ResponseType: String {
         case code
@@ -58,8 +63,9 @@ public struct LoginSessionConfiguration {
                 redirectURI: String,
                 vectorsOfTrust: [String] = ["Cl.Cm.P0"],
                 locale: UILocale = .en,
-                attestationHeaders: AttestationHeaders? = nil,
-                persistentSessionId: String? = nil) {
+                persistentSessionId: String? = nil,
+                tokenParameters: TokenParameters? = nil,
+                tokenHeaders: TokenHeaders? = nil) {
         self.authorizationEndpoint = authorizationEndpoint
         self.tokenEndpoint = tokenEndpoint
         self.responseType = responseType
@@ -69,7 +75,37 @@ public struct LoginSessionConfiguration {
         self.redirectURI = redirectURI
         self.vectorsOfTrust = vectorsOfTrust
         self.locale = locale
-        self.attestationHeaders = attestationHeaders
         self.persistentSessionId = persistentSessionId
+        self.tokenParameters = tokenParameters
+        self.tokenHeaders = tokenHeaders
+    }
+}
+
+extension LoginSessionConfiguration {
+    private var configuration: OIDServiceConfiguration {
+        OIDServiceConfiguration(
+            authorizationEndpoint: authorizationEndpoint,
+            tokenEndpoint: tokenEndpoint
+        )
+    }
+    
+    var authorizationRequest: OIDAuthorizationRequest {
+        OIDAuthorizationRequest(
+            configuration: configuration,
+            clientId: clientID,
+            scopes: scopes.map(\.rawValue),
+            redirectURL: URL(string: redirectURI)!,
+            responseType: responseType.rawValue,
+            additionalParameters: {
+                var params = [
+                    "vtr": vectorsOfTrust.description,
+                    "ui_locales": locale.rawValue
+                ]
+                if let persistentSessionId {
+                    params["govuk_signin_session_id"] = persistentSessionId
+                }
+                return params
+            }()
+        )
     }
 }

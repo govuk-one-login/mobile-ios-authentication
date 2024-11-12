@@ -23,7 +23,7 @@ class MockAuthorizationResponse_AddingHeaders: OIDAuthorizationResponse {
             scope: nil,
             refreshToken: nil,
             codeVerifier: nil,
-            additionalParameters: nil,
+            additionalParameters: additionalParameters,
             additionalHeaders: additionalHeaders
         )
     }

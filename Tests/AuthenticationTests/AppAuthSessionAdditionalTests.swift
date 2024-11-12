@@ -6,9 +6,12 @@ extension AppAuthSessionTests {
     @MainActor
     func test_handleAuthorizationResponseCreateTokenRequest_noAuthorizationResponse() throws {
         do {
-            _ = try sut.handleAuthorizationResponseCreateTokenRequest(nil,
-                                                                      error: nil,
-                                                                      attestationHeaders: nil)
+            _ = try sut.handleAuthorizationResponseCreateTokenRequest(
+                nil,
+                error: nil,
+                tokenParameters: nil,
+                tokenHeaders: nil
+            )
             XCTFail("Expected no authorization response error, got success")
         } catch LoginError.generic(let description) {
             XCTAssertEqual(description, "No Authorization Response")
@@ -44,13 +47,19 @@ extension AppAuthSessionTests {
             let tokenRequest = try sut.handleAuthorizationResponseCreateTokenRequest(
                 authorizationResponse,
                 error: nil,
-                attestationHeaders: AttestationHeaders(
-                    attestation: "test_value_1",
-                    attestationPoP: "test_value_2"
-                )
+                tokenParameters: [
+                    "token_parameter_1": "test_parameter_1",
+                    "token_parameter_2": "test_parameter_2"
+                ],
+                tokenHeaders: [
+                    "token_header_1": "test_header_1",
+                    "token_header_2": "test_header_2"
+                ]
             )
-            XCTAssertEqual(tokenRequest.additionalHeaders?["OAuth-Client-Attestation"], "test_value_1")
-            XCTAssertEqual(tokenRequest.additionalHeaders?["OAuth-Client-Attestation-PoP"], "test_value_2")
+            XCTAssertEqual(tokenRequest.additionalParameters?["token_parameter_1"], "test_parameter_1")
+            XCTAssertEqual(tokenRequest.additionalParameters?["token_parameter_2"], "test_parameter_2")
+            XCTAssertEqual(tokenRequest.additionalHeaders?["token_header_1"], "test_header_1")
+            XCTAssertEqual(tokenRequest.additionalHeaders?["token_header_2"], "test_header_2")
         } catch {
             XCTFail("Expected no error, got error")
         }
@@ -82,9 +91,12 @@ extension AppAuthSessionTests {
         )
         
         do {
-            _ = try sut.handleAuthorizationResponseCreateTokenRequest(authorizationResponse,
-                                                                      error: nil,
-                                                                      attestationHeaders: nil)
+            _ = try sut.handleAuthorizationResponseCreateTokenRequest(
+                authorizationResponse,
+                error: nil,
+                tokenParameters: nil,
+                tokenHeaders: nil
+            )
             XCTFail("Expected no token request error, got success")
         } catch LoginError.generic(let description) {
             XCTAssertEqual(description, "Couldn't create Token Request")

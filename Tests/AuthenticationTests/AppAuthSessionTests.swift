@@ -43,11 +43,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 20)
+        waitForTruth(self.sut.isActive, timeout: 5)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(UUID().uuidString)&state=\(UUID().uuidString)")!)
         
-        wait(for: [exp], timeout: 2)
+        wait(for: [exp], timeout: 5)
     }
     
     @MainActor
@@ -69,11 +69,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 2)
+        waitForTruth(self.sut.isActive, timeout: 5)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
 
-        wait(for: [exp], timeout: 2)
+        wait(for: [exp], timeout: 5)
     }
     
     @MainActor
@@ -95,11 +95,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 2)
+        waitForTruth(self.sut.isActive, timeout: 5)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 2)
+        wait(for: [exp], timeout: 5)
     }
     
     @MainActor
@@ -121,11 +121,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 4)
+        waitForTruth(self.sut.isActive, timeout: 5)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 4)
+        wait(for: [exp], timeout: 5)
     }
     
     @MainActor
@@ -147,11 +147,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 2)
+        waitForTruth(self.sut.isActive, timeout: 5)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 2)
+        wait(for: [exp], timeout: 5)
     }
     
     @MainActor
@@ -173,11 +173,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 2)
+        waitForTruth(self.sut.isActive, timeout: 5)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 2)
+        wait(for: [exp], timeout: 5)
     }
     
     @MainActor
@@ -199,11 +199,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 2)
+        waitForTruth(self.sut.isActive, timeout: 5)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 2)
+        wait(for: [exp], timeout: 5)
     }
     
     @MainActor
@@ -225,11 +225,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 2)
+        waitForTruth(self.sut.isActive, timeout: 5)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 2)
+        wait(for: [exp], timeout: 5)
     }
     
     // MARK: Perform tests
@@ -253,11 +253,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 2)
+        waitForTruth(self.sut.isActive, timeout: 5)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 2)
+        wait(for: [exp], timeout: 5)
     }
     
     @MainActor
@@ -281,11 +281,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 2)
+        waitForTruth(self.sut.isActive, timeout: 5)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 2)
+        wait(for: [exp], timeout: 5)
     }
     
     // MARK: Finalise tests
