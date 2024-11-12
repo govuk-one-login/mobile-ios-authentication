@@ -1,6 +1,6 @@
 import AppAuthCore
 
-public class MockOIDExternalUserAgentSession_UserCancelled: NSObject,
+final class MockOIDExternalUserAgentSession_UserCancelled: NSObject,
                                                             OIDExternalUserAgentSession {
     var callback: OIDAuthorizationCallback?
     

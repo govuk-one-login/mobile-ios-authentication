@@ -1,7 +1,7 @@
 import AppAuthCore
 
 // swiftlint:disable:next type_name
-public class MockOIDExternalUserAgentSession_TokenInvalidRequest: NSObject,
+final class MockOIDExternalUserAgentSession_TokenInvalidRequest: NSObject,
                                                                   OIDExternalUserAgentSession {
     var callback: OIDAuthorizationCallback?
     

@@ -1,6 +1,6 @@
 import AppAuthCore
 
-class MockTokenResponse_MissingProperty: OIDTokenResponse {
+final class MockTokenResponse_MissingProperty: OIDTokenResponse {
     override var accessToken: String? {
         nil
     }

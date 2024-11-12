@@ -20,26 +20,8 @@ extension AppAuthSessionTests {
     
     @MainActor
     func test_handleAuthorizationResponseCreateTokenRequest_addHeaders() throws {
-        let serviceConfiguration = OIDServiceConfiguration(
-            authorizationEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!,
-            tokenEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!
-        )
-        let authRequest = OIDAuthorizationRequest(
-            configuration: serviceConfiguration,
-            clientId: "",
-            scopes: nil,
-            redirectURL: Foundation.URL(
-                string: "https://www.google.com"
-            )!,
-            responseType: "code",
-            additionalParameters: .init()
-        )
         let authorizationResponse = MockAuthorizationResponse_AddingHeaders(
-            request: authRequest,
+            request: OIDAuthorizationRequest.mockAuthorizationRequest,
             parameters: .init()
         )
 
@@ -67,26 +49,8 @@ extension AppAuthSessionTests {
     
     @MainActor
     func test_handleAuthorizationResponseCreateTokenRequest_noTokenResponse() throws {
-        let serviceConfiguration = OIDServiceConfiguration(
-            authorizationEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!,
-            tokenEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!
-        )
-        let authRequest = OIDAuthorizationRequest(
-            configuration: serviceConfiguration,
-            clientId: "",
-            scopes: nil,
-            redirectURL: Foundation.URL(
-                string: "https://www.google.com"
-            )!,
-            responseType: "code",
-            additionalParameters: .init()
-        )
         let authorizationResponse = MockAuthorizationResponse_MissingTokenRequest(
-            request: authRequest,
+            request: OIDAuthorizationRequest.mockAuthorizationRequest,
             parameters: .init()
         )
         
@@ -118,29 +82,8 @@ extension AppAuthSessionTests {
     
     @MainActor
     func test_handleTokenResponse_generateToken_error() throws {
-        let serviceConfiguration = OIDServiceConfiguration(
-            authorizationEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!,
-            tokenEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!
-        )
-        let tokenRequest = OIDTokenRequest(
-            configuration: serviceConfiguration,
-            grantType: "",
-            authorizationCode: nil,
-            redirectURL: nil,
-            clientID: "",
-            clientSecret: nil,
-            scope: nil,
-            refreshToken: nil,
-            codeVerifier: nil,
-            additionalParameters: nil,
-            additionalHeaders: nil
-        )
         let tokenResponse = MockTokenResponse_MissingProperty(
-            request: tokenRequest,
+            request: OIDTokenRequest.mockTokenRequest,
             parameters: .init()
         )
         
@@ -157,29 +100,8 @@ extension AppAuthSessionTests {
     
     @MainActor
     func test_handleTokenResponse_generateToken() throws {
-        let serviceConfiguration = OIDServiceConfiguration(
-            authorizationEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!,
-            tokenEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!
-        )
-        let tokenRequest = OIDTokenRequest(
-            configuration: serviceConfiguration,
-            grantType: "",
-            authorizationCode: nil,
-            redirectURL: nil,
-            clientID: "",
-            clientSecret: nil,
-            scope: nil,
-            refreshToken: nil,
-            codeVerifier: nil,
-            additionalParameters: nil,
-            additionalHeaders: nil
-        )
         let tokenResponse = MockTokenResponse_FullyFormed(
-            request: tokenRequest,
+            request: OIDTokenRequest.mockTokenRequest,
             parameters: .init()
         )
         

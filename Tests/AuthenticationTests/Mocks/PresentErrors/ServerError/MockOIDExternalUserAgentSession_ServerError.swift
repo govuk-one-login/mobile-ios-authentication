@@ -1,7 +1,7 @@
 import AppAuthCore
 
-public class MockOIDExternalUserAgentSession_ServerError: NSObject,
-                                                          OIDExternalUserAgentSession {
+final class MockOIDExternalUserAgentSession_ServerError: NSObject,
+                                                         OIDExternalUserAgentSession {
     var callback: OIDAuthorizationCallback?
     
     public func cancel() { }

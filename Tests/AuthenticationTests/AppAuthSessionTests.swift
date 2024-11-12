@@ -28,7 +28,7 @@ extension AppAuthSessionTests {
     // MARK: Present tests
 
     @MainActor
-    func test_authService_rejectsIncorrectStateParameter() throws {
+    func test_loginFlow_present_IncorrectStateParameter() throws {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {
@@ -51,7 +51,7 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_authService_rejectsUserCancelled() throws {
+    func test_loginFlow_present_rejectsUserCancelled() throws {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {
@@ -77,7 +77,7 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_authService_rejectsNetworkError() throws {
+    func test_loginFlow_present_rejectsNetworkError() throws {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {
@@ -103,7 +103,7 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_authService_rejectsNon200() throws {
+    func test_loginFlow_present_rejectsNon200() throws {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {
@@ -129,7 +129,7 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_authService_rejectsAuthorizationInvalidRequest() throws {
+    func test_loginFlow_present_rejectsAuthorizationInvalidRequest() throws {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {
@@ -155,7 +155,7 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_authService_rejectsTokenInvalidRequest() throws {
+    func test_loginFlow_present_rejectsTokenInvalidRequest() throws {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {
@@ -181,7 +181,7 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_authService_rejectsClientError() throws {
+    func test_loginFlow_present_rejectsClientError() throws {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {
@@ -207,7 +207,7 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_authService_rejectsServerError() throws {
+    func test_loginFlow_present_rejectsServerError() throws {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {
@@ -235,7 +235,7 @@ extension AppAuthSessionTests {
     // MARK: Perform tests
     
     @MainActor
-    func test_authService_perform_clientError() throws {
+    func test_loginFlow_perform_clientError() throws {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {
@@ -261,7 +261,7 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_authService_perform() throws {
+    func test_loginFlow_perform_succeeds() throws {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {

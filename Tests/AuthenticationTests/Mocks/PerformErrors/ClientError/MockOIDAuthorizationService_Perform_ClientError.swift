@@ -1,7 +1,7 @@
 import AppAuthCore
 import UIKit
 
-public class MockOIDAuthorizationService_Perform_ClientError: OIDAuthorizationService {
+final class MockOIDAuthorizationService_Perform_ClientError: OIDAuthorizationService {
     public override class func present(
         _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,

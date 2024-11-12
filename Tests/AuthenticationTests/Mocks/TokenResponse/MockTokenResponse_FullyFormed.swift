@@ -1,6 +1,6 @@
 import AppAuthCore
 
-class MockTokenResponse_FullyFormed: OIDTokenResponse {
+final class MockTokenResponse_FullyFormed: OIDTokenResponse {
     override var accessToken: String? {
         "1234567890"
     }

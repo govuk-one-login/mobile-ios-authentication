@@ -1,7 +1,8 @@
 import AppAuthCore
 
-final class MockOIDExternalUserAgentSession_Perform_Flow: NSObject,
-                                                          OIDExternalUserAgentSession {
+// swiftlint:disable:next type_name
+final class MockOIDExternalUserAgentSession_Perform_ClientError: NSObject,
+                                                                 OIDExternalUserAgentSession {
     var callback: OIDAuthorizationCallback?
     
     public func cancel() { }
@@ -18,5 +19,14 @@ final class MockOIDExternalUserAgentSession_Perform_Flow: NSObject,
         
         callback?(authorizationResponse, nil)
         return true
+    }
+}
+
+class MockAuthorizationResponse: OIDAuthorizationResponse {
+    override func tokenExchangeRequest(
+        withAdditionalParameters additionalParameters: [String: String]?,
+        additionalHeaders: [String: String]?
+    ) -> OIDTokenRequest? {
+        return OIDTokenRequest.mockTokenRequest
     }
 }

@@ -1,10 +1,7 @@
 import AppAuthCore
 
-final class MockAuthorizationResponse_AddingHeaders: OIDAuthorizationResponse {
-    override func tokenExchangeRequest(
-        withAdditionalParameters additionalParameters: [String: String]?,
-        additionalHeaders: [String: String]?
-    ) -> OIDTokenRequest? {
+extension OIDTokenRequest {
+    static var mockTokenRequest: OIDTokenRequest {
         let serviceConfiguration = OIDServiceConfiguration(
             authorizationEndpoint: Foundation.URL(
                 string: "https://www.google.com"
@@ -23,8 +20,8 @@ final class MockAuthorizationResponse_AddingHeaders: OIDAuthorizationResponse {
             scope: nil,
             refreshToken: nil,
             codeVerifier: nil,
-            additionalParameters: additionalParameters,
-            additionalHeaders: additionalHeaders
+            additionalParameters: nil,
+            additionalHeaders: nil
         )
     }
 }
