@@ -8,7 +8,7 @@ final class LoginSessionConfigurationTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
-        sut = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
+        sut = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com/authorize")!,
                                         tokenEndpoint: URL(string: "https://www.google.com/token")!,
                                         responseType: .code,
                                         scopes: [.email],
@@ -28,47 +28,47 @@ final class LoginSessionConfigurationTests: XCTestCase {
 }
 
 extension LoginSessionConfigurationTests {
-    func testSUTHasAuthorizationURL() {
-        XCTAssertEqual(sut.authorizationEndpoint, URL(string: "https://www.google.com"))
+    func test_hasAuthorizationURL() {
+        XCTAssertEqual(sut.authorizationEndpoint, URL(string: "https://www.google.com/authorize"))
     }
     
-    func testSUTHasTokenURL() {
+    func test_sutHasTokenURL() {
         XCTAssertEqual(sut.tokenEndpoint, URL(string: "https://www.google.com/token"))
     }
     
-    func testResponseType() {
+    func test_responseType() {
         XCTAssertEqual(sut.responseType, .code)
     }
     
-    func testScope() {
+    func test_scope() {
         XCTAssertEqual(sut.scopes, [.email])
     }
     
-    func testClientID() {
+    func test_clientID() {
         XCTAssertEqual(sut.clientID, "1234")
     }
     
-    func testPrefersEphemeralWebSession() {
+    func test_prefersEphemeralWebSession() {
         XCTAssertTrue(sut.prefersEphemeralWebSession)
     }
     
-    func testRedirectURI() {
+    func test_redirectURI() {
         XCTAssertEqual(sut.redirectURI, "https://www.google.com/redirect")
     }
     
-    func testVectorsOfTrust() {
+    func test_vectorsOfTrust() {
         XCTAssertEqual(sut.vectorsOfTrust, ["1"])
     }
     
-    func testLocale() {
+    func test_locale() {
         XCTAssertEqual(sut.locale, .en)
     }
     
-    func testPersistentSessionId() {
+    func test_persistentSessionId() {
         XCTAssertEqual(sut.persistentSessionId, "123456789")
     }
     
-    func testDefaultValues() {
+    func test_defaultValues() {
         sut = LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://www.google.com")!,
                                         tokenEndpoint: URL(string: "https://www.google.com/token")!,
                                         clientID: "1234",
@@ -79,5 +79,24 @@ extension LoginSessionConfigurationTests {
         XCTAssertEqual(sut.vectorsOfTrust, ["Cl.Cm.P0"])
         XCTAssertEqual(sut.vectorsOfTrust.description, "[\"Cl.Cm.P0\"]")
         XCTAssertNil(sut.persistentSessionId)
+    }
+    
+    func test_serviceConfiguration() {
+        XCTAssertEqual(sut.serviceConfiguration.authorizationEndpoint, URL(string: "https://www.google.com/authorize"))
+        XCTAssertEqual(sut.serviceConfiguration.tokenEndpoint, URL(string: "https://www.google.com/token"))
+    }
+    
+    func test_authorizationRequest() {
+        XCTAssertEqual(sut.authorizationRequest.scope, "email")
+        XCTAssertEqual(sut.authorizationRequest.redirectURL, URL(string: "https://www.google.com/redirect"))
+        XCTAssertEqual(sut.authorizationRequest.responseType, "code")
+        XCTAssertEqual(
+            sut.authorizationRequest.additionalParameters,
+            [
+                "vtr": "[\"1\"]",
+                "ui_locales": "en",
+                "govuk_signin_session_id": "123456789"
+            ]
+        )
     }
 }

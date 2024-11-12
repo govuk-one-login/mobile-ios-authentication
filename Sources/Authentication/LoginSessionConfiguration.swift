@@ -82,7 +82,7 @@ public struct LoginSessionConfiguration {
 }
 
 extension LoginSessionConfiguration {
-    private var configuration: OIDServiceConfiguration {
+    var serviceConfiguration: OIDServiceConfiguration {
         OIDServiceConfiguration(
             authorizationEndpoint: authorizationEndpoint,
             tokenEndpoint: tokenEndpoint
@@ -91,7 +91,7 @@ extension LoginSessionConfiguration {
     
     var authorizationRequest: OIDAuthorizationRequest {
         OIDAuthorizationRequest(
-            configuration: configuration,
+            configuration: serviceConfiguration,
             clientId: clientID,
             scopes: scopes.map(\.rawValue),
             redirectURL: URL(string: redirectURI)!,
