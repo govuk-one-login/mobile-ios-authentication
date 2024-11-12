@@ -34,23 +34,25 @@ Once authenticated, the package returns a set of tokens (refresh, access, id) th
 Handles creating the `config` found in `LoginSession`. It requires the following to be initialised:
 
 ```swift
-  let authorizationEndpoint: URL
-  let tokenEndpoint: URL
-  let responseType: ResponseType
-  let scopes: [Scope]
-   
-  let clientID: String
-   
-  let prefersEphemeralWebSession: Bool
-   
-  let redirectURI: String
-   
-  let vectorsOfTrust: String
-  let locale: UILocale
-  let persistentSessionID: String?
+let authorizationEndpoint: URL
+let tokenEndpoint: URL
+let responseType: ResponseType
+let scopes: [Scope]
+
+let clientID: String
+
+let prefersEphemeralWebSession: Bool
+
+let redirectURI: String
+
+let vectorsOfTrust: String
+let locale: UILocale
+let persistentSessionID: String?
+let tokenParameters: TokenParameters?
+let tokenHeaders: TokenHeaders?
 ```
 
-The struct also contains three enums to handle the language, the response and the scopes required for sending the `OIDAuthorizationRequest` within the AppAuthSession. 
+The struct also contains three enums to handle the language, the response and the scopes required for sending the request to the `/authorize` endpoint within the AppAuthSession. 
 
 #### AppAuthSession
 
@@ -64,7 +66,7 @@ A class to handle the login flow with the given auth provider and conforms to th
 
 ### How to use the Authentication package
 
-To use the Authentication package, first, make sure your module or app has a dependency on Authentication and UserDetails and import both into the relevant file(s). Next, initialise an instance of AppAuthSession (which conforms to LoginSession) and LoginSessionConfiguration, then call `present` on your session, with the configuration as a parameter.
+To use the Authentication package, first, make sure your module or app has a dependency on Authentication and import into the relevant file(s). Next, initialise an instance of AppAuthSession (which conforms to LoginSession) and LoginSessionConfiguration, then call `performLoginFlow(configuration:)` on your session, with the configuration as the argument.
 
 ```swift
 import Authentication
@@ -85,8 +87,7 @@ let configuration = LoginSessionConfiguration(authorizationEndpoint: url,
                                               prefersEphemeralWebSession: true,
                                               redirectURI: "someRedirectURI",
                                               vectorsOfTrust: "someVectorOfTrust",
-                                              locale: .en,
-                                              persistentSessionId: nil)
+                                              locale: .en)
 
 session.performLoginFlow(configuration: configuration)
 
