@@ -21,47 +21,52 @@ public final class AppAuthSession: LoginSession {
     /// - Parameters:
     ///     - configuration: object that contains your LoginSessionConfiguration
     @MainActor
-    public func performLoginFlow(configuration: LoginSessionConfiguration) async throws -> TokenResponse {
-        try await performLoginFlow(configuration: configuration, service: OIDAuthState.self)
+    public func performLoginFlow(
+        configuration: LoginSessionConfiguration
+    ) async throws -> TokenResponse {
+        try await performLoginFlow(
+            configuration: configuration,
+            service: OIDAuthorizationService.self
+        )
     }
     
     /// This is here for testing and allows `service` to be mocked
     @MainActor
-    func performLoginFlow(configuration: LoginSessionConfiguration, service: OIDAuthState.Type) async throws -> TokenResponse {
+    func performLoginFlow(
+        configuration: LoginSessionConfiguration,
+        service: OIDAuthorizationService.Type
+    ) async throws -> TokenResponse {
         guard let viewController = window.rootViewController else {
             fatalError("empty vc in window, please add vc")
         }
         
-        let config = OIDServiceConfiguration(
-            authorizationEndpoint: configuration.authorizationEndpoint,
-            tokenEndpoint: configuration.tokenEndpoint
-        )
-        
-        let request = OIDAuthorizationRequest(
-            configuration: config,
-            clientId: configuration.clientID,
-            scopes: configuration.scopes.map(\.rawValue),
-            redirectURL: URL(string: configuration.redirectURI)!,
-            responseType: configuration.responseType.rawValue,
-            additionalParameters: {
-                var params = [
-                    "vtr": configuration.vectorsOfTrust.description,
-                    "ui_locales": configuration.locale.rawValue
-                ]
-                if let persistentSessionId = configuration.persistentSessionId {
-                    params["govuk_signin_session_id"] = persistentSessionId
-                }
-                return params
-            }()
-        )
-        
         return try await withCheckedThrowingContinuation { continuation in
-            userAgent = service.authState(byPresenting: request,
-                                          presenting: viewController,
-                                          prefersEphemeralSession: configuration.prefersEphemeralWebSession) { authState, error in
+            userAgent = service.present(
+                configuration.authorizationRequest,
+                presenting: viewController,
+                prefersEphemeralSession: configuration.prefersEphemeralWebSession
+            ) { [unowned self] authResponse, error in
                 do {
-                    let response = try self.handleResponse(authState: authState, error: error)
-                    continuation.resume(returning: response)
+                    let tokenRequest = try handleAuthorizationResponseCreateTokenRequest(
+                        authResponse,
+                        error: error,
+                        tokenParameters: configuration.tokenParameters,
+                        tokenHeaders: configuration.tokenHeaders
+                    )
+                    service.perform(
+                        tokenRequest,
+                        originalAuthorizationResponse: authResponse
+                    ) { [unowned self] tokenResponse, error in
+                        do {
+                            let response = try handleTokenResponse(
+                                tokenResponse,
+                                error: error
+                            )
+                            continuation.resume(returning: response)
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
+                    }
                 } catch {
                     continuation.resume(throwing: error)
                 }
@@ -84,12 +89,34 @@ public final class AppAuthSession: LoginSession {
         userAgent.resumeExternalUserAgentFlow(with: url)
     }
     
-    private func handleResponse(authState: OIDAuthState?, error: Error?) throws -> TokenResponse {
+    func handleAuthorizationResponseCreateTokenRequest(
+        _ authorizationResponse: OIDAuthorizationResponse?,
+        error: Error?,
+        tokenParameters: TokenParameters?,
+        tokenHeaders: TokenHeaders?
+    ) throws -> OIDTokenRequest {
         try handleIfError(error)
-        let authState = try checkAuthState(authState)
-        let token = try extractToken(authState: authState)
-        let tokenResponse = try generateTokenResponse(token: token, authState: authState)
-        return tokenResponse
+        guard let authorizationResponse else {
+            throw LoginError.generic(description: "No Authorization Response")
+        }
+        guard let tokenRequest = authorizationResponse.tokenExchangeRequest(
+            withAdditionalParameters: tokenParameters,
+            additionalHeaders: tokenHeaders
+        ) else {
+            throw LoginError.generic(description: "Couldn't create Token Request")
+        }
+        return tokenRequest
+    }
+    
+    func handleTokenResponse(
+        _ tokenResponse: OIDTokenResponse?,
+        error: Error?
+    ) throws -> TokenResponse {
+        try handleIfError(error)
+        guard let tokenResponse else {
+            throw LoginError.generic(description: "No Token Response")
+        }
+        return try generateTokenResponse(token: tokenResponse)
     }
     
     private func handleIfError(_ error: Error?) throws {
@@ -115,28 +142,16 @@ public final class AppAuthSession: LoginSession {
         }
     }
     
-    private func checkAuthState(_ authState: OIDAuthState?) throws -> OIDAuthState {
-        guard let authState else {
-            throw LoginError.generic(description: "No authState")
-        }
-        return authState
-    }
-    
-    private func extractToken(authState: OIDAuthState) throws -> OIDTokenResponse {
-        guard let token = authState.lastTokenResponse else {
-            throw LoginError.generic(description: "Missing authState Token Response")
-        }
-        return token
-    }
-    
-    private func generateTokenResponse(token: OIDTokenResponse, authState: OIDAuthState) throws -> TokenResponse {
+    func generateTokenResponse(
+        token: OIDTokenResponse
+    ) throws -> TokenResponse {
         guard let accessToken = token.accessToken,
               let tokenType = token.tokenType,
               let expiryDate = token.accessTokenExpirationDate else {
-            throw LoginError.generic(description: "Missing authState property")
+            throw LoginError.generic(description: "Missing token property")
         }
         return TokenResponse(accessToken: accessToken,
-                             refreshToken: authState.refreshToken,
+                             refreshToken: token.refreshToken,
                              idToken: token.idToken,
                              tokenType: tokenType,
                              expiryDate: expiryDate)

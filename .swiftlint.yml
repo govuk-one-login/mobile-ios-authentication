@@ -53,4 +53,3 @@ custom_rules:
         Please use the format:
         // TODO: DCMAW-000
     regex: "(?i)(todo(?!(.*dcmaw-\\d{2,})))"
-    
