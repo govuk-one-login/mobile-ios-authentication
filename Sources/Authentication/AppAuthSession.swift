@@ -4,7 +4,11 @@ import AppAuth
 /// Uses AppAuth Libary for presentation logic of login flow and handle redirects from auth service
 public final class AppAuthSession: LoginSession {
     private let window: UIWindow
+    
     private var userAgent: OIDExternalUserAgentSession?
+    var tokenParameters: TokenParameters?
+    var tokenHeaders: TokenHeaders?
+    
     var isActive: Bool {
         userAgent != nil
     }
@@ -49,9 +53,7 @@ public final class AppAuthSession: LoginSession {
                 do {
                     let tokenRequest = try handleAuthorizationResponseCreateTokenRequest(
                         authResponse,
-                        error: error,
-                        tokenParameters: configuration.tokenParameters,
-                        tokenHeaders: configuration.tokenHeaders
+                        error: error
                     )
                     service.perform(
                         tokenRequest,
@@ -81,19 +83,23 @@ public final class AppAuthSession: LoginSession {
     /// - Parameter url: redirect URL from login modal
     /// - Returns: TokenResponse, tokens for the session
     @MainActor
-    public func finalise(redirectURL url: URL) throws {
+    public func finalise(
+        redirectURL url: URL,
+        tokenParameters: TokenParameters?,
+        tokenHeaders: TokenHeaders?
+    ) throws {
         guard let userAgent else {
             self.userAgent = nil
             throw LoginError.generic(description: "User Agent Session does not exist")
         }
+        self.tokenParameters = tokenParameters
+        self.tokenHeaders = tokenHeaders
         userAgent.resumeExternalUserAgentFlow(with: url)
     }
     
     func handleAuthorizationResponseCreateTokenRequest(
         _ authorizationResponse: OIDAuthorizationResponse?,
-        error: Error?,
-        tokenParameters: TokenParameters?,
-        tokenHeaders: TokenHeaders?
+        error: Error?
     ) throws -> OIDTokenRequest {
         try handleIfError(error)
         guard let authorizationResponse else {
