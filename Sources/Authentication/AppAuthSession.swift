@@ -85,8 +85,8 @@ public final class AppAuthSession: LoginSession {
     @MainActor
     public func finalise(
         redirectURL url: URL,
-        tokenParameters: TokenParameters?,
-        tokenHeaders: TokenHeaders?
+        tokenParameters: TokenParameters? = nil,
+        tokenHeaders: TokenHeaders? = nil
     ) throws {
         guard let userAgent else {
             self.userAgent = nil
