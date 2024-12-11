@@ -4,7 +4,10 @@ import AppAuth
 /// Uses AppAuth Libary for presentation logic of login flow and handle redirects from auth service
 public final class AppAuthSession: LoginSession {
     private let window: UIWindow
+    
     private var userAgent: OIDExternalUserAgentSession?
+    private var authorizationResponse: OIDAuthorizationResponse?
+    
     var isActive: Bool {
         userAgent != nil
     }
@@ -46,6 +49,7 @@ public final class AppAuthSession: LoginSession {
                 presenting: viewController,
                 prefersEphemeralSession: configuration.prefersEphemeralWebSession
             ) { [unowned self] authResponse, error in
+                authorizationResponse = authResponse
                 do {
                     let tokenRequest = try handleAuthorizationResponseCreateTokenRequest(
                         authResponse,
