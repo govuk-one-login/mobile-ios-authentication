@@ -6,8 +6,8 @@ public final class AppAuthSession: LoginSession {
     private let window: UIWindow
     
     private var userAgent: OIDExternalUserAgentSession?
-    var tokenParameters: TokenParameters?
-    var tokenHeaders: TokenHeaders?
+    private var tokenParameters: TokenParameters?
+    private var tokenHeaders: TokenHeaders?
     
     var isActive: Bool {
         userAgent != nil
