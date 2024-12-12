@@ -261,6 +261,50 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
+    func test_loginFlow_perform_tokenParametersAndHeaders() throws {
+        let exp = expectation(description: "Wait for token response")
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(
+                    configuration: .mock,
+                    service: MockOIDAuthorizationService_Perform_Flow.self
+                )
+            } catch {
+                XCTFail("Expected tokens, got \(error)")
+            }
+            
+            exp.fulfill()
+        }
+        
+        waitForTruth(self.sut.isActive, timeout: 5)
+        
+        try sut.finalise(
+            redirectURL: URL(string: "https://www.google.com")!,
+            tokenParameters: [
+                "token_parameter_1": "test_parameter_1",
+                "token_parameter_2": "test_parameter_2"
+            ],
+            tokenHeaders: [
+                "token_header_1": "test_header_1",
+                "token_header_2": "test_header_2"
+            ]
+        )
+        
+        wait(for: [exp], timeout: 5)
+        
+        let authorizationResponse = MockAuthorizationResponse_AddingHeaders(
+            request: OIDAuthorizationRequest.mockAuthorizationRequest,
+            parameters: .init()
+        )
+        
+        let tokenRequest = try sut.handleAuthorizationResponseCreateTokenRequest(authorizationResponse, error: nil)
+        XCTAssertEqual(tokenRequest.additionalParameters?["token_parameter_1"], "test_parameter_1")
+        XCTAssertEqual(tokenRequest.additionalParameters?["token_parameter_2"], "test_parameter_2")
+        XCTAssertEqual(tokenRequest.additionalHeaders?["token_header_1"], "test_header_1")
+        XCTAssertEqual(tokenRequest.additionalHeaders?["token_header_2"], "test_header_2")
+    }
+    
+    @MainActor
     func test_loginFlow_perform_succeeds() throws {
         let exp = expectation(description: "Wait for token response")
         Task {

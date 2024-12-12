@@ -8,42 +8,11 @@ extension AppAuthSessionTests {
         do {
             _ = try sut.handleAuthorizationResponseCreateTokenRequest(
                 nil,
-                error: nil,
-                tokenParameters: nil,
-                tokenHeaders: nil
+                error: nil
             )
             XCTFail("Expected no authorization response error, got success")
         } catch LoginError.generic(let description) {
             XCTAssertEqual(description, "No Authorization Response")
-        }
-    }
-    
-    @MainActor
-    func test_handleAuthorizationResponseCreateTokenRequest_addHeaders() throws {
-        let authorizationResponse = MockAuthorizationResponse_AddingHeaders(
-            request: OIDAuthorizationRequest.mockAuthorizationRequest,
-            parameters: .init()
-        )
-
-        do {
-            let tokenRequest = try sut.handleAuthorizationResponseCreateTokenRequest(
-                authorizationResponse,
-                error: nil,
-                tokenParameters: [
-                    "token_parameter_1": "test_parameter_1",
-                    "token_parameter_2": "test_parameter_2"
-                ],
-                tokenHeaders: [
-                    "token_header_1": "test_header_1",
-                    "token_header_2": "test_header_2"
-                ]
-            )
-            XCTAssertEqual(tokenRequest.additionalParameters?["token_parameter_1"], "test_parameter_1")
-            XCTAssertEqual(tokenRequest.additionalParameters?["token_parameter_2"], "test_parameter_2")
-            XCTAssertEqual(tokenRequest.additionalHeaders?["token_header_1"], "test_header_1")
-            XCTAssertEqual(tokenRequest.additionalHeaders?["token_header_2"], "test_header_2")
-        } catch {
-            XCTFail("Expected no error, got error")
         }
     }
     
@@ -57,9 +26,7 @@ extension AppAuthSessionTests {
         do {
             _ = try sut.handleAuthorizationResponseCreateTokenRequest(
                 authorizationResponse,
-                error: nil,
-                tokenParameters: nil,
-                tokenHeaders: nil
+                error: nil
             )
             XCTFail("Expected no token request error, got success")
         } catch LoginError.generic(let description) {
