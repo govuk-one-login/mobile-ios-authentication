@@ -92,8 +92,7 @@ public final class AppAuthSession: LoginSession {
             self.userAgent = nil
             throw LoginError.generic(description: "User Agent Session does not exist")
         }
-        self.tokenParameters = tokenParameters
-        self.tokenHeaders = tokenHeaders
+        (self.tokenParameters, self.tokenHeaders) = (tokenParameters, tokenHeaders)
         userAgent.resumeExternalUserAgentFlow(with: url)
     }
     
