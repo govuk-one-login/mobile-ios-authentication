@@ -19,8 +19,8 @@ public struct LoginSessionConfiguration {
     public let vectorsOfTrust: [String]
     public let locale: UILocale
     public let persistentSessionId: String?
-    public let tokenParameters: TokenParameters?
-    public let tokenHeaders: TokenHeaders?
+    public let tokenParameters: () async -> TokenParameters?
+    public let tokenHeaders: () async -> TokenHeaders?
     
     public enum ResponseType: String {
         case code
@@ -64,8 +64,8 @@ public struct LoginSessionConfiguration {
                 vectorsOfTrust: [String] = ["Cl.Cm.P0"],
                 locale: UILocale = .en,
                 persistentSessionId: String? = nil,
-                tokenParameters: TokenParameters? = nil,
-                tokenHeaders: TokenHeaders? = nil) {
+                tokenParameters: @escaping @autoclosure () async -> TokenParameters? = nil,
+                tokenHeaders: @escaping @autoclosure () async  -> TokenHeaders? = nil) async {
         self.authorizationEndpoint = authorizationEndpoint
         self.tokenEndpoint = tokenEndpoint
         self.responseType = responseType
