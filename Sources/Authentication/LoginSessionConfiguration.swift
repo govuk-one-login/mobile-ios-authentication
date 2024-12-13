@@ -54,18 +54,20 @@ public struct LoginSessionConfiguration {
         case cy
     }
     
-    public init(authorizationEndpoint: URL,
-                tokenEndpoint: URL,
-                responseType: ResponseType = .code,
-                scopes: [Scope] = [.openid, .email, .phone, .offline_access],
-                clientID: String,
-                prefersEphemeralWebSession: Bool = true,
-                redirectURI: String,
-                vectorsOfTrust: [String] = ["Cl.Cm.P0"],
-                locale: UILocale = .en,
-                persistentSessionId: String? = nil,
-                tokenParameters: @escaping @autoclosure () async throws -> TokenParameters? = nil,
-                tokenHeaders: @escaping @autoclosure () async throws -> TokenHeaders? = nil) async {
+    public init(
+        authorizationEndpoint: URL,
+        tokenEndpoint: URL,
+        responseType: ResponseType = .code,
+        scopes: [Scope] = [.openid, .email, .phone, .offline_access],
+        clientID: String,
+        prefersEphemeralWebSession: Bool = true,
+        redirectURI: String,
+        vectorsOfTrust: [String] = ["Cl.Cm.P0"],
+        locale: UILocale = .en,
+        persistentSessionId: String? = nil,
+        tokenParameters: @escaping @autoclosure () async throws -> TokenParameters? = nil,
+        tokenHeaders: @escaping @autoclosure () async throws -> TokenHeaders? = nil
+    ) async {
         self.authorizationEndpoint = authorizationEndpoint
         self.tokenEndpoint = tokenEndpoint
         self.responseType = responseType
