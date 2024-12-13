@@ -94,16 +94,16 @@ public final class AppAuthSession: LoginSession {
     func handleAuthorizationResponseCreateTokenRequest(
         _ authorizationResponse: OIDAuthorizationResponse?,
         error: Error?,
-        tokenParameters: @escaping () async -> TokenParameters?,
-        tokenHeaders: @escaping () async -> TokenHeaders?
+        tokenParameters: @escaping () async throws -> TokenParameters?,
+        tokenHeaders: @escaping () async throws -> TokenHeaders?
     ) async throws -> OIDTokenRequest {
         try handleIfError(error)
         guard let authorizationResponse else {
             throw LoginError.generic(description: "No Authorization Response")
         }
         guard let tokenRequest = authorizationResponse.tokenExchangeRequest(
-            withAdditionalParameters: await tokenParameters(),
-            additionalHeaders: await tokenHeaders()
+            withAdditionalParameters: try await tokenParameters(),
+            additionalHeaders: try await tokenHeaders()
         ) else {
             throw LoginError.generic(description: "Couldn't create Token Request")
         }
