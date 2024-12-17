@@ -32,7 +32,7 @@ extension AppAuthSessionTests {
         let exp = expectation(description: "Wait for token response")
         Task {
             do {
-                _ = try await sut.performLoginFlow(configuration: .mock)
+                _ = try await sut.performLoginFlow(configuration: .mock())
                 XCTFail("Expected client error, got success")
             } catch let error as LoginError {
                 XCTAssertEqual(error, .clientError)
@@ -56,7 +56,7 @@ extension AppAuthSessionTests {
         Task {
             do {
                 _ = try await sut.performLoginFlow(
-                    configuration: .mock,
+                    configuration: .mock(),
                     service: MockOIDAuthorizationService_UserCancelled.self
                 )
                 XCTFail("Expected user cancelled error, got success")
@@ -82,7 +82,7 @@ extension AppAuthSessionTests {
         Task {
             do {
                 _ = try await sut.performLoginFlow(
-                    configuration: .mock,
+                    configuration: .mock(),
                     service: MockOIDAuthorizationService_NetworkError.self
                 )
                 XCTFail("Expected network error, got success")
@@ -108,7 +108,7 @@ extension AppAuthSessionTests {
         Task {
             do {
                 _ = try await sut.performLoginFlow(
-                    configuration: .mock,
+                    configuration: .mock(),
                     service: MockOIDAuthorizationService_Non200.self
                 )
                 XCTFail("Expected non 200 error, got success")
@@ -134,7 +134,7 @@ extension AppAuthSessionTests {
         Task {
             do {
                 _ = try await sut.performLoginFlow(
-                    configuration: .mock,
+                    configuration: .mock(),
                     service: MockOIDAuthorizationService_AuthorizationInvalidRequest.self
                 )
                 XCTFail("Expected authorization invalid request error, got success")
@@ -160,7 +160,7 @@ extension AppAuthSessionTests {
         Task {
             do {
                 _ = try await sut.performLoginFlow(
-                    configuration: .mock,
+                    configuration: .mock(),
                     service: MockOIDAuthorizationService_TokenInvalidRequest.self
                 )
                 XCTFail("Expected token invalid request error, got success")
@@ -186,7 +186,7 @@ extension AppAuthSessionTests {
         Task {
             do {
                 _ = try await sut.performLoginFlow(
-                    configuration: .mock,
+                    configuration: .mock(),
                     service: MockOIDAuthorizationService_ClientError.self
                 )
                 XCTFail("Expected client error, got success")
@@ -212,7 +212,7 @@ extension AppAuthSessionTests {
         Task {
             do {
                 _ = try await sut.performLoginFlow(
-                    configuration: .mock,
+                    configuration: .mock(),
                     service: MockOIDAuthorizationService_ServerError.self
                 )
                 XCTFail("Expected server error, got success")
@@ -240,7 +240,7 @@ extension AppAuthSessionTests {
         Task {
             do {
                 _ = try await sut.performLoginFlow(
-                    configuration: .mock,
+                    configuration: .mock(),
                     service: MockOIDAuthorizationService_Perform_ClientError.self
                 )
                 XCTFail("Expected client error, got success")
@@ -266,7 +266,7 @@ extension AppAuthSessionTests {
         Task {
             do {
                 let tokens = try await sut.performLoginFlow(
-                    configuration: .mock,
+                    configuration: .mock(),
                     service: MockOIDAuthorizationService_Perform_Flow.self
                 )
                 XCTAssertEqual(tokens.accessToken, "1234567890")
@@ -304,10 +304,14 @@ extension AppAuthSessionTests {
 }
 
 extension LoginSessionConfiguration {
-    static let mock = LoginSessionConfiguration(
-        authorizationEndpoint: URL(string: "https://www.google.com")!,
-        tokenEndpoint: URL(string: "https://www.google.com/token")!,
-        clientID: "1234",
-        redirectURI: "https://www.google.com"
-    )
+    static let mock = {
+        await LoginSessionConfiguration(
+            authorizationEndpoint: URL(
+                string: "https://www.google.com"
+            )!,
+            tokenEndpoint: URL(string: "https://www.google.com/token")!,
+            clientID: "1234",
+            redirectURI: "https://www.google.com"
+        )
+    }
 }
