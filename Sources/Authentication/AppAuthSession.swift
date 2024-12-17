@@ -10,7 +10,7 @@ public final class AppAuthSession: LoginSession {
         userAgent != nil
     }
     
-    private var task: Task<Void, Never>? {
+    private var loginTask: Task<Void, Never>? {
         didSet {
             oldValue?.cancel()
         }
@@ -23,7 +23,7 @@ public final class AppAuthSession: LoginSession {
     }
     
     deinit {
-        task?.cancel()
+        loginTask?.cancel()
     }
     
     /// Ensures `performLoginFlow` is public and can be called by the app
@@ -57,7 +57,7 @@ public final class AppAuthSession: LoginSession {
                 presenting: viewController,
                 prefersEphemeralSession: configuration.prefersEphemeralWebSession
             ) { [unowned self] authResponse, error in
-                task = Task {
+                loginTask = Task {
                     await finaliseLoginWithAuthResponse(
                         configuration: configuration,
                         service: service,
