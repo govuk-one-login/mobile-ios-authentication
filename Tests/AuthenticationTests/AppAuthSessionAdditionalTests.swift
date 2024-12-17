@@ -6,7 +6,7 @@ extension AppAuthSessionTests {
     @MainActor
     func test_handleAuthorizationResponseCreateTokenRequest_noAuthorizationResponse() async throws {
         do {
-            _ = try await sut.handleAuthorizationResponseCreateTokenRequest(
+            _ = try await sut.handleAuthResponseCreateTokenRequest(
                 nil,
                 error: nil,
                 tokenParameters: {nil},
@@ -26,7 +26,7 @@ extension AppAuthSessionTests {
         )
 
         do {
-            let tokenRequest = try await sut.handleAuthorizationResponseCreateTokenRequest(
+            let tokenRequest = try await sut.handleAuthResponseCreateTokenRequest(
                 authorizationResponse,
                 error: nil,
                 tokenParameters: {[
@@ -55,7 +55,7 @@ extension AppAuthSessionTests {
         )
         
         do {
-            _ = try await sut.handleAuthorizationResponseCreateTokenRequest(
+            _ = try await sut.handleAuthResponseCreateTokenRequest(
                 authorizationResponse,
                 error: nil,
                 tokenParameters: {nil},

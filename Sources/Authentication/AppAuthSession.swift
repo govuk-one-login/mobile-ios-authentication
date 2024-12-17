@@ -58,31 +58,14 @@ public final class AppAuthSession: LoginSession {
                 prefersEphemeralSession: configuration.prefersEphemeralWebSession
             ) { [unowned self] authResponse, error in
                 task = Task {
-                    do {
-                        let tokenRequest = try await handleAuthorizationResponseCreateTokenRequest(
-                            authResponse,
-                            error: error,
-                            tokenParameters: configuration.tokenParameters,
-                            tokenHeaders: configuration.tokenHeaders
-                        )
-                        service.perform(
-                            tokenRequest,
-                            originalAuthorizationResponse: authResponse
-                        ) { [unowned self] tokenResponse, error in
-                            do {
-                                let response = try handleTokenResponse(
-                                    tokenResponse,
-                                    error: error
-                                )
-                                continuation.resume(returning: response)
-                            } catch {
-                                continuation.resume(throwing: error)
-                            }
-                        }
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                    self.userAgent = nil
+                    await finaliseLoginWithAuthResponse(
+                        configuration: configuration,
+                        service: service,
+                        authorizationResponse: authResponse,
+                        error: error,
+                        continuation: continuation
+                    )
+                    userAgent = nil
                 }
             }
         }
@@ -102,7 +85,40 @@ public final class AppAuthSession: LoginSession {
         userAgent.resumeExternalUserAgentFlow(with: url)
     }
     
-    func handleAuthorizationResponseCreateTokenRequest(
+    private func finaliseLoginWithAuthResponse(
+        configuration: LoginSessionConfiguration,
+        service: OIDAuthorizationService.Type,
+        authorizationResponse: OIDAuthorizationResponse?,
+        error: Error?,
+        continuation: CheckedContinuation<TokenResponse, any Error>
+    ) async {
+        do {
+            let tokenRequest = try await handleAuthResponseCreateTokenRequest(
+                authorizationResponse,
+                error: error,
+                tokenParameters: configuration.tokenParameters,
+                tokenHeaders: configuration.tokenHeaders
+            )
+            service.perform(
+                tokenRequest,
+                originalAuthorizationResponse: authorizationResponse
+            ) { [unowned self] tokenResponse, error in
+                do {
+                    let response = try handleTokenResponse(
+                        tokenResponse,
+                        error: error
+                    )
+                    continuation.resume(returning: response)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        } catch {
+            continuation.resume(throwing: error)
+        }
+    }
+    
+    func handleAuthResponseCreateTokenRequest(
         _ authorizationResponse: OIDAuthorizationResponse?,
         error: Error?,
         tokenParameters: @escaping () async throws -> TokenParameters?,
@@ -155,7 +171,7 @@ public final class AppAuthSession: LoginSession {
         }
     }
     
-    func generateTokenResponse(
+    private func generateTokenResponse(
         token: OIDTokenResponse
     ) throws -> TokenResponse {
         guard let accessToken = token.accessToken,
