@@ -5,14 +5,25 @@ import AppAuth
 public final class AppAuthSession: LoginSession {
     private let window: UIWindow
     private var userAgent: OIDExternalUserAgentSession?
+    
     var isActive: Bool {
         userAgent != nil
+    }
+    
+    private var task: Task<Void, Never>? {
+        didSet {
+            oldValue?.cancel()
+        }
     }
     
     /// - Parameters:
     ///    - window: UIWindow with a root view controller where you wish to show the login dialog
     public init(window: UIWindow) {
         self.window = window
+    }
+    
+    deinit {
+        task?.cancel()
     }
     
     /// Ensures `performLoginFlow` is public and can be called by the app
@@ -46,7 +57,7 @@ public final class AppAuthSession: LoginSession {
                 presenting: viewController,
                 prefersEphemeralSession: configuration.prefersEphemeralWebSession
             ) { [unowned self] authResponse, error in
-                Task {
+                task = Task {
                     do {
                         let tokenRequest = try await handleAuthorizationResponseCreateTokenRequest(
                             authResponse,
