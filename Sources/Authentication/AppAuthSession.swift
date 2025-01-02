@@ -5,14 +5,25 @@ import AppAuth
 public final class AppAuthSession: LoginSession {
     private let window: UIWindow
     private var userAgent: OIDExternalUserAgentSession?
+    
     var isActive: Bool {
         userAgent != nil
+    }
+    
+    private var loginTask: Task<Void, Never>? {
+        didSet {
+            oldValue?.cancel()
+        }
     }
     
     /// - Parameters:
     ///    - window: UIWindow with a root view controller where you wish to show the login dialog
     public init(window: UIWindow) {
         self.window = window
+    }
+    
+    deinit {
+        loginTask?.cancel()
     }
     
     /// Ensures `performLoginFlow` is public and can be called by the app
@@ -46,31 +57,16 @@ public final class AppAuthSession: LoginSession {
                 presenting: viewController,
                 prefersEphemeralSession: configuration.prefersEphemeralWebSession
             ) { [unowned self] authResponse, error in
-                do {
-                    let tokenRequest = try handleAuthorizationResponseCreateTokenRequest(
-                        authResponse,
+                loginTask = Task {
+                    await finaliseLoginWithAuthResponse(
+                        configuration: configuration,
+                        service: service,
+                        authorizationResponse: authResponse,
                         error: error,
-                        tokenParameters: configuration.tokenParameters,
-                        tokenHeaders: configuration.tokenHeaders
+                        continuation: continuation
                     )
-                    service.perform(
-                        tokenRequest,
-                        originalAuthorizationResponse: authResponse
-                    ) { [unowned self] tokenResponse, error in
-                        do {
-                            let response = try handleTokenResponse(
-                                tokenResponse,
-                                error: error
-                            )
-                            continuation.resume(returning: response)
-                        } catch {
-                            continuation.resume(throwing: error)
-                        }
-                    }
-                } catch {
-                    continuation.resume(throwing: error)
+                    userAgent = nil
                 }
-                self.userAgent = nil
             }
         }
     }
@@ -89,19 +85,52 @@ public final class AppAuthSession: LoginSession {
         userAgent.resumeExternalUserAgentFlow(with: url)
     }
     
-    func handleAuthorizationResponseCreateTokenRequest(
+    private func finaliseLoginWithAuthResponse(
+        configuration: LoginSessionConfiguration,
+        service: OIDAuthorizationService.Type,
+        authorizationResponse: OIDAuthorizationResponse?,
+        error: Error?,
+        continuation: CheckedContinuation<TokenResponse, any Error>
+    ) async {
+        do {
+            let tokenRequest = try await handleAuthResponseCreateTokenRequest(
+                authorizationResponse,
+                error: error,
+                tokenParameters: configuration.tokenParameters,
+                tokenHeaders: configuration.tokenHeaders
+            )
+            service.perform(
+                tokenRequest,
+                originalAuthorizationResponse: authorizationResponse
+            ) { [unowned self] tokenResponse, error in
+                do {
+                    let response = try handleTokenResponse(
+                        tokenResponse,
+                        error: error
+                    )
+                    continuation.resume(returning: response)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        } catch {
+            continuation.resume(throwing: error)
+        }
+    }
+    
+    func handleAuthResponseCreateTokenRequest(
         _ authorizationResponse: OIDAuthorizationResponse?,
         error: Error?,
-        tokenParameters: TokenParameters?,
-        tokenHeaders: TokenHeaders?
-    ) throws -> OIDTokenRequest {
+        tokenParameters: @escaping () async throws -> TokenParameters?,
+        tokenHeaders: @escaping () async throws -> TokenHeaders?
+    ) async throws -> OIDTokenRequest {
         try handleIfError(error)
         guard let authorizationResponse else {
             throw LoginError.generic(description: "No Authorization Response")
         }
         guard let tokenRequest = authorizationResponse.tokenExchangeRequest(
-            withAdditionalParameters: tokenParameters,
-            additionalHeaders: tokenHeaders
+            withAdditionalParameters: try await tokenParameters(),
+            additionalHeaders: try await tokenHeaders()
         ) else {
             throw LoginError.generic(description: "Couldn't create Token Request")
         }
@@ -142,7 +171,7 @@ public final class AppAuthSession: LoginSession {
         }
     }
     
-    func generateTokenResponse(
+    private func generateTokenResponse(
         token: OIDTokenResponse
     ) throws -> TokenResponse {
         guard let accessToken = token.accessToken,

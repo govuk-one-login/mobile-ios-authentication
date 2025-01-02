@@ -4,13 +4,13 @@ import XCTest
 
 extension AppAuthSessionTests {
     @MainActor
-    func test_handleAuthorizationResponseCreateTokenRequest_noAuthorizationResponse() throws {
+    func test_handleAuthorizationResponseCreateTokenRequest_noAuthorizationResponse() async throws {
         do {
-            _ = try sut.handleAuthorizationResponseCreateTokenRequest(
+            _ = try await sut.handleAuthResponseCreateTokenRequest(
                 nil,
                 error: nil,
-                tokenParameters: nil,
-                tokenHeaders: nil
+                tokenParameters: {nil},
+                tokenHeaders: {nil}
             )
             XCTFail("Expected no authorization response error, got success")
         } catch LoginError.generic(let description) {
@@ -19,24 +19,24 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_handleAuthorizationResponseCreateTokenRequest_addHeaders() throws {
+    func test_handleAuthorizationResponseCreateTokenRequest_addHeaders() async throws {
         let authorizationResponse = MockAuthorizationResponse_AddingHeaders(
             request: OIDAuthorizationRequest.mockAuthorizationRequest,
             parameters: .init()
         )
 
         do {
-            let tokenRequest = try sut.handleAuthorizationResponseCreateTokenRequest(
+            let tokenRequest = try await sut.handleAuthResponseCreateTokenRequest(
                 authorizationResponse,
                 error: nil,
-                tokenParameters: [
+                tokenParameters: {[
                     "token_parameter_1": "test_parameter_1",
                     "token_parameter_2": "test_parameter_2"
-                ],
-                tokenHeaders: [
+                ]},
+                tokenHeaders: {[
                     "token_header_1": "test_header_1",
                     "token_header_2": "test_header_2"
-                ]
+                ]}
             )
             XCTAssertEqual(tokenRequest.additionalParameters?["token_parameter_1"], "test_parameter_1")
             XCTAssertEqual(tokenRequest.additionalParameters?["token_parameter_2"], "test_parameter_2")
@@ -48,18 +48,18 @@ extension AppAuthSessionTests {
     }
     
     @MainActor
-    func test_handleAuthorizationResponseCreateTokenRequest_noTokenResponse() throws {
+    func test_handleAuthorizationResponseCreateTokenRequest_noTokenResponse() async throws {
         let authorizationResponse = MockAuthorizationResponse_MissingTokenRequest(
             request: OIDAuthorizationRequest.mockAuthorizationRequest,
             parameters: .init()
         )
         
         do {
-            _ = try sut.handleAuthorizationResponseCreateTokenRequest(
+            _ = try await sut.handleAuthResponseCreateTokenRequest(
                 authorizationResponse,
                 error: nil,
-                tokenParameters: nil,
-                tokenHeaders: nil
+                tokenParameters: {nil},
+                tokenHeaders: {nil}
             )
             XCTFail("Expected no token request error, got success")
         } catch LoginError.generic(let description) {
