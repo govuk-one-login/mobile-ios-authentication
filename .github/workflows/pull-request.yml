@@ -27,8 +27,8 @@ jobs:
           
       - name: Check breaking changes
         run: |
-          if [[ "${{ github.event.pull_request.title }}" != *"!"* ]]; then
-            swift package diagnose-api-breaking-changes main
+          if [[ "${{ github.event.pull_request.title }}" != *"!:"* ]]; then
+            swift package diagnose-api-breaking-changes ${{ github.base_ref }}
           fi
 
       - name: Run Linter
