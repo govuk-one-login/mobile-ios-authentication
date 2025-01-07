@@ -18,18 +18,18 @@ jobs:
     steps:
       - name: Add path globally
         run: echo "/usr/local/bin" >> $GITHUB_PATH
-        
-      - name: Check breaking changes
-        run: |
-          if [[ "${{ github.event.pull_request.title }}" != *"!"* ]]; then
-            swift package diagnose-api-breaking-changes main
-          fi
 
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # pin@v4
         with:
           lfs: 'true'
           fetch-depth: 0
+          
+      - name: Check breaking changes
+        run: |
+          if [[ "${{ github.event.pull_request.title }}" != *"!"* ]]; then
+            swift package diagnose-api-breaking-changes main
+          fi
 
       - name: Run Linter
         run: |
