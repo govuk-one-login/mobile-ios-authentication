@@ -167,6 +167,7 @@ public final class AppAuthSession: LoginSession {
         case (OIDOAuthAuthorizationErrorDomain, -7):
             throw LoginError.serverError
         default:
+            print("AUTHENTICATION ERROR", error)
             throw LoginError.generic(description: error.localizedDescription)
         }
     }
