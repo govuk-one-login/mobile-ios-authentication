@@ -21,5 +21,7 @@ extension LoginErrorTests {
         XCTAssertEqual(sut.localizedDescription, "user cancelled")
         sut = .serverError
         XCTAssertEqual(sut.localizedDescription, "server error")
+        sut = .accessDenied
+        XCTAssertEqual(sut.localizedDescription, "access denied")
     }
 }
