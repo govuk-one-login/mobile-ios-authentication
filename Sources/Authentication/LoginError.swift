@@ -1,4 +1,6 @@
-public enum LoginError: Error, Equatable {
+import Foundation
+
+public enum LoginError: Error, Equatable, LocalizedError {
     case clientError
     case generic(description: String)
     case invalidRequest
@@ -28,4 +30,6 @@ public enum LoginError: Error, Equatable {
             return "access denied"
         }
     }
+    
+    public var errorDescription: String? { return localizedDescription }
 }
