@@ -54,6 +54,39 @@ public struct LoginSessionConfiguration {
         case cy
     }
     
+    // adding new init to avoid need for `async let`
+    // https://forums.swift.org/t/sigabrt-freed-pointer-was-not-the-last-allocation-crash/78772
+    public init(
+        authorizationEndpoint: URL,
+        tokenEndpoint: URL,
+        responseType: ResponseType = .code,
+        scopes: [Scope] = [
+            .openid,
+            .email,
+            .phone,
+            .offline_access
+        ],
+        clientID: String,
+        prefersEphemeralWebSession: Bool = true,
+        redirectURI: String,
+        vectorsOfTrust: [String] = ["Cl.Cm.P0"],
+        locale: UILocale,
+        persistentSessionId: String? = nil
+    ) {
+        self.authorizationEndpoint = authorizationEndpoint
+        self.tokenEndpoint = tokenEndpoint
+        self.responseType = responseType
+        self.scopes = scopes
+        self.clientID = clientID
+        self.prefersEphemeralWebSession = prefersEphemeralWebSession
+        self.redirectURI = redirectURI
+        self.vectorsOfTrust = vectorsOfTrust
+        self.locale = locale
+        self.persistentSessionId = persistentSessionId
+        self.tokenParameters = { return nil }
+        self.tokenHeaders = { return nil }
+    }
+    
     public init(
         authorizationEndpoint: URL,
         tokenEndpoint: URL,
@@ -80,39 +113,6 @@ public struct LoginSessionConfiguration {
         self.persistentSessionId = persistentSessionId
         self.tokenParameters = tokenParameters
         self.tokenHeaders = tokenHeaders
-    }
-    
-    // adding new init to avoid need for `async let`
-    // https://forums.swift.org/t/sigabrt-freed-pointer-was-not-the-last-allocation-crash/78772
-    public init(
-        authorizationEndpoint: URL,
-        tokenEndpoint: URL,
-        responseType: ResponseType = .code,
-        scopes: [Scope] = [
-            .openid,
-            .email,
-            .phone,
-            .offline_access
-        ],
-        clientID: String,
-        prefersEphemeralWebSession: Bool = true,
-        redirectURI: String,
-        vectorsOfTrust: [String] = ["Cl.Cm.P0"],
-        locale: UILocale = .en,
-        persistentSessionId: String? = nil
-    ) {
-        self.authorizationEndpoint = authorizationEndpoint
-        self.tokenEndpoint = tokenEndpoint
-        self.responseType = responseType
-        self.scopes = scopes
-        self.clientID = clientID
-        self.prefersEphemeralWebSession = prefersEphemeralWebSession
-        self.redirectURI = redirectURI
-        self.vectorsOfTrust = vectorsOfTrust
-        self.locale = locale
-        self.persistentSessionId = persistentSessionId
-        self.tokenParameters = { return nil }
-        self.tokenHeaders = { return nil }
     }
 }
 
