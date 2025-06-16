@@ -70,7 +70,6 @@ public struct LoginSessionConfiguration {
         prefersEphemeralWebSession: Bool = true,
         redirectURI: String,
         vectorsOfTrust: [String] = ["Cl.Cm.P0"],
-        locale: UILocale,
         persistentSessionId: String? = nil
     ) {
         self.authorizationEndpoint = authorizationEndpoint
@@ -81,7 +80,7 @@ public struct LoginSessionConfiguration {
         self.prefersEphemeralWebSession = prefersEphemeralWebSession
         self.redirectURI = redirectURI
         self.vectorsOfTrust = vectorsOfTrust
-        self.locale = locale
+        self.locale = .en
         self.persistentSessionId = persistentSessionId
         self.tokenParameters = { return nil }
         self.tokenHeaders = { return nil }
