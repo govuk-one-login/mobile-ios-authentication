@@ -153,6 +153,8 @@ public final class AppAuthSession: LoginSession {
             return
         }
         
+        print("LOGIN ERROR DICTIONARY:", error.userInfo)
+        
         switch (error.domain, error.code) {
         case (OIDGeneralErrorDomain, -3):
             throw LoginError.userCancelled
