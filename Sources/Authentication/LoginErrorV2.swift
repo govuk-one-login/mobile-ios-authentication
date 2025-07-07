@@ -40,8 +40,8 @@ public enum LoginErrorReason: Equatable {
     case tokenInvalidGrant
     case tokenUnsupportedGrantType
     case tokenClientError
+    case tokenUnknownError
     
     // Misc Error
-    case unknownError
     case generic(description: String)
 }

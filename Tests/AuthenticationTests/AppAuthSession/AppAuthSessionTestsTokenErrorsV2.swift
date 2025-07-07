@@ -112,6 +112,33 @@ extension AppAuthSessionTestsV2 {
     }
     
     @MainActor
+    func test_loginFlow_tokenInvalidGrantError() throws {
+        let exp = expectation(description: "Wait for token response")
+        
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(
+                    configuration: .mock(),
+                    service: MockOIDAuthorizationService_TokenInvalidGrantError.self
+                )
+                XCTFail("Expected client error, got success")
+            } catch let error as LoginErrorV2 {
+                XCTAssertEqual(error.reason, .tokenInvalidGrant)
+            } catch {
+                XCTFail("Expected client error, got \(error)")
+            }
+            
+            exp.fulfill()
+        }
+        
+        waitForTruth(self.sut.isActive, timeout: 5)
+        
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        
+        wait(for: [exp], timeout: 5)
+    }
+    
+    @MainActor
     func test_loginFlow_tokenUnsupportedGrantTypeError() throws {
         let exp = expectation(description: "Wait for token response")
         
@@ -151,6 +178,33 @@ extension AppAuthSessionTestsV2 {
                 XCTFail("Expected client error, got success")
             } catch let error as LoginErrorV2 {
                 XCTAssertEqual(error.reason, .tokenClientError)
+            } catch {
+                XCTFail("Expected client error, got \(error)")
+            }
+            
+            exp.fulfill()
+        }
+        
+        waitForTruth(self.sut.isActive, timeout: 5)
+        
+        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        
+        wait(for: [exp], timeout: 5)
+    }
+    
+    @MainActor
+    func test_loginFlow_tokenUnknownError() throws {
+        let exp = expectation(description: "Wait for token response")
+        
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(
+                    configuration: .mock(),
+                    service: MockOIDAuthorizationService_TokenUnknownError.self
+                )
+                XCTFail("Expected client error, got success")
+            } catch let error as LoginErrorV2 {
+                XCTAssertEqual(error.reason, .tokenUnknownError)
             } catch {
                 XCTFail("Expected client error, got \(error)")
             }

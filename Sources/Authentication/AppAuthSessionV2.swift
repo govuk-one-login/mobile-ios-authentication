@@ -231,7 +231,7 @@ public final class AppAuthSessionV2: LoginSession {
         case (OIDOAuthTokenErrorDomain, -61439):
             throw LoginErrorV2(reason: .tokenClientError, underlyingReason: errorDescription)
         case (OIDOAuthTokenErrorDomain, -61440):
-            throw LoginErrorV2(reason: .unknownError, underlyingReason: errorDescription)
+            throw LoginErrorV2(reason: .tokenUnknownError, underlyingReason: errorDescription)
         default:
             throw LoginErrorV2(reason: .generic(description: error.localizedDescription), underlyingReason: errorDescription)
         }
