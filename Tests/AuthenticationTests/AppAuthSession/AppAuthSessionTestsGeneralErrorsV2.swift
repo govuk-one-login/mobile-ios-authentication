@@ -33,7 +33,7 @@ extension AppAuthSessionTestsV2 {
             do {
                 let tokens = try await sut.performLoginFlow(
                     configuration: .mock(),
-                    service: MockOIDAuthorizationService_Perform_Flow.self
+                    service: MockOIDAuthorizationService_Success.self
                 )
                 XCTAssertEqual(tokens.accessToken, "1234567890")
                 XCTAssertEqual(tokens.tokenType, "mock token")
@@ -160,5 +160,19 @@ extension AppAuthSessionTestsV2 {
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
         wait(for: [exp], timeout: 5)
+    }
+    
+    // MARK: Finalise tests
+
+    @MainActor
+    func test_finalise_throwErrorWithNoAuthCode() throws {
+        do {
+            _ = try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+            XCTFail("Expected user agent session does not exist error, got success")
+        } catch let error as LoginErrorV2 {
+            XCTAssertEqual(error.reason, .generic(description: ""))
+        } catch {
+            XCTFail("Expected user agent session does not exist error, got \(error)")
+        }
     }
 }

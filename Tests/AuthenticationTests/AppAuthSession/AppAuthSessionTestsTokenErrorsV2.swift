@@ -218,18 +218,4 @@ extension AppAuthSessionTestsV2 {
         
         wait(for: [exp], timeout: 5)
     }
-    
-    // MARK: Finalise tests
-    
-    @MainActor
-    func test_finalise_throwErrorWithNoAuthCode() throws {
-        do {
-            _ = try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
-            XCTFail("Expected user agent session does not exist error, got success")
-        } catch let error as LoginErrorV2 {
-            XCTAssertEqual(error.reason, .generic(description: "User Agent Session does not exist"))
-        } catch {
-            XCTFail("Expected user agent session does not exist error, got \(error)")
-        }
-    }
 }

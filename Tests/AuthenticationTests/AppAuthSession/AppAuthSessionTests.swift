@@ -289,7 +289,7 @@ extension AppAuthSessionTests {
             do {
                 let tokens = try await sut.performLoginFlow(
                     configuration: .mock(),
-                    service: MockOIDAuthorizationService_Perform_Flow.self
+                    service: MockOIDAuthorizationService_Success.self
                 )
                 XCTAssertEqual(tokens.accessToken, "1234567890")
                 XCTAssertEqual(tokens.tokenType, "mock token")
