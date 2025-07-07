@@ -1,6 +1,7 @@
 import AppAuthCore
 import UIKit
 
+// swiftlint:disable:next type_name
 class MockOIDAuthorizationService_AuthorizationClientError: OIDAuthorizationService {
     public override class func present(
         _ request: OIDAuthorizationRequest,

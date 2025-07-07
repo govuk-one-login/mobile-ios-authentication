@@ -126,7 +126,7 @@ public final class AppAuthSessionV2: LoginSession {
         tokenHeaders: @escaping () async throws -> TokenHeaders?
     ) async throws -> OIDTokenRequest {
         if let error {
-            try handleIfError(error, origin: .authorize)
+            try handleError(error, origin: .authorize)
         }
         guard let authorizationResponse else {
             throw LoginErrorV2(reason: .generic(description: "No Authorization Response"))
@@ -145,7 +145,7 @@ public final class AppAuthSessionV2: LoginSession {
         error: NSError?
     ) throws -> TokenResponse {
         if let error {
-            try handleIfError(error, origin: .token)
+            try handleError(error, origin: .token)
         }
         guard let tokenResponse else {
             throw LoginErrorV2(reason: .generic(description: "No Token Response"))
@@ -153,7 +153,7 @@ public final class AppAuthSessionV2: LoginSession {
         return try generateTokenResponse(token: tokenResponse)
     }
     
-    private func handleIfError(
+    private func handleError(
         _ error: NSError,
         origin: ErrorOrigin
     ) throws {
