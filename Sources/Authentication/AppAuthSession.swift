@@ -2,6 +2,7 @@ import AppAuth
 
 /// AppAuthSession object handle login flow with given auth provider
 /// Uses AppAuth Libary for presentation logic of login flow and handle redirects from auth service
+@available(*, deprecated, renamed: "AppAuthSessionV2", message: "Errors thrown from this class have been enriched in AppAuthSessionV2")
 public final class AppAuthSession: LoginSession {
     private let window: UIWindow
     private var userAgent: OIDExternalUserAgentSession?

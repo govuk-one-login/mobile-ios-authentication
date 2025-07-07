@@ -1,7 +1,7 @@
 import AppAuthCore
 import UIKit
 
-class MockOIDAuthorizationService_Perform_Flow: OIDAuthorizationService {
+class MockOIDAuthorizationService_TokenClientError: OIDAuthorizationService {
     public override class func present(
         _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,
@@ -18,11 +18,12 @@ class MockOIDAuthorizationService_Perform_Flow: OIDAuthorizationService {
         originalAuthorizationResponse authorizationResponse: OIDAuthorizationResponse?,
         callback: @escaping OIDTokenCallback
     ) {
-        let tokenResponse = MockTokenResponse_FullyFormed(
-            request: OIDTokenRequest.mockTokenRequest,
-            parameters: .init()
+        callback(
+            nil,
+            NSError(
+                domain: OIDOAuthTokenErrorDomain,
+                code: -61439
+            )
         )
-        
-        callback(tokenResponse, nil)
     }
 }

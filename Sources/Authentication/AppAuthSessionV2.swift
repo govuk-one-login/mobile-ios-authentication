@@ -1,4 +1,5 @@
 import AppAuth
+import AppAuthCore
 
 /// AppAuthSession object handle login flow with given auth provider
 /// Uses AppAuth Libary for presentation logic of login flow and handle redirects from auth service
@@ -62,7 +63,7 @@ public final class AppAuthSessionV2: LoginSession {
                         configuration: configuration,
                         service: service,
                         authorizationResponse: authResponse,
-                        error: error,
+                        error: error as? NSError,
                         continuation: continuation
                     )
                     userAgent = nil
@@ -80,7 +81,7 @@ public final class AppAuthSessionV2: LoginSession {
     public func finalise(redirectURL url: URL) throws {
         guard let userAgent else {
             self.userAgent = nil
-            throw LoginError.generic(description: "User Agent Session does not exist")
+            throw LoginErrorV2(reason: .generic(description: "User Agent Session does not exist"))
         }
         userAgent.resumeExternalUserAgentFlow(with: url)
     }
@@ -89,7 +90,7 @@ public final class AppAuthSessionV2: LoginSession {
         configuration: LoginSessionConfiguration,
         service: OIDAuthorizationService.Type,
         authorizationResponse: OIDAuthorizationResponse?,
-        error: Error?,
+        error: NSError?,
         continuation: CheckedContinuation<TokenResponse, any Error>
     ) async {
         do {
@@ -106,7 +107,7 @@ public final class AppAuthSessionV2: LoginSession {
                 do {
                     let response = try handleTokenResponse(
                         tokenResponse,
-                        error: error
+                        error: error as? NSError
                     )
                     continuation.resume(returning: response)
                 } catch {
@@ -120,11 +121,13 @@ public final class AppAuthSessionV2: LoginSession {
     
     func handleAuthResponseCreateTokenRequest(
         _ authorizationResponse: OIDAuthorizationResponse?,
-        error: Error?,
+        error: NSError?,
         tokenParameters: @escaping () async throws -> TokenParameters?,
         tokenHeaders: @escaping () async throws -> TokenHeaders?
     ) async throws -> OIDTokenRequest {
-        try handleIfError(error)
+        if let error {
+            try handleIfError(error, origin: .authorize)
+        }
         guard let authorizationResponse else {
             throw LoginErrorV2(reason: .generic(description: "No Authorization Response"))
         }
@@ -139,37 +142,96 @@ public final class AppAuthSessionV2: LoginSession {
     
     func handleTokenResponse(
         _ tokenResponse: OIDTokenResponse?,
-        error: Error?
+        error: NSError?
     ) throws -> TokenResponse {
-        try handleIfError(error)
+        if let error {
+            try handleIfError(error, origin: .token)
+        }
         guard let tokenResponse else {
             throw LoginErrorV2(reason: .generic(description: "No Token Response"))
         }
         return try generateTokenResponse(token: tokenResponse)
     }
     
-    private func handleIfError(_ error: Error?) throws {
-        guard let error = error as? NSError else {
-            return
-        }
-        
+    private func handleIfError(
+        _ error: NSError,
+        origin: ErrorOrigin
+    ) throws {
         let errorDescription = error.userInfo[NSLocalizedDescriptionKey] as? String
         
         switch (error.domain, error.code) {
+        // General Error Domain
         case (OIDGeneralErrorDomain, -3):
             throw LoginErrorV2(reason: .userCancelled, underlyingReason: errorDescription)
         case (OIDGeneralErrorDomain, -5):
             throw LoginErrorV2(reason: .network, underlyingReason: errorDescription)
         case (OIDGeneralErrorDomain, -6):
-            throw LoginErrorV2(reason: .non200, underlyingReason: errorDescription)
-        case (OIDOAuthAuthorizationErrorDomain, -2), (OIDOAuthTokenErrorDomain, -2):
-            throw LoginErrorV2(reason: .invalidRequest, underlyingReason: errorDescription)
-        case (OIDOAuthAuthorizationErrorDomain, -61439):
-            throw LoginErrorV2(reason: .clientError, underlyingReason: errorDescription)
-        case (OIDOAuthAuthorizationErrorDomain, -7):
-            throw LoginErrorV2(reason: .serverError, underlyingReason: errorDescription)
+            throw LoginErrorV2(reason: .generalServerError, underlyingReason: errorDescription)
+        case (OIDGeneralErrorDomain, -9):
+            throw LoginErrorV2(reason: .safariOpenError, underlyingReason: errorDescription)
+        default:
+            break
+        }
+        
+        switch origin {
+        case .authorize:
+            try handleAuthorizationError(error, errorDescription)
+        case .token:
+            try handleTokenError(error, errorDescription)
+        }
+    }
+    
+    private func handleAuthorizationError(
+        _ error: NSError,
+        _ errorDescription: String?
+    ) throws {
+        switch (error.domain, error.code) {
+        // Authorization Error Domain
+        case (OIDOAuthAuthorizationErrorDomain, -2):
+            throw LoginErrorV2(reason: .authorizationInvalidRequest, underlyingReason: errorDescription)
+        case (OIDOAuthAuthorizationErrorDomain, -3):
+            throw LoginErrorV2(reason: .authorizationUnauthorizedClient, underlyingReason: errorDescription)
         case (OIDOAuthAuthorizationErrorDomain, -4):
-            throw LoginErrorV2(reason: .accessDenied, underlyingReason: errorDescription)
+            throw LoginErrorV2(reason: .authorizationAccessDenied, underlyingReason: errorDescription)
+        case (OIDOAuthAuthorizationErrorDomain, -5):
+            throw LoginErrorV2(reason: .authorizationUnsupportedResponseType, underlyingReason: errorDescription)
+        case (OIDOAuthAuthorizationErrorDomain, -6):
+            throw LoginErrorV2(reason: .authorizationInvalidScope, underlyingReason: errorDescription)
+        case (OIDOAuthAuthorizationErrorDomain, -7):
+            throw LoginErrorV2(reason: .authorizationServerError, underlyingReason: errorDescription)
+        case (OIDOAuthAuthorizationErrorDomain, -8):
+            throw LoginErrorV2(reason: .authorizationTemporarilyUnavailable, underlyingReason: errorDescription)
+        case (OIDOAuthAuthorizationErrorDomain, -61439):
+            throw LoginErrorV2(reason: .authorizationClientError, underlyingReason: errorDescription)
+        case (OIDOAuthAuthorizationErrorDomain, -61440):
+            throw LoginErrorV2(reason: .authorizationUnknownError, underlyingReason: errorDescription)
+        default:
+            throw LoginErrorV2(reason: .generic(description: error.localizedDescription), underlyingReason: errorDescription)
+        }
+    }
+    
+    private func handleTokenError(
+        _ error: NSError,
+        _ errorDescription: String?
+    ) throws {
+        switch (error.domain, error.code) {
+        // Token Error Domain
+        case (OIDOAuthTokenErrorDomain, -2):
+            throw LoginErrorV2(reason: .tokenInvalidRequest, underlyingReason: errorDescription)
+        case (OIDOAuthTokenErrorDomain, -3):
+            throw LoginErrorV2(reason: .tokenUnauthorizedClient, underlyingReason: errorDescription)
+        case (OIDOAuthTokenErrorDomain, -6):
+            throw LoginErrorV2(reason: .tokenInvalidScope, underlyingReason: errorDescription)
+        case (OIDOAuthTokenErrorDomain, -9):
+            throw LoginErrorV2(reason: .tokenInvalidClient, underlyingReason: errorDescription)
+        case (OIDOAuthTokenErrorDomain, -10):
+            throw LoginErrorV2(reason: .tokenInvalidGrant, underlyingReason: errorDescription)
+        case (OIDOAuthTokenErrorDomain, -11):
+            throw LoginErrorV2(reason: .tokenUnsupportedGrantType, underlyingReason: errorDescription)
+        case (OIDOAuthTokenErrorDomain, -61439):
+            throw LoginErrorV2(reason: .tokenClientError, underlyingReason: errorDescription)
+        case (OIDOAuthTokenErrorDomain, -61440):
+            throw LoginErrorV2(reason: .unknownError, underlyingReason: errorDescription)
         default:
             throw LoginErrorV2(reason: .generic(description: error.localizedDescription), underlyingReason: errorDescription)
         }
@@ -189,4 +251,6 @@ public final class AppAuthSessionV2: LoginSession {
                              tokenType: tokenType,
                              expiryDate: expiryDate)
     }
+    
+    private enum ErrorOrigin { case authorize, token }
 }

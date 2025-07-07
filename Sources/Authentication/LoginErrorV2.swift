@@ -15,12 +15,33 @@ public struct LoginErrorV2: Error, Equatable, LocalizedError {
 }
 
 public enum LoginErrorReason: Equatable {
-    case clientError
-    case generic(description: String)
-    case invalidRequest
-    case network
-    case non200
+    // General Error Domain
     case userCancelled
-    case serverError
-    case accessDenied
+    case network
+    case generalServerError
+    case safariOpenError
+    
+    // Authorization Error Domain
+    case authorizationInvalidRequest
+    case authorizationUnauthorizedClient
+    case authorizationAccessDenied
+    case authorizationUnsupportedResponseType
+    case authorizationInvalidScope
+    case authorizationServerError
+    case authorizationTemporarilyUnavailable
+    case authorizationClientError
+    case authorizationUnknownError
+    
+    // Token Error Domain
+    case tokenInvalidRequest
+    case tokenUnauthorizedClient
+    case tokenInvalidScope
+    case tokenInvalidClient
+    case tokenInvalidGrant
+    case tokenUnsupportedGrantType
+    case tokenClientError
+    
+    // Misc Error
+    case unknownError
+    case generic(description: String)
 }

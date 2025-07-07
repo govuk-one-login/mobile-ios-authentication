@@ -1,7 +1,8 @@
 import AppAuthCore
 
-class MockOIDExternalUserAgentSession_Non200: NSObject,
-                                              OIDExternalUserAgentSession {
+// swiftlint:disable:next type_name
+class MockOIDExternalUserAgentSession_AuthorizationInvalidRequestError: NSObject,
+                                                                   OIDExternalUserAgentSession {
     var callback: OIDAuthorizationCallback?
     
     public func cancel() { }
@@ -14,8 +15,8 @@ class MockOIDExternalUserAgentSession_Non200: NSObject,
         callback?(
             nil,
             NSError(
-                domain: OIDGeneralErrorDomain,
-                code: -6
+                domain: OIDOAuthAuthorizationErrorDomain,
+                code: -2
             )
         )
         return true

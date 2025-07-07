@@ -1,7 +1,7 @@
 import AppAuthCore
 
-class MockOIDExternalUserAgentSession_Non200: NSObject,
-                                              OIDExternalUserAgentSession {
+class MockOIDExternalUserAgentSession_AuthorizationTemporarilyUnavailableError: NSObject,
+                                                                                OIDExternalUserAgentSession {
     var callback: OIDAuthorizationCallback?
     
     public func cancel() { }
@@ -14,8 +14,8 @@ class MockOIDExternalUserAgentSession_Non200: NSObject,
         callback?(
             nil,
             NSError(
-                domain: OIDGeneralErrorDomain,
-                code: -6
+                domain: OIDOAuthAuthorizationErrorDomain,
+                code: -8
             )
         )
         return true
