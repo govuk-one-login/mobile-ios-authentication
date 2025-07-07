@@ -170,7 +170,7 @@ extension AppAuthSessionTestsV2 {
             _ = try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
             XCTFail("Expected user agent session does not exist error, got success")
         } catch let error as LoginErrorV2 {
-            XCTAssertEqual(error.reason, .generic(description: ""))
+            XCTAssertEqual(error.reason, .generic(description: "User Agent Session does not exist"))
         } catch {
             XCTFail("Expected user agent session does not exist error, got \(error)")
         }
