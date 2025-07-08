@@ -1,5 +1,6 @@
 import Foundation
 
+@available(*, deprecated, renamed: "LoginErrorV2", message: "Errors as part of LoginErrorV2 are richer and include underlying error information")
 public enum LoginError: Error, Equatable, LocalizedError {
     case clientError
     case generic(description: String)
