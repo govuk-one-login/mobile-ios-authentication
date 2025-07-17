@@ -243,7 +243,6 @@ extension AppAuthSessionTestsV2 {
 
         // WHEN I receive an invalid redirect URL
         do {
-
             try sut.finalise(redirectURL: redirectURL)
             XCTFail("Expected Login Error V2 to be thrown")
         } catch let error as LoginErrorV2 {

@@ -8,8 +8,7 @@ class MockOIDAuthorizationService_InvalidURL: OIDAuthorizationService {
         prefersEphemeralSession: Bool,
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
-        let session = MockOIDExternalUserAgentSession()
-        session.allowsResume = false
+        let session = MockOIDExternalUserAgentSession_False()
         return session
     }
 

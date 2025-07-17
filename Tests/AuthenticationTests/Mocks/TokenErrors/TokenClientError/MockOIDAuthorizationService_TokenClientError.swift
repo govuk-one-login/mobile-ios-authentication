@@ -8,7 +8,7 @@ class MockOIDAuthorizationService_TokenClientError: OIDAuthorizationService {
         prefersEphemeralSession: Bool,
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
-        let session = MockOIDExternalUserAgentSession()
+        let session = MockOIDExternalUserAgentSession_Success()
         session.callback = callback
         return session
     }
