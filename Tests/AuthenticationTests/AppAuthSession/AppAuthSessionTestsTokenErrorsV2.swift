@@ -231,29 +231,26 @@ extension AppAuthSessionTestsV2 {
     func test_loginFlow_invalidRedirectURL() throws {
         // GIVEN I am logging in
         let exp = expectation(description: "wait for login to be displayed")
-        let exp2 = expectation(description: "expect flow to be cancelled")
         Task {
             exp.fulfill()
             _ = try await sut.performLoginFlow(
                 configuration: .mock(),
-                service: MockOIDAuthorizationService_Success.self
+                service: MockOIDAuthorizationService_InvalidURL.self
             )
-            exp2.fulfill()
         }
         wait(for: [exp], timeout: 4)
         waitForTruth(self.sut.isActive, timeout: 4)
 
         // WHEN I receive an invalid redirect URL
         do {
+
             try sut.finalise(redirectURL: redirectURL)
+            XCTFail("Expected Login Error V2 to be thrown")
         } catch let error as LoginErrorV2 {
             // THEN AN error is thrown
             XCTAssertEqual(error.reason, .invalidRedirectURL)
             // AND the session is cleared
             XCTAssertTrue(sut.isActive)
         }
-
-        // AND the waiting task is cancelled
-        wait(for: [exp2], timeout: 4)
     }
 }
