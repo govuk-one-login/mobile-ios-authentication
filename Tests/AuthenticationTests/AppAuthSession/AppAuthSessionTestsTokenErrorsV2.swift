@@ -3,13 +3,7 @@ import AppAuthCore
 import XCTest
 
 extension AppAuthSessionTestsV2 {
-    private var redirectURL: URL {
-        get throws {
-            try XCTUnwrap(
-                URL(string: "https://www.gov.uk")
-            )
-        }
-    }
+
 
     @MainActor
     func test_loginFlow_tokenInvalidRequestError() throws {

@@ -168,6 +168,8 @@ public final class AppAuthSessionV2: LoginSession {
         // General Error Domain
         case (OIDGeneralErrorDomain, -3):
             throw LoginErrorV2(reason: .userCancelled, underlyingReason: errorDescription)
+        case (OIDGeneralErrorDomain, -4):
+            throw LoginErrorV2(reason: .programCancelled, underlyingReason: errorDescription)
         case (OIDGeneralErrorDomain, -5):
             throw LoginErrorV2(reason: .network, underlyingReason: errorDescription)
         case (OIDGeneralErrorDomain, -6):

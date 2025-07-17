@@ -17,6 +17,7 @@ public struct LoginErrorV2: Error, Equatable, LocalizedError {
 public enum LoginErrorReason: Equatable {
     // General Error Domain
     case userCancelled
+    case programCancelled
     case network
     case generalServerError
     case safariOpenError
