@@ -31,7 +31,10 @@ public enum LoginErrorReason: Equatable {
     case authorizationTemporarilyUnavailable
     case authorizationClientError
     case authorizationUnknownError
-    
+
+    // Redirect error domain
+    case invalidRedirectURL
+
     // Token Error Domain
     case tokenInvalidRequest
     case tokenUnauthorizedClient

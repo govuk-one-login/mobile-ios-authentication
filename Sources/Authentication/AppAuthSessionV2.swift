@@ -80,10 +80,15 @@ public final class AppAuthSessionV2: LoginSession {
     @MainActor
     public func finalise(redirectURL url: URL) throws {
         guard let userAgent else {
-            self.userAgent = nil
             throw LoginErrorV2(reason: .generic(description: "User Agent Session does not exist"))
         }
-        userAgent.resumeExternalUserAgentFlow(with: url)
+        guard userAgent.resumeExternalUserAgentFlow(with: url) else {
+            // The server did not provide a valid OAuth redirect URL for error
+            // Perform any manual clean-up
+            userAgent.cancel()
+            loginTask?.cancel()
+            throw LoginErrorV2(reason: .invalidRedirectURL)
+        }
     }
     
     private func finaliseLoginWithAuthResponse(
