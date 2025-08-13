@@ -87,7 +87,14 @@ public final class AppAuthSessionV2: LoginSession {
             // Perform any manual clean-up
             userAgent.cancel()
             loginTask?.cancel()
-            throw LoginErrorV2(reason: .invalidRedirectURL)
+            
+            guard let params = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
+                  let errorType = params.first(where: { $0.name == "error" })?.value,
+                  let errorDescription = params.first(where: { $0.name == "error_description" })?.value else {
+                throw LoginErrorV2(reason: .invalidRedirectURL)
+            }
+            
+            throw LoginErrorV2(reason: .invalidRedirectURL, underlyingReason: "\(errorType): \(errorDescription)")
         }
     }
     
