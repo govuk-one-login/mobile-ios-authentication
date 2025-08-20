@@ -3,6 +3,8 @@ import AppAuthCore
 import XCTest
 
 extension AppAuthSessionTestsV2 {
+
+
     @MainActor
     func test_loginFlow_tokenInvalidRequestError() throws {
         let exp = expectation(description: "Wait for token response")
@@ -25,8 +27,8 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
-        
+        try sut.finalise(redirectURL: redirectURL)
+
         wait(for: [exp], timeout: 5)
     }
     
@@ -52,8 +54,8 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
-        
+        try sut.finalise(redirectURL: redirectURL)
+
         wait(for: [exp], timeout: 5)
     }
     
@@ -79,8 +81,8 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
-        
+        try sut.finalise(redirectURL: redirectURL)
+
         wait(for: [exp], timeout: 5)
     }
     
@@ -106,8 +108,8 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
-        
+        try sut.finalise(redirectURL: redirectURL)
+
         wait(for: [exp], timeout: 5)
     }
     
@@ -133,8 +135,8 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
-        
+        try sut.finalise(redirectURL: redirectURL)
+
         wait(for: [exp], timeout: 5)
     }
     
@@ -160,8 +162,8 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
-        
+        try sut.finalise(redirectURL: redirectURL)
+
         wait(for: [exp], timeout: 5)
     }
     
@@ -187,8 +189,8 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
-        
+        try sut.finalise(redirectURL: redirectURL)
+
         wait(for: [exp], timeout: 5)
     }
     
@@ -214,8 +216,61 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
-        
+        try sut.finalise(redirectURL: redirectURL)
+
         wait(for: [exp], timeout: 5)
+    }
+
+    @MainActor
+    func test_loginFlow_invalidRedirectURL() throws {
+        // GIVEN I am logging in
+        let exp = expectation(description: "wait for login to be displayed")
+        Task {
+            exp.fulfill()
+            _ = try await sut.performLoginFlow(
+                configuration: .mock(),
+                service: MockOIDAuthorizationService_InvalidURL.self
+            )
+        }
+        wait(for: [exp], timeout: 4)
+        waitForTruth(self.sut.isActive, timeout: 4)
+
+        // WHEN I receive an invalid redirect URL
+        do {
+            try sut.finalise(redirectURL: redirectURL)
+            XCTFail("Expected Login Error V2 to be thrown")
+        } catch let error as LoginErrorV2 {
+            // THEN AN error is thrown
+            XCTAssertEqual(error.reason, .invalidRedirectURL)
+            // AND the session is cleared
+            XCTAssertTrue(sut.isActive)
+        }
+    }
+    
+    @MainActor
+    func test_loginFlow_invalidRedirectURL_queryParams() throws {
+        // GIVEN I am logging in
+        let exp = expectation(description: "wait for login to be displayed")
+        Task {
+            exp.fulfill()
+            _ = try await sut.performLoginFlow(
+                configuration: .mock(),
+                service: MockOIDAuthorizationService_InvalidURL.self
+            )
+        }
+        wait(for: [exp], timeout: 4)
+        waitForTruth(self.sut.isActive, timeout: 4)
+
+        // WHEN I receive an invalid redirect URL
+        do {
+            try sut.finalise(redirectURL: try XCTUnwrap(URL(string: "https://www.gov.uk?error=unknown&error_description=server_error")))
+            XCTFail("Expected Login Error V2 to be thrown")
+        } catch let error as LoginErrorV2 {
+            // THEN AN error is thrown
+            XCTAssertEqual(error.reason, .invalidRedirectURL)
+            XCTAssertEqual(error.errorDescription, "unknown: server_error")
+            // AND the session is cleared
+            XCTAssertTrue(sut.isActive)
+        }
     }
 }

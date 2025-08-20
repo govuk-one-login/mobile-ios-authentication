@@ -80,10 +80,22 @@ public final class AppAuthSessionV2: LoginSession {
     @MainActor
     public func finalise(redirectURL url: URL) throws {
         guard let userAgent else {
-            self.userAgent = nil
             throw LoginErrorV2(reason: .generic(description: "User Agent Session does not exist"))
         }
-        userAgent.resumeExternalUserAgentFlow(with: url)
+        guard userAgent.resumeExternalUserAgentFlow(with: url) else {
+            // The server did not provide a valid OAuth redirect URL for error
+            // Perform any manual clean-up
+            userAgent.cancel()
+            loginTask?.cancel()
+            
+            guard let params = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
+                  let errorType = params.first(where: { $0.name == "error" })?.value,
+                  let errorDescription = params.first(where: { $0.name == "error_description" })?.value else {
+                throw LoginErrorV2(reason: .invalidRedirectURL)
+            }
+            
+            throw LoginErrorV2(reason: .invalidRedirectURL, underlyingReason: "\(errorType): \(errorDescription)")
+        }
     }
     
     private func finaliseLoginWithAuthResponse(
@@ -163,6 +175,8 @@ public final class AppAuthSessionV2: LoginSession {
         // General Error Domain
         case (OIDGeneralErrorDomain, -3):
             throw LoginErrorV2(reason: .userCancelled, underlyingReason: errorDescription)
+        case (OIDGeneralErrorDomain, -4):
+            throw LoginErrorV2(reason: .programCancelled, underlyingReason: errorDescription)
         case (OIDGeneralErrorDomain, -5):
             throw LoginErrorV2(reason: .network, underlyingReason: errorDescription)
         case (OIDGeneralErrorDomain, -6):

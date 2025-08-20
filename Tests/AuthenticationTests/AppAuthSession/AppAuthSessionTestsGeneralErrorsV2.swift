@@ -49,7 +49,7 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        try sut.finalise(redirectURL: redirectURL)
         
         wait(for: [exp], timeout: 5)
     }
@@ -76,7 +76,34 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        try sut.finalise(redirectURL: redirectURL)
+
+        wait(for: [exp], timeout: 5)
+    }
+    
+    @MainActor
+    func test_loginFlow_programCancelled() throws {
+        let exp = expectation(description: "Wait for token response")
+        
+        Task {
+            do {
+                _ = try await sut.performLoginFlow(
+                    configuration: .mock(),
+                    service: MockOIDAuthorizationService_ProgramCancelled.self
+                )
+                XCTFail("Expected user cancelled error, got success")
+            } catch let error as LoginErrorV2 {
+                XCTAssertEqual(error.reason, .programCancelled)
+            } catch {
+                XCTFail("Expected user cancelled error, got \(error)")
+            }
+            
+            exp.fulfill()
+        }
+        
+        waitForTruth(self.sut.isActive, timeout: 5)
+        
+        try sut.finalise(redirectURL: redirectURL)
 
         wait(for: [exp], timeout: 5)
     }
@@ -103,7 +130,7 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        try sut.finalise(redirectURL: redirectURL)
         
         wait(for: [exp], timeout: 5)
     }
@@ -130,7 +157,7 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        try sut.finalise(redirectURL: redirectURL)
         
         wait(for: [exp], timeout: 5)
     }
@@ -157,7 +184,7 @@ extension AppAuthSessionTestsV2 {
         
         waitForTruth(self.sut.isActive, timeout: 5)
         
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+        try sut.finalise(redirectURL: redirectURL)
         
         wait(for: [exp], timeout: 5)
     }
@@ -167,12 +194,20 @@ extension AppAuthSessionTestsV2 {
     @MainActor
     func test_finalise_throwErrorWithNoAuthCode() throws {
         do {
-            _ = try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
+            _ = try sut.finalise(redirectURL: redirectURL)
             XCTFail("Expected user agent session does not exist error, got success")
         } catch let error as LoginErrorV2 {
             XCTAssertEqual(error.reason, .generic(description: "User Agent Session does not exist"))
         } catch {
             XCTFail("Expected user agent session does not exist error, got \(error)")
+        }
+    }
+    
+    var redirectURL: URL {
+        get throws {
+            try XCTUnwrap(
+                URL(string: "https://www.gov.uk")
+            )
         }
     }
 }
