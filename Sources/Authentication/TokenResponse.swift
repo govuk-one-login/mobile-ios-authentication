@@ -37,12 +37,12 @@ public struct TokenResponse: Decodable {
             forKey: .accessToken
         )
         
-        refreshToken = try values.decode(
+        refreshToken = try values.decodeIfPresent(
             String.self,
             forKey: .refreshToken
         )
         
-        idToken = try values.decode(
+        idToken = try values.decodeIfPresent(
             String.self,
             forKey: .idToken
         )
