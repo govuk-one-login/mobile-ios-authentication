@@ -1,6 +1,6 @@
 @testable import Authentication
-import Testing
 import Foundation
+import Testing
 
 struct Test {
     @Test
