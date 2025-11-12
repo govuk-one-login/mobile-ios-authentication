@@ -1,6 +1,6 @@
 # di-mobile-ios-authentication
 
-Implementation of Authentication package.
+Implementation of Authentication package...
 
 ## Installation
 
