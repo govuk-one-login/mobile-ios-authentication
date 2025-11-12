@@ -1,4 +1,4 @@
-import UIKit
+import Foundation
 
 @MainActor
 public protocol LoginSession {

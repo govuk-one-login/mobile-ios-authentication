@@ -182,10 +182,12 @@ public final class AppAuthSession: LoginSession {
               let expiryDate = token.accessTokenExpirationDate else {
             throw LoginError.generic(description: "Missing token property")
         }
-        return TokenResponse(accessToken: accessToken,
-                             refreshToken: token.refreshToken,
-                             idToken: token.idToken,
-                             tokenType: tokenType,
-                             expiryDate: expiryDate)
+        return TokenResponse(
+            accessToken: accessToken,
+            refreshToken: token.refreshToken,
+            idToken: token.idToken,
+            tokenType: tokenType,
+            expiryDate: expiryDate
+        )
     }
 }
