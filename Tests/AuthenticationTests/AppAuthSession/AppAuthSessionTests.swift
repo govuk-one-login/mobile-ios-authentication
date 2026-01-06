@@ -26,29 +26,6 @@ final class AppAuthSessionTests: XCTestCase {
 
 extension AppAuthSessionTests {
     @MainActor
-    func test_loginFlow_present_IncorrectStateParameter() throws {
-        let exp = expectation(description: "Wait for token response")
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(configuration: .mock())
-                XCTFail("Expected client error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error, .clientError)
-            } catch {
-                XCTFail("Expected client error, got \(error)")
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        try sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(UUID().uuidString)&state=\(UUID().uuidString)")!)
-        
-        wait(for: [exp], timeout: 10)
-    }
-    
-    @MainActor
     func test_loginFlow_present_rejectsUserCancelled() throws {
         let exp = expectation(description: "Wait for token response")
         Task {

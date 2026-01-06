@@ -14,7 +14,7 @@ final class AppAuthSessionTestsV2: XCTestCase {
         window.rootViewController = vc
         window.makeKeyAndVisible()
         
-        sut = .init(window: window)
+        sut = AppAuthSessionV2(window: window)
     }
     
     override func tearDown() {
