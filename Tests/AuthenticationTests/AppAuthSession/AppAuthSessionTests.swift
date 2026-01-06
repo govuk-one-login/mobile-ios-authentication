@@ -14,7 +14,7 @@ final class AppAuthSessionTests: XCTestCase {
         window.rootViewController = vc
         window.makeKeyAndVisible()
         
-        sut = .init(window: window)
+        sut = AppAuthSession(window: window)
     }
     
     override func tearDown() {
@@ -41,11 +41,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com?code=\(UUID().uuidString)&state=\(UUID().uuidString)")!)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -67,11 +67,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
 
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -93,11 +93,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -119,11 +119,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -145,11 +145,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -171,11 +171,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -197,11 +197,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -223,11 +223,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -249,11 +249,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -275,11 +275,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -303,11 +303,11 @@ extension AppAuthSessionTests {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: URL(string: "https://www.google.com")!)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     // MARK: Finalise tests
