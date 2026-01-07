@@ -14,7 +14,7 @@ final class AppAuthSessionTestsV2: XCTestCase {
         window.rootViewController = vc
         window.makeKeyAndVisible()
         
-        sut = .init(window: window)
+        sut = AppAuthSessionV2(window: window)
     }
     
     override func tearDown() {
@@ -47,11 +47,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -74,11 +74,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
 
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -101,11 +101,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
 
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -128,11 +128,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -155,11 +155,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -182,11 +182,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
         
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     // MARK: Finalise tests

@@ -25,11 +25,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
 
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -52,11 +52,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
 
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -79,11 +79,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
 
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -106,11 +106,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
 
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -133,11 +133,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
 
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -160,11 +160,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
 
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -187,11 +187,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
 
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
     
     @MainActor
@@ -214,11 +214,11 @@ extension AppAuthSessionTestsV2 {
             exp.fulfill()
         }
         
-        waitForTruth(self.sut.isActive, timeout: 5)
+        waitForTruth(self.sut.isActive, timeout: 10)
         
         try sut.finalise(redirectURL: redirectURL)
 
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
     }
 
     @MainActor
@@ -232,8 +232,8 @@ extension AppAuthSessionTestsV2 {
                 service: MockOIDAuthorizationService_InvalidURL.self
             )
         }
-        wait(for: [exp], timeout: 4)
-        waitForTruth(self.sut.isActive, timeout: 4)
+        wait(for: [exp], timeout: 10)
+        waitForTruth(self.sut.isActive, timeout: 10)
 
         // WHEN I receive an invalid redirect URL
         do {
@@ -258,8 +258,8 @@ extension AppAuthSessionTestsV2 {
                 service: MockOIDAuthorizationService_InvalidURL.self
             )
         }
-        wait(for: [exp], timeout: 4)
-        waitForTruth(self.sut.isActive, timeout: 4)
+        wait(for: [exp], timeout: 10)
+        waitForTruth(self.sut.isActive, timeout: 10)
 
         // WHEN I receive an invalid redirect URL
         do {

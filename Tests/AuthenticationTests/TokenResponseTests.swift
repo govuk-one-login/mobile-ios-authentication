@@ -2,7 +2,7 @@
 import Foundation
 import Testing
 
-struct Test {
+struct TokenResponseTests {
     @Test
     func decodeFullTokenResponse() throws {
         let tokenResponseData = Data("""
