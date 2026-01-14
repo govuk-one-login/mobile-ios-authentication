@@ -30,12 +30,17 @@ jobs:
           brew install swiftlint
           swiftlint --strict
 
+      - name: Detect breaking changes
+        id: detect_breaking_changes
+        continue-on-error: true
+        run: swift package diagnose-api-breaking-changes "origin/${{ github.base_ref }}"
+
       - name: Validate Pull Request Name
         id: versioning
         uses: Oliver-Binns/Versioning@be1807ff3c5cd06edbe8fa3de54076cfd505f2df # pin@v1.4.3
         with:
           ACTION_TYPE: 'Validate'
-          CONTAINS_BREAKING_CHANGE: true
+          CONTAINS_BREAKING_CHANGE: {{ steps.detect_breaking_changes }}
 
       - name: Xcode select
         run: |
