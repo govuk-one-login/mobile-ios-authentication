@@ -35,7 +35,7 @@ jobs:
         uses: Oliver-Binns/Versioning@be1807ff3c5cd06edbe8fa3de54076cfd505f2df # pin@v1.4.3
         with:
           ACTION_TYPE: 'Validate'
-          CONTAINS_BREAKING_CHANGES: true
+          CONTAINS_BREAKING_CHANGE: true
 
       - name: Xcode select
         run: |
