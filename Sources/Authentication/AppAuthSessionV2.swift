@@ -53,6 +53,9 @@ public final class AppAuthSessionV2: LoginSession {
         }
         
         return try await withCheckedThrowingContinuation { continuation in
+            
+            dump(configuration.authorizationRequest)
+            
             userAgent = service.present(
                 configuration.authorizationRequest,
                 presenting: viewController,
