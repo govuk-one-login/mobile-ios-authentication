@@ -79,6 +79,12 @@ public final class AppAuthSessionV2: LoginSession {
     /// - Returns: TokenResponse, tokens for the session
     @MainActor
     public func finalise(redirectURL url: URL) throws {
+        defer {
+            // The server did not provide a valid OAuth redirect URL for error
+            // Perform any manual clean-up
+            loginTask?.cancel()
+            userAgent = nil
+        }
         guard let userAgent else {
             throw LoginErrorV2(reason: .generic(description: "User Agent Session does not exist"))
         }
@@ -96,10 +102,6 @@ public final class AppAuthSessionV2: LoginSession {
                 userAgent.failExternalUserAgentFlowWithError(LoginErrorV2(reason: .invalidRedirectURL))
             }
         }
-        // The server did not provide a valid OAuth redirect URL for error
-        // Perform any manual clean-up
-        loginTask?.cancel()
-        window.rootViewController?.dismiss(animated: true)
     }
     
     private func finaliseLoginWithAuthResponse(
