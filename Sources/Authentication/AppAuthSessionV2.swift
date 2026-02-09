@@ -82,7 +82,7 @@ public final class AppAuthSessionV2: LoginSession {
         guard let userAgent else {
             throw LoginErrorV2(reason: .generic(description: "User Agent Session does not exist"))
         }
-        guard userAgent.resumeExternalUserAgentFlow(with: url) else {
+        if !userAgent.resumeExternalUserAgentFlow(with: url) {
             defer {
                 // The server did not provide a valid OAuth redirect URL for error
                 // Perform any manual clean-up
@@ -101,7 +101,6 @@ public final class AppAuthSessionV2: LoginSession {
             } else {
                 userAgent.failExternalUserAgentFlowWithError(LoginErrorV2(reason: .invalidRedirectURL))
             }
-            throw LoginErrorV2(reason: .generic(description: "unknown reason"))
         }
     }
     
