@@ -87,6 +87,7 @@ public final class AppAuthSessionV2: LoginSession {
                 // The server did not provide a valid OAuth redirect URL for error
                 // Perform any manual clean-up
                 loginTask?.cancel()
+                userAgent.cancel()
             }
             
             guard let params = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
