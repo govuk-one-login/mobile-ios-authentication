@@ -83,10 +83,11 @@ public final class AppAuthSessionV2: LoginSession {
             throw LoginErrorV2(reason: .generic(description: "User Agent Session does not exist"))
         }
         guard userAgent.resumeExternalUserAgentFlow(with: url) else {
-            // The server did not provide a valid OAuth redirect URL for error
-            // Perform any manual clean-up
-            userAgent.cancel()
-            loginTask?.cancel()
+            defer {
+                // The server did not provide a valid OAuth redirect URL for error
+                // Perform any manual clean-up
+                loginTask?.cancel()
+            }
             
             guard let params = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
                   let errorType = params.first(where: { $0.name == "error" })?.value,
