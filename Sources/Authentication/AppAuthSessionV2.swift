@@ -83,7 +83,7 @@ public final class AppAuthSessionV2: LoginSession {
             // The server did not provide a valid OAuth redirect URL for error
             // Perform any manual clean-up
             loginTask?.cancel()
-            userAgent = nil
+            window.rootViewController?.dismiss(animated: true)
         }
         guard let userAgent else {
             throw LoginErrorV2(reason: .generic(description: "User Agent Session does not exist"))
