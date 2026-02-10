@@ -79,22 +79,28 @@ public final class AppAuthSessionV2: LoginSession {
     /// - Returns: TokenResponse, tokens for the session
     @MainActor
     public func finalise(redirectURL url: URL) throws {
+        defer {
+            // The server did not provide a valid OAuth redirect URL for error
+            // Perform any manual clean-up
+            window.rootViewController?.dismiss(animated: true)
+            loginTask?.cancel()
+        }
         guard let userAgent else {
             throw LoginErrorV2(reason: .generic(description: "User Agent Session does not exist"))
         }
-        guard userAgent.resumeExternalUserAgentFlow(with: url) else {
-            // The server did not provide a valid OAuth redirect URL for error
-            // Perform any manual clean-up
-            userAgent.cancel()
-            loginTask?.cancel()
-            
-            guard let params = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
-                  let errorType = params.first(where: { $0.name == "error" })?.value,
-                  let errorDescription = params.first(where: { $0.name == "error_description" })?.value else {
-                throw LoginErrorV2(reason: .invalidRedirectURL)
+        if !userAgent.resumeExternalUserAgentFlow(with: url) {
+            if let params = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
+               let errorType = params.first(where: { $0.name == "error" })?.value,
+               let errorDescription = params.first(where: { $0.name == "error_description" })?.value {
+                userAgent.failExternalUserAgentFlowWithError(
+                    LoginErrorV2(
+                        reason: .invalidRedirectURL,
+                        underlyingReason: "\(errorType): \(errorDescription)"
+                    )
+                )
+            } else {
+                userAgent.failExternalUserAgentFlowWithError(LoginErrorV2(reason: .invalidRedirectURL))
             }
-            
-            throw LoginErrorV2(reason: .invalidRedirectURL, underlyingReason: "\(errorType): \(errorDescription)")
         }
     }
     
@@ -170,6 +176,11 @@ public final class AppAuthSessionV2: LoginSession {
         origin: ErrorOrigin
     ) throws {
         let errorDescription = error.userInfo[NSLocalizedDescriptionKey] as? String
+        
+        if let loginError = error as? LoginErrorV2,
+           loginError.reason == .invalidRedirectURL {
+            throw error
+        }
         
         switch (error.domain, error.code) {
         // General Error Domain
