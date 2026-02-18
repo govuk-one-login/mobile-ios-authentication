@@ -211,3 +211,16 @@ extension AppAuthSessionTestsV2 {
         }
     }
 }
+
+extension LoginSessionConfiguration {
+    static let mock = {
+        await LoginSessionConfiguration(
+            authorizationEndpoint: URL(
+                string: "https://www.google.com"
+            )!,
+            tokenEndpoint: URL(string: "https://www.google.com/token")!,
+            clientID: "1234",
+            redirectURI: "https://www.google.com"
+        )
+    }
+}
