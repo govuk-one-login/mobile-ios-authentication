@@ -2,7 +2,7 @@ import AppAuthCore
 @testable import Authentication
 import XCTest
 
-extension AppAuthSessionTestsV2 {
+extension AppAuthSessionTests {
     @MainActor
     func test_handleAuthorizationResponseCreateTokenRequest_noAuthorizationResponse() async throws {
         do {
@@ -13,7 +13,7 @@ extension AppAuthSessionTestsV2 {
                 tokenHeaders: { nil }
             )
             XCTFail("Expected no authorization response error, got success")
-        } catch let error as LoginErrorV2 {
+        } catch let error as LoginError {
             XCTAssertEqual(error.reason, .generic(description: "No Authorization Response"))
         }
     }
@@ -62,7 +62,7 @@ extension AppAuthSessionTestsV2 {
                 tokenHeaders: { nil }
             )
             XCTFail("Expected no token request error, got success")
-        } catch let error as LoginErrorV2 {
+        } catch let error as LoginError {
             XCTAssertEqual(error.reason, .generic(description: "Couldn't create Token Request"))
         }
     }
@@ -75,7 +75,7 @@ extension AppAuthSessionTestsV2 {
                 error: nil
             )
             XCTFail("Expected no token response error, got success")
-        } catch let error as LoginErrorV2 {
+        } catch let error as LoginError {
             XCTAssertEqual(error.reason, .generic(description: "No Token Response"))
         }
     }
@@ -93,7 +93,7 @@ extension AppAuthSessionTestsV2 {
                 error: nil
             )
             XCTFail("Expected no token response error, got success")
-        } catch let error as LoginErrorV2 {
+        } catch let error as LoginError {
             XCTAssertEqual(error.reason, .generic(description: "Missing token property"))
         }
     }

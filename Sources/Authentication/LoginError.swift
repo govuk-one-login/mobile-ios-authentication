@@ -1,6 +1,6 @@
 import Foundation
 
-public struct LoginErrorV2: Error, Equatable, LocalizedError {
+public struct LoginError: Error, Equatable, LocalizedError {
     public let reason: LoginErrorReason
     public let underlyingReason: String?
     public var errorDescription: String? { underlyingReason }

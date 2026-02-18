@@ -2,7 +2,7 @@ import AppAuthCore
 @testable import Authentication
 import XCTest
 
-extension AppAuthSessionTestsV2 {
+extension AppAuthSessionTests {
     @MainActor
     func test_loginFlow_authorizationInvalidRequestError() throws {
         let exp = expectation(description: "Wait for token response")
@@ -14,7 +14,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_AuthorizationInvalidRequestError.self
                 )
                 XCTFail("Expected authorization invalid request error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .authorizationInvalidRequest)
             } catch {
                 XCTFail("Expected authorization invalid request error, got \(error)")
@@ -41,7 +41,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_AuthorizationUnauthorizedClientError.self
                 )
                 XCTFail("Expected authorization invalid request error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .authorizationUnauthorizedClient)
             } catch {
                 XCTFail("Expected authorization invalid request error, got \(error)")
@@ -68,7 +68,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_AuthorizationAccessDeniedError.self
                 )
                 XCTFail("Expected authorization invalid request error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .authorizationAccessDenied)
             } catch {
                 XCTFail("Expected authorization invalid request error, got \(error)")
@@ -95,7 +95,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_AuthorizationUnsupportedResponseTypeError.self
                 )
                 XCTFail("Expected authorization invalid request error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .authorizationUnsupportedResponseType)
             } catch {
                 XCTFail("Expected authorization invalid request error, got \(error)")
@@ -122,7 +122,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_AuthorizationInvalidScopeError.self
                 )
                 XCTFail("Expected authorization invalid request error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .authorizationInvalidScope)
             } catch {
                 XCTFail("Expected authorization invalid request error, got \(error)")
@@ -149,7 +149,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_AuthorizationServerError.self
                 )
                 XCTFail("Expected server error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .authorizationServerError)
             } catch {
                 XCTFail("Expected server error, got \(error)")
@@ -176,7 +176,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_AuthorizationTemporarilyUnavailableError.self
                 )
                 XCTFail("Expected server error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .authorizationTemporarilyUnavailable)
             } catch {
                 XCTFail("Expected server error, got \(error)")
@@ -203,7 +203,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_AuthorizationClientError.self
                 )
                 XCTFail("Expected client error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .authorizationClientError)
             } catch {
                 XCTFail("Expected client error, got \(error)")
@@ -230,7 +230,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_AuthorizationUnknownError.self
                 )
                 XCTFail("Expected client error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .authorizationUnknownError)
             } catch {
                 XCTFail("Expected client error, got \(error)")
