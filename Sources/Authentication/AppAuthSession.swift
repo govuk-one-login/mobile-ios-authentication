@@ -1,6 +1,9 @@
 import AppAuth
 import AppAuthCore
 
+@available(*, deprecated, renamed: "AppAuthSession")
+public typealias AppAuthSessionV2 = AppAuthSession
+
 /// AppAuthSession object handle login flow with given auth provider
 /// Uses AppAuth Libary for presentation logic of login flow and handle redirects from auth service
 public final class AppAuthSession: LoginSession {

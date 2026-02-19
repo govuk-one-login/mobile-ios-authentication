@@ -1,5 +1,8 @@
 import Foundation
 
+@available(*, deprecated, renamed: "LoginError")
+public typealias LoginErrorV2 = LoginError
+
 public struct LoginError: Error, Equatable, LocalizedError {
     public let reason: LoginErrorReason
     public let underlyingReason: String?
