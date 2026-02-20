@@ -1,4 +1,3 @@
-import AppAuthCore
 @testable import Authentication
 import XCTest
 

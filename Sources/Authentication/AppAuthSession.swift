@@ -1,5 +1,4 @@
 import AppAuth
-import AppAuthCore
 
 @available(*, deprecated, renamed: "AppAuthSession")
 public typealias AppAuthSessionV2 = AppAuthSession
