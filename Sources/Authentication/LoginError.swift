@@ -1,36 +1,54 @@
 import Foundation
 
-@available(*, deprecated, renamed: "LoginErrorV2", message: "Errors as part of LoginErrorV2 are richer and include underlying error information")
-public enum LoginError: Error, Equatable, LocalizedError {
-    case clientError
-    case generic(description: String)
-    case invalidRequest
-    case network
-    case non200
-    case userCancelled
-    case serverError
-    case accessDenied
+@available(*, deprecated, renamed: "LoginError")
+public typealias LoginErrorV2 = LoginError
+
+public struct LoginError: Error, Equatable, LocalizedError {
+    public let reason: LoginErrorReason
+    public let underlyingReason: String?
+    public var errorDescription: String? { underlyingReason }
     
-    public var localizedDescription: String {
-        switch self {
-        case .clientError:
-            return "client error"
-        case .generic(description: let description):
-            return description
-        case .invalidRequest:
-            return "invalid request"
-        case .network:
-            return "network"
-        case .non200:
-            return "non 200"
-        case .userCancelled:
-            return "user cancelled"
-        case .serverError:
-            return "server error"
-        case .accessDenied:
-            return "access denied"
-        }
+    public init(
+        reason: LoginErrorReason,
+        underlyingReason: String? = nil
+    ) {
+        self.reason = reason
+        self.underlyingReason = underlyingReason
     }
+}
+
+public enum LoginErrorReason: Equatable {
+    // General Error Domain
+    case userCancelled
+    case programCancelled
+    case network
+    case generalServerError
+    case safariOpenError
     
-    public var errorDescription: String? { return localizedDescription }
+    // Authorization Error Domain
+    case authorizationInvalidRequest
+    case authorizationUnauthorizedClient
+    case authorizationAccessDenied
+    case authorizationUnsupportedResponseType
+    case authorizationInvalidScope
+    case authorizationServerError
+    case authorizationTemporarilyUnavailable
+    case authorizationClientError
+    case authorizationUnknownError
+
+    // Redirect error domain
+    case invalidRedirectURL
+
+    // Token Error Domain
+    case tokenInvalidRequest
+    case tokenUnauthorizedClient
+    case tokenInvalidScope
+    case tokenInvalidClient
+    case tokenInvalidGrant
+    case tokenUnsupportedGrantType
+    case tokenClientError
+    case tokenUnknownError
+    
+    // Misc Error
+    case generic(description: String)
 }

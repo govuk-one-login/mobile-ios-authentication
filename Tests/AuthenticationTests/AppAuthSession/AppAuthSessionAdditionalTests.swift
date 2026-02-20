@@ -13,8 +13,8 @@ extension AppAuthSessionTests {
                 tokenHeaders: { nil }
             )
             XCTFail("Expected no authorization response error, got success")
-        } catch LoginError.generic(let description) {
-            XCTAssertEqual(description, "No Authorization Response")
+        } catch let error as LoginError {
+            XCTAssertEqual(error.reason, .generic(description: "No Authorization Response"))
         }
     }
     
@@ -62,8 +62,8 @@ extension AppAuthSessionTests {
                 tokenHeaders: { nil }
             )
             XCTFail("Expected no token request error, got success")
-        } catch LoginError.generic(let description) {
-            XCTAssertEqual(description, "Couldn't create Token Request")
+        } catch let error as LoginError {
+            XCTAssertEqual(error.reason, .generic(description: "Couldn't create Token Request"))
         }
     }
     
@@ -75,8 +75,8 @@ extension AppAuthSessionTests {
                 error: nil
             )
             XCTFail("Expected no token response error, got success")
-        } catch LoginError.generic(description: let description) {
-            XCTAssertEqual(description, "No Token Response")
+        } catch let error as LoginError {
+            XCTAssertEqual(error.reason, .generic(description: "No Token Response"))
         }
     }
     
@@ -93,8 +93,8 @@ extension AppAuthSessionTests {
                 error: nil
             )
             XCTFail("Expected no token response error, got success")
-        } catch LoginError.generic(description: let description) {
-            XCTAssertEqual(description, "Missing token property")
+        } catch let error as LoginError {
+            XCTAssertEqual(error.reason, .generic(description: "Missing token property"))
         }
     }
     

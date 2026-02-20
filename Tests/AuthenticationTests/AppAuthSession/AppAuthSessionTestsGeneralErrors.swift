@@ -1,9 +1,8 @@
-import AppAuthCore
 @testable import Authentication
 import XCTest
 
-final class AppAuthSessionTestsV2: XCTestCase {
-    var sut: AppAuthSessionV2!
+final class AppAuthSessionTests: XCTestCase {
+    var sut: AppAuthSession!
     var config = LoginSessionConfiguration.mock
     
     @MainActor
@@ -14,7 +13,7 @@ final class AppAuthSessionTestsV2: XCTestCase {
         window.rootViewController = vc
         window.makeKeyAndVisible()
         
-        sut = AppAuthSessionV2(window: window)
+        sut = AppAuthSession(window: window)
     }
     
     override func tearDown() {
@@ -24,7 +23,7 @@ final class AppAuthSessionTestsV2: XCTestCase {
     }
 }
 
-extension AppAuthSessionTestsV2 {
+extension AppAuthSessionTests {
     @MainActor
     func test_loginFlow_succeeds() throws {
         let exp = expectation(description: "Wait for token response")
@@ -65,7 +64,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_UserCancelled.self
                 )
                 XCTFail("Expected user cancelled error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .userCancelled)
             } catch {
                 XCTFail("Expected user cancelled error, got \(error)")
@@ -92,7 +91,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_ProgramCancelled.self
                 )
                 XCTFail("Expected user cancelled error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .programCancelled)
             } catch {
                 XCTFail("Expected user cancelled error, got \(error)")
@@ -119,7 +118,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_NetworkError.self
                 )
                 XCTFail("Expected network error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .network)
             } catch {
                 XCTFail("Expected network error, got \(error)")
@@ -146,7 +145,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_GeneralServerError.self
                 )
                 XCTFail("Expected server error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .generalServerError)
             } catch {
                 XCTFail("Expected server error, got \(error)")
@@ -173,7 +172,7 @@ extension AppAuthSessionTestsV2 {
                     service: MockOIDAuthorizationService_SafariOpenError.self
                 )
                 XCTFail("Expected server error, got success")
-            } catch let error as LoginErrorV2 {
+            } catch let error as LoginError {
                 XCTAssertEqual(error.reason, .safariOpenError)
             } catch {
                 XCTFail("Expected server error, got \(error)")
@@ -196,7 +195,7 @@ extension AppAuthSessionTestsV2 {
         do {
             _ = try sut.finalise(redirectURL: redirectURL)
             XCTFail("Expected user agent session does not exist error, got success")
-        } catch let error as LoginErrorV2 {
+        } catch let error as LoginError {
             XCTAssertEqual(error.reason, .generic(description: "User Agent Session does not exist"))
         } catch {
             XCTFail("Expected user agent session does not exist error, got \(error)")
@@ -209,5 +208,18 @@ extension AppAuthSessionTestsV2 {
                 URL(string: "https://www.gov.uk")
             )
         }
+    }
+}
+
+extension LoginSessionConfiguration {
+    static let mock = {
+        await LoginSessionConfiguration(
+            authorizationEndpoint: URL(
+                string: "https://www.google.com"
+            )!,
+            tokenEndpoint: URL(string: "https://www.google.com/token")!,
+            clientID: "1234",
+            redirectURI: "https://www.google.com"
+        )
     }
 }
