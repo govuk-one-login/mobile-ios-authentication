@@ -29,15 +29,15 @@ extension AppAuthSessionTests {
     // MARK: A suite of tests on ID token verification
     // A Suite of tests that assert the validity of an ID token in the format expected to be issued by STS.
     
-    //  GIVEN an ID token
-    //  AND the iss claim equals https://token.account.gov.uk
-    //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
-    //  WHEN performing a login
-    //  AND the request matches the issuer
-    //  AND the request matches the audience
-    //  ASSERT that no (validation) error occured
     @MainActor
     func test_loginFlow_succeeds_validation() throws {
+        //  GIVEN an ID token
+        //  AND the iss claim equals https://token.account.gov.uk
+        //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
+        //  WHEN performing a login
+        //  AND the request matches the issuer
+        //  AND the request matches the audience
+        //  ASSERT that no (validation) error occured
         let exp = expectation(description: #function)
         
         // Given a token
@@ -78,15 +78,15 @@ extension AppAuthSessionTests {
         XCTAssertNil(caughtError)
     }
     
-    //  GIVEN an ID token
-    //  AND the iss claim equals https://token.account.gov.uk
-    //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
-    //  WHEN performing a login
-    //  AND the request DOES NOT match the issuer
-    //  AND the request matches the audience
-    //  ASSERT that a login error occured for the issuer mismatch
     @MainActor
     func test_loginFlow_fails_validation_issuer_mismatch() throws {
+        //  GIVEN an ID token
+        //  AND the iss claim equals https://token.account.gov.uk
+        //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
+        //  WHEN performing a login
+        //  AND the request DOES NOT match the issuer
+        //  AND the request matches the audience
+        //  ASSERT that a login error occured for the issuer mismatch
         let exp = expectation(description: #function)
 
         // Given a token
@@ -130,15 +130,15 @@ extension AppAuthSessionTests {
         XCTAssertEqual(le?.underlyingReason, "Issuer mismatch")
     }
 
-    //  GIVEN an ID token
-    //  AND the iss claim equals https://token.account.gov.uk
-    //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
-    //  WHEN performing a login
-    //  AND the request matches the issuer
-    //  AND the request DOES NOT match the audience
-    //  ASSERT that a login error occured for the audience mismatch
     @MainActor
     func test_loginFlow_fails_validation_audience_mismatch() throws {
+        //  GIVEN an ID token
+        //  AND the iss claim equals https://token.account.gov.uk
+        //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
+        //  WHEN performing a login
+        //  AND the request matches the issuer
+        //  AND the request DOES NOT match the audience
+        //  ASSERT that a login error occured for the audience mismatch
         let exp = expectation(description: #function)
 
         // Given a token
@@ -182,16 +182,16 @@ extension AppAuthSessionTests {
         XCTAssertEqual(le?.underlyingReason, "Audience mismatch")
     }
     
-    //  GIVEN an ID token
-    //  AND the iss claim equals https://token.account.gov.uk
-    //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
-    //  AND the token has long EXPIRED
-    //  WHEN performing a login
-    //  AND the request matches the issuer
-    //  AND the request matches the audience
-    //  ASSERT that a login error occured for the expired id token
     @MainActor
     func test_loginFlow_fails_validation_token_expired() throws {
+        //  GIVEN an ID token
+        //  AND the iss claim equals https://token.account.gov.uk
+        //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
+        //  AND the token has long EXPIRED
+        //  WHEN performing a login
+        //  AND the request matches the issuer
+        //  AND the request matches the audience
+        //  ASSERT that a login error occured for the expired id token
         let exp = expectation(description: #function)
 
         // Given an EXPIRED token
