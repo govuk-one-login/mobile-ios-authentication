@@ -1,21 +1,20 @@
 import AppAuthCore
-
 extension OIDTokenRequest {
-    static var mockTokenRequest: OIDTokenRequest {
+    
+    static func mock(endPoint: URL = URL(string: "https://token.account.gov.uk/token")!, issuer: URL?, audience clientID: String = "") -> OIDTokenRequest {
         let serviceConfiguration = OIDServiceConfiguration(
-            authorizationEndpoint: Foundation.URL(
-                string: "https://www.google.com"
+            authorizationEndpoint: URL(
+                string: "https://token.account.gov.uk/authorize"
             )!,
-            tokenEndpoint: Foundation.URL(
-                string: "https://www.google.com"
-            )!
+            tokenEndpoint: endPoint,
+            issuer: issuer
         )
         return OIDTokenRequest(
             configuration: serviceConfiguration,
             grantType: "",
             authorizationCode: nil,
             redirectURL: nil,
-            clientID: "",
+            clientID: clientID,
             clientSecret: nil,
             scope: nil,
             refreshToken: nil,
@@ -24,4 +23,6 @@ extension OIDTokenRequest {
             additionalHeaders: nil
         )
     }
+    
+    static var mockTokenRequest: OIDTokenRequest = .mock(issuer: nil)
 }
