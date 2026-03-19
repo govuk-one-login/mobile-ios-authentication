@@ -59,11 +59,13 @@ jobs:
             -Dsonar.token=$SONAR_TOKEN \
             -Dsonar.coverageReportPaths="sonarqube-generic-coverage.xml" \
             -Dsonar.pullrequest.key=$pull_number \
-            -Dsonar.pullrequest.branch=${{github.head_ref}} \
-            -Dsonar.pullrequest.base=${{github.base_ref}}
+            -Dsonar.pullrequest.branch="${GITHUB_HEAD_REF}" \
+            -Dsonar.pullrequest.base="${GITHUB_BASE_REF}"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
 
       - name: Check SonarCloud Results
         uses: sonarsource/sonarqube-quality-gate-action@cf038b0e0cdecfa9e56c198bbb7d21d751d62c3b # pin@v1.2.0
