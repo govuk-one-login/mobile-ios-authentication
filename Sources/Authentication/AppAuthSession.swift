@@ -3,9 +3,9 @@ import AppAuth
 @available(*, deprecated, renamed: "AppAuthSession")
 public typealias AppAuthSessionV2 = AppAuthSession
 
+// swiftlint:disable type_body_length
 /// AppAuthSession object handle login flow with given auth provider
 /// Uses AppAuth Libary for presentation logic of login flow and handle redirects from auth service
-// swiftlint: disable:next type_body_length
 public final class AppAuthSession: LoginSession {
     private let window: UIWindow
     private var userAgent: OIDExternalUserAgentSession?
@@ -327,3 +327,4 @@ public final class AppAuthSession: LoginSession {
     
     private enum ErrorOrigin { case authorize, token }
 }
+// swiftlint:enable type_body_length
