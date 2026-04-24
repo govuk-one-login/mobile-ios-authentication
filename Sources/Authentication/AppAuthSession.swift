@@ -5,6 +5,7 @@ public typealias AppAuthSessionV2 = AppAuthSession
 
 /// AppAuthSession object handle login flow with given auth provider
 /// Uses AppAuth Libary for presentation logic of login flow and handle redirects from auth service
+// swiftlint: disable:next type_body_length
 public final class AppAuthSession: LoginSession {
     private let window: UIWindow
     private var userAgent: OIDExternalUserAgentSession?
@@ -95,7 +96,7 @@ public final class AppAuthSession: LoginSession {
                let errorType = params.first(where: { $0.name == "error" })?.value,
                let errorDescription = params.first(where: { $0.name == "error_description" })?.value {
                 userAgent.failExternalUserAgentFlowWithError(
-                    LoginError(.invalidRedirectURL, reason:  "\(errorType): \(errorDescription)")
+                    LoginError(.invalidRedirectURL, reason: "\(errorType): \(errorDescription)")
                 )
             } else {
                 userAgent.failExternalUserAgentFlowWithError(LoginError(.invalidRedirectURL))
