@@ -14,7 +14,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected authorization invalid request error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .authorizationInvalidRequest)
+                XCTAssertEqual(error.kind, .authorizationInvalidRequest)
             } catch {
                 XCTFail("Expected authorization invalid request error, got \(error)")
             }
@@ -41,7 +41,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected authorization invalid request error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .authorizationUnauthorizedClient)
+                XCTAssertEqual(error.kind, .authorizationUnauthorizedClient)
             } catch {
                 XCTFail("Expected authorization invalid request error, got \(error)")
             }
@@ -68,7 +68,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected authorization invalid request error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .authorizationAccessDenied)
+                XCTAssertEqual(error.kind, .authorizationAccessDenied)
             } catch {
                 XCTFail("Expected authorization invalid request error, got \(error)")
             }
@@ -95,7 +95,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected authorization invalid request error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .authorizationUnsupportedResponseType)
+                XCTAssertEqual(error.kind, .authorizationUnsupportedResponseType)
             } catch {
                 XCTFail("Expected authorization invalid request error, got \(error)")
             }
@@ -122,7 +122,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected authorization invalid request error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .authorizationInvalidScope)
+                XCTAssertEqual(error.kind, .authorizationInvalidScope)
             } catch {
                 XCTFail("Expected authorization invalid request error, got \(error)")
             }
@@ -149,7 +149,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected server error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .authorizationServerError)
+                XCTAssertEqual(error.kind, .authorizationServerError)
             } catch {
                 XCTFail("Expected server error, got \(error)")
             }
@@ -176,7 +176,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected server error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .authorizationTemporarilyUnavailable)
+                XCTAssertEqual(error.kind, .authorizationTemporarilyUnavailable)
             } catch {
                 XCTFail("Expected server error, got \(error)")
             }
@@ -203,7 +203,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected client error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .authorizationClientError)
+                XCTAssertEqual(error.kind, .authorizationClientError)
             } catch {
                 XCTFail("Expected client error, got \(error)")
             }
@@ -230,7 +230,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected client error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .authorizationUnknownError)
+                XCTAssertEqual(error.kind, .authorizationUnknownError)
             } catch {
                 XCTFail("Expected client error, got \(error)")
             }
