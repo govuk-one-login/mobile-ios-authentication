@@ -1,9 +1,6 @@
 import Foundation
 import GDSUtilities
 
-@available(*, deprecated, renamed: "LoginError")
-public typealias LoginErrorV2 = LoginError
-
 public typealias LoginError = LoginGDSError<LoginErrorKind>
 
 public struct LoginGDSError<Kind: GDSErrorKind>: GDSError {

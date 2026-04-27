@@ -29,6 +29,7 @@ jobs:
       - name: Build and Test
         run: |
           set -o pipefail && xcodebuild -scheme Authentication test \
+            -skipPackagePluginValidation \
             -destination "platform=iOS Simulator,name=iPhone 17,OS=26.1" \
             -enableCodeCoverage YES \
             -resultBundlePath result.xcresult | xcbeautify
