@@ -127,7 +127,7 @@ extension AppAuthSessionTests {
 
         XCTAssertNotNil(caughtError)
         let le = caughtError as? LoginError
-        XCTAssertEqual(le?.underlyingReason, "Issuer mismatch")
+        XCTAssertEqual(le?.reason, "Issuer mismatch")
     }
 
     @MainActor
@@ -179,7 +179,7 @@ extension AppAuthSessionTests {
 
         XCTAssertNotNil(caughtError)
         let le = caughtError as? LoginError
-        XCTAssertEqual(le?.underlyingReason, "Audience mismatch")
+        XCTAssertEqual(le?.reason, "Audience mismatch")
     }
     
     @MainActor
@@ -231,7 +231,7 @@ extension AppAuthSessionTests {
 
         XCTAssertNotNil(caughtError)
         let le = caughtError as? LoginError
-        XCTAssertEqual(le?.underlyingReason, "ID Token expired")
+        XCTAssertEqual(le?.reason, "ID Token expired")
     }
 
     // MARK: end of suite
@@ -277,7 +277,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected user cancelled error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .userCancelled)
+                XCTAssertEqual(error.kind, .userCancelled)
             } catch {
                 XCTFail("Expected user cancelled error, got \(error)")
             }
@@ -304,7 +304,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected user cancelled error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .programCancelled)
+                XCTAssertEqual(error.kind, .programCancelled)
             } catch {
                 XCTFail("Expected user cancelled error, got \(error)")
             }
@@ -331,7 +331,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected network error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .network)
+                XCTAssertEqual(error.kind, .network)
             } catch {
                 XCTFail("Expected network error, got \(error)")
             }
@@ -358,7 +358,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected server error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .generalServerError)
+                XCTAssertEqual(error.kind, .generalServerError)
             } catch {
                 XCTFail("Expected server error, got \(error)")
             }
@@ -385,7 +385,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected server error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .safariOpenError)
+                XCTAssertEqual(error.kind, .safariOpenError)
             } catch {
                 XCTFail("Expected server error, got \(error)")
             }
@@ -408,7 +408,8 @@ extension AppAuthSessionTests {
             _ = try sut.finalise(redirectURL: redirectURL)
             XCTFail("Expected user agent session does not exist error, got success")
         } catch let error as LoginError {
-            XCTAssertEqual(error.reason, .generic(description: "User Agent Session does not exist"))
+            XCTAssertEqual(error.kind, .generic)
+            XCTAssertEqual(error.reason, "User Agent Session does not exist")
         } catch {
             XCTFail("Expected user agent session does not exist error, got \(error)")
         }

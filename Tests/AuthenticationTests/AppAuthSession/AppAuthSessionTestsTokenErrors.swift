@@ -14,7 +14,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected token invalid request error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .tokenInvalidRequest)
+                XCTAssertEqual(error.kind, .tokenInvalidRequest)
             } catch {
                 XCTFail("Expected token invalid request error, got \(error)")
             }
@@ -41,7 +41,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected token invalid request error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .tokenUnauthorizedClient)
+                XCTAssertEqual(error.kind, .tokenUnauthorizedClient)
             } catch {
                 XCTFail("Expected token invalid request error, got \(error)")
             }
@@ -68,7 +68,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected client error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .tokenInvalidScope)
+                XCTAssertEqual(error.kind, .tokenInvalidScope)
             } catch {
                 XCTFail("Expected client error, got \(error)")
             }
@@ -95,7 +95,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected client error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .tokenInvalidClient)
+                XCTAssertEqual(error.kind, .tokenInvalidClient)
             } catch {
                 XCTFail("Expected client error, got \(error)")
             }
@@ -122,7 +122,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected client error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .tokenInvalidGrant)
+                XCTAssertEqual(error.kind, .tokenInvalidGrant)
             } catch {
                 XCTFail("Expected client error, got \(error)")
             }
@@ -149,7 +149,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected client error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .tokenUnsupportedGrantType)
+                XCTAssertEqual(error.kind, .tokenUnsupportedGrantType)
             } catch {
                 XCTFail("Expected client error, got \(error)")
             }
@@ -176,7 +176,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected client error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .tokenClientError)
+                XCTAssertEqual(error.kind, .tokenClientError)
             } catch {
                 XCTFail("Expected client error, got \(error)")
             }
@@ -203,7 +203,7 @@ extension AppAuthSessionTests {
                 )
                 XCTFail("Expected client error, got success")
             } catch let error as LoginError {
-                XCTAssertEqual(error.reason, .tokenUnknownError)
+                XCTAssertEqual(error.kind, .tokenUnknownError)
             } catch {
                 XCTFail("Expected client error, got \(error)")
             }
@@ -232,7 +232,7 @@ extension AppAuthSessionTests {
                 XCTFail("Expected Login Error to be thrown")
             } catch let error as LoginError {
                 // THEN AN error is thrown
-                XCTAssertEqual(error.reason, .invalidRedirectURL)
+                XCTAssertEqual(error.kind, .invalidRedirectURL)
                 // AND the session is cleared
                 XCTAssertTrue(sut.isActive)
             }
@@ -258,8 +258,8 @@ extension AppAuthSessionTests {
                 XCTFail("Expected Login Error to be thrown")
             } catch let error as LoginError {
                 // THEN AN error is thrown
-                XCTAssertEqual(error.reason, .invalidRedirectURL)
-                XCTAssertEqual(error.errorDescription, "unknown: server_error")
+                XCTAssertEqual(error.kind, .invalidRedirectURL)
+                XCTAssertEqual(error.reason, "unknown: server_error")
             }
         }
         wait(for: [exp], timeout: 10)
