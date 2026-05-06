@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/govuk-one-login/quality-gates/refs/tags/v0.1.0/schemas/schema.json",
   "services": [
     {
-      "service-tag": "mobile-ios-one-login-app",
+      "service-tag": "mobile-ios-authentication",
       "quality-gates": [
         {
           "check-types": [
