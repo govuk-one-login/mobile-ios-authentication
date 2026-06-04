@@ -24,13 +24,13 @@ jobs:
 
       - name: Xcode select
         run: |
-          sudo xcode-select -s /Applications/Xcode_26.1.app
+          sudo xcode-select -s /Applications/Xcode_26.5.app
 
       - name: Build and Test
         run: |
           set -o pipefail && xcodebuild -scheme Authentication test \
             -skipPackagePluginValidation \
-            -destination "platform=iOS Simulator,name=iPhone 17,OS=26.1" \
+            -destination "platform=iOS Simulator,name=iPhone 17,arch=arm64,OS=26.5" \
             -enableCodeCoverage YES \
             -resultBundlePath result.xcresult | xcbeautify
             
