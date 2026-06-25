@@ -40,38 +40,89 @@ public struct LoginGDSError<Kind: GDSErrorKind>: GDSError {
     }
 }
 
-public enum LoginErrorKind: String, GDSErrorKind {
+public enum LoginErrorKind: Int, GDSErrorKind {
     // General Error Domain
-    case userCancelled
-    case programCancelled
-    case network
-    case generalServerError
-    case safariOpenError
+    case generic = 1000
+    case userCancelled = 1001
+    case programCancelled = 1002
+    case network = 1003
+    case generalServerError = 1004
+    case safariOpenError = 1005
     
     // Authorization Error Domain
-    case authorizationInvalidRequest
-    case authorizationUnauthorizedClient
-    case authorizationAccessDenied
-    case authorizationUnsupportedResponseType
-    case authorizationInvalidScope
-    case authorizationServerError
-    case authorizationTemporarilyUnavailable
-    case authorizationClientError
-    case authorizationUnknownError
+    case authorizationInvalidRequest = 2001
+    case authorizationUnauthorizedClient = 2002
+    case authorizationAccessDenied = 2003
+    case authorizationUnsupportedResponseType = 2004
+    case authorizationInvalidScope = 2005
+    case authorizationServerError = 2006
+    case authorizationTemporarilyUnavailable = 2007
+    case authorizationClientError = 2008
+    case authorizationUnknownError = 2009
 
     // Redirect error domain
-    case invalidRedirectURL
+    case invalidRedirectURL = 3001
 
     // Token Error Domain
-    case tokenInvalidRequest
-    case tokenUnauthorizedClient
-    case tokenInvalidScope
-    case tokenInvalidClient
-    case tokenInvalidGrant
-    case tokenUnsupportedGrantType
-    case tokenClientError
-    case tokenUnknownError
+    case tokenUnknownError = 4000
+    case tokenUnauthorizedClient = 4001
+    case tokenUnsupportedGrantType = 4002
+    case tokenClientError = 4003
+    case tokenInvalidRequest = 4101
+    case tokenInvalidScope = 4102
+    case tokenInvalidClient = 4103
+    case tokenInvalidGrant = 4104
     
-    // Misc Error
-    case generic
+    public var description: String {
+        switch self {
+        case .generic:
+            return "generic"
+        case .userCancelled:
+            return "userCancelled"
+        case .programCancelled:
+            return "programCancelled"
+        case .network:
+            return "network"
+        case .generalServerError:
+            return "generalServerError"
+        case .safariOpenError:
+            return "safariOpenError"
+        case .authorizationInvalidRequest:
+            return "authorizationInvalidRequest"
+        case .authorizationUnauthorizedClient:
+            return "authorizationUnauthorizedClient"
+        case .authorizationAccessDenied:
+            return "authorizationAccessDenied"
+        case .authorizationUnsupportedResponseType:
+            return "authorizationUnsupportedResponseType"
+        case .authorizationInvalidScope:
+            return "authorizationInvalidScope"
+        case .authorizationServerError:
+            return "authorizationServerError"
+        case .authorizationTemporarilyUnavailable:
+            return "authorizationTemporarilyUnavailable"
+        case .authorizationClientError:
+            return "authorizationClientError"
+        case .authorizationUnknownError:
+            return "authorizationUnknownError"
+        case .invalidRedirectURL:
+            return "invalidRedirectURL"
+        case .tokenUnknownError:
+            return "tokenUnknownError"
+        case .tokenUnauthorizedClient:
+            return "tokenUnauthorizedClient"
+        case .tokenUnsupportedGrantType:
+            return "tokenUnsupportedGrantType"
+        case .tokenClientError:
+            return "tokenClientError"
+        case .tokenInvalidRequest:
+            return "tokenInvalidRequest"
+        case .tokenInvalidScope:
+            return "tokenInvalidScope"
+        case .tokenInvalidClient:
+            return "tokenInvalidClient"
+        case .tokenInvalidGrant:
+            return "tokenInvalidGrant"
+        }
+    }
 }
