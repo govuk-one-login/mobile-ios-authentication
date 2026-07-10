@@ -71,7 +71,7 @@ public enum LoginErrorKind: Int, GDSErrorKind {
     case tokenInvalidGrant = 4005 // -10
     case tokenUnsupportedGrantType = 4006 // -11
     case tokenClientError = 4007 // -0xEFFF (aka -61439)
-    case tokenUnknownError = 4100 //-0xF000 (aka -61440)
+    case tokenUnknownError = 4100 // -0xF000 (aka -61440)
 
     public var description: String {
         switch self {
