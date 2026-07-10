@@ -41,38 +41,38 @@ public struct LoginGDSError<Kind: GDSErrorKind>: GDSError {
 }
 
 public enum LoginErrorKind: Int, GDSErrorKind {
-    // General Error Domain
+    // MARK: LoginErrorKind
     case generic = 1000
-    case userCancelled = 1001
-    case programCancelled = 1002
-    case network = 1003
-    case generalServerError = 1004
-    case safariOpenError = 1005
-    
-    // Authorization Error Domain
-    case authorizationInvalidRequest = 2001
-    case authorizationUnauthorizedClient = 2002
-    case authorizationAccessDenied = 2003
-    case authorizationUnsupportedResponseType = 2004
-    case authorizationInvalidScope = 2005
-    case authorizationServerError = 2006
-    case authorizationTemporarilyUnavailable = 2007
-    case authorizationClientError = 2008
-    case authorizationUnknownError = 2009
+    case invalidRedirectURL = 1001
 
-    // Redirect error domain
-    case invalidRedirectURL = 3001
-
-    // Token Error Domain
-    case tokenUnknownError = 4000
-    case tokenUnauthorizedClient = 4001
-    case tokenUnsupportedGrantType = 4002
-    case tokenClientError = 4003
-    case tokenInvalidRequest = 4101
-    case tokenInvalidScope = 4102
-    case tokenInvalidClient = 4103
-    case tokenInvalidGrant = 4104
+    // MARK: OIDGeneralErrorDomain
+    case userCancelled = 2001 // -3
+    case programCancelled = 2002 // -4
+    case network = 2003 // -5
+    case generalServerError = 2004 // -6
+    case safariOpenError = 2005 // -9
     
+    // MARK: OIDOAuthAuthorizationErrorDomain
+    case authorizationInvalidRequest = 3001 // -2
+    case authorizationUnauthorizedClient = 3002 // -3
+    case authorizationAccessDenied = 3003 // -4
+    case authorizationUnsupportedResponseType = 3004 // -5
+    case authorizationInvalidScope = 3005 // -6
+    case authorizationServerError = 3006 // -7
+    case authorizationTemporarilyUnavailable = 3007 // -8
+    case authorizationClientError = 3008 // -0xEFFF (aka -61439)
+    case authorizationUnknownError = 3100 // -0xF000 (aka -61440)
+
+    // MARK: OIDOAuthTokenErrorDomain
+    case tokenInvalidRequest = 4001 // -2
+    case tokenUnauthorizedClient = 4002 // -3
+    case tokenInvalidScope = 4003 // -6
+    case tokenInvalidClient = 4004 // -9
+    case tokenInvalidGrant = 4005 // -10
+    case tokenUnsupportedGrantType = 4006 // -11
+    case tokenClientError = 4007 // -0xEFFF (aka -61439)
+    case tokenUnknownError = 4100 //-0xF000 (aka -61440)
+
     public var description: String {
         switch self {
         case .generic:
