@@ -40,38 +40,89 @@ public struct LoginGDSError<Kind: GDSErrorKind>: GDSError {
     }
 }
 
-public enum LoginErrorKind: String, GDSErrorKind {
-    // General Error Domain
-    case userCancelled
-    case programCancelled
-    case network
-    case generalServerError
-    case safariOpenError
-    
-    // Authorization Error Domain
-    case authorizationInvalidRequest
-    case authorizationUnauthorizedClient
-    case authorizationAccessDenied
-    case authorizationUnsupportedResponseType
-    case authorizationInvalidScope
-    case authorizationServerError
-    case authorizationTemporarilyUnavailable
-    case authorizationClientError
-    case authorizationUnknownError
+public enum LoginErrorKind: Int, GDSErrorKind {
+    // MARK: LoginErrorKind
+    case generic = 1000
+    case invalidRedirectURL = 1001
 
-    // Redirect error domain
-    case invalidRedirectURL
-
-    // Token Error Domain
-    case tokenInvalidRequest
-    case tokenUnauthorizedClient
-    case tokenInvalidScope
-    case tokenInvalidClient
-    case tokenInvalidGrant
-    case tokenUnsupportedGrantType
-    case tokenClientError
-    case tokenUnknownError
+    // MARK: OIDGeneralErrorDomain
+    case userCancelled = 2001 // -3
+    case programCancelled = 2002 // -4
+    case network = 2003 // -5
+    case generalServerError = 2004 // -6
+    case safariOpenError = 2005 // -9
     
-    // Misc Error
-    case generic
+    // MARK: OIDOAuthAuthorizationErrorDomain
+    case authorizationInvalidRequest = 3001 // -2
+    case authorizationUnauthorizedClient = 3002 // -3
+    case authorizationAccessDenied = 3003 // -4
+    case authorizationUnsupportedResponseType = 3004 // -5
+    case authorizationInvalidScope = 3005 // -6
+    case authorizationServerError = 3006 // -7
+    case authorizationTemporarilyUnavailable = 3007 // -8
+    case authorizationClientError = 3008 // -0xEFFF (aka -61439)
+    case authorizationUnknownError = 3100 // -0xF000 (aka -61440)
+
+    // MARK: OIDOAuthTokenErrorDomain
+    case tokenInvalidRequest = 4001 // -2
+    case tokenUnauthorizedClient = 4002 // -3
+    case tokenInvalidScope = 4003 // -6
+    case tokenInvalidClient = 4004 // -9
+    case tokenInvalidGrant = 4005 // -10
+    case tokenUnsupportedGrantType = 4006 // -11
+    case tokenClientError = 4007 // -0xEFFF (aka -61439)
+    case tokenUnknownError = 4100 // -0xF000 (aka -61440)
+
+    public var description: String {
+        switch self {
+        case .generic:
+            return "generic"
+        case .userCancelled:
+            return "userCancelled"
+        case .programCancelled:
+            return "programCancelled"
+        case .network:
+            return "network"
+        case .generalServerError:
+            return "generalServerError"
+        case .safariOpenError:
+            return "safariOpenError"
+        case .authorizationInvalidRequest:
+            return "authorizationInvalidRequest"
+        case .authorizationUnauthorizedClient:
+            return "authorizationUnauthorizedClient"
+        case .authorizationAccessDenied:
+            return "authorizationAccessDenied"
+        case .authorizationUnsupportedResponseType:
+            return "authorizationUnsupportedResponseType"
+        case .authorizationInvalidScope:
+            return "authorizationInvalidScope"
+        case .authorizationServerError:
+            return "authorizationServerError"
+        case .authorizationTemporarilyUnavailable:
+            return "authorizationTemporarilyUnavailable"
+        case .authorizationClientError:
+            return "authorizationClientError"
+        case .authorizationUnknownError:
+            return "authorizationUnknownError"
+        case .invalidRedirectURL:
+            return "invalidRedirectURL"
+        case .tokenUnknownError:
+            return "tokenUnknownError"
+        case .tokenUnauthorizedClient:
+            return "tokenUnauthorizedClient"
+        case .tokenUnsupportedGrantType:
+            return "tokenUnsupportedGrantType"
+        case .tokenClientError:
+            return "tokenClientError"
+        case .tokenInvalidRequest:
+            return "tokenInvalidRequest"
+        case .tokenInvalidScope:
+            return "tokenInvalidScope"
+        case .tokenInvalidClient:
+            return "tokenInvalidClient"
+        case .tokenInvalidGrant:
+            return "tokenInvalidGrant"
+        }
+    }
 }
