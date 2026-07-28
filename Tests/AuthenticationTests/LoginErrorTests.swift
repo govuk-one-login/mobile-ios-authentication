@@ -6,7 +6,6 @@ struct LoginErrorTests {
 
 extension LoginErrorTests {
 
-    // swiftlint:disable line_length
     static let allLoginErrors = [
         (error: LoginError(.generic), debugDescription: "Error Domain=LoginErrorKind Code=1000 \"generic\""),
         (error: LoginError(.invalidRedirectURL), debugDescription: "Error Domain=LoginErrorKind Code=1001 \"invalidRedirectURL\""),
@@ -32,7 +31,6 @@ extension LoginErrorTests {
         (error: LoginError(.tokenUnsupportedGrantType), debugDescription: "Error Domain=LoginErrorKind Code=4006 \"tokenUnsupportedGrantType\""),
         (error: LoginError(.tokenClientError), debugDescription: "Error Domain=LoginErrorKind Code=4007 \"tokenClientError\""),
         (error: LoginError(.tokenUnknownError), debugDescription: "Error Domain=LoginErrorKind Code=4100 \"tokenUnknownError\"")]
-    // swiftlint:enable line_length
     
     @Test("assert debugDescription", arguments: LoginErrorTests.allLoginErrors)
     func test_debugDescription(sut: LoginError, debugDescription: String) async throws {
