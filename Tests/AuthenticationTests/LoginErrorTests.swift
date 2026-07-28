@@ -8,31 +8,33 @@ extension LoginErrorTests {
 
     // swiftlint:disable line_length
     static let allLoginErrors = [
-        (error: LoginError(.userCancelled, reason: "test user cancelled error"), debugDescription: "test user cancelled error"),
-        (error: LoginError(.network, reason: "test network error"), debugDescription: "test network error"),
-        (error: LoginError(.generalServerError, reason: "test server error"), debugDescription: "test server error"),
-        (error: LoginError(.safariOpenError, reason: "test safari open error"), debugDescription: "test safari open error"),
-        (error: LoginError(.authorizationInvalidRequest, reason: "test authorization invalid request error"), debugDescription: "test authorization invalid request error"),
-        (error: LoginError(.authorizationUnauthorizedClient, reason: "test authorization unauthorized client error"), debugDescription: "test authorization unauthorized client error"),
-        (error: LoginError(.authorizationAccessDenied, reason: "test authorization access denied error"), debugDescription: "test authorization access denied error"),
-        (error: LoginError(.authorizationUnsupportedResponseType, reason: "test authorization unsupported response type error"), debugDescription: "test authorization unsupported response type error"),
-        (error: LoginError(.authorizationInvalidScope, reason: "test authorization invalid scope error"), debugDescription: "test authorization invalid scope error"),
-        (error: LoginError(.authorizationServerError, reason: "test authorization server error"), debugDescription: "test authorization server error"),
-        (error: LoginError(.authorizationTemporarilyUnavailable, reason: "test authorization temporarily unavailable error"), debugDescription: "test authorization temporarily unavailable error"),
-        (error: LoginError(.authorizationClientError, reason: "test authorization client error"), debugDescription: "test authorization client error"),
-        (error: LoginError(.authorizationUnknownError, reason: "test authorization unknown error"), debugDescription: "test authorization unknown error"),
-        (error: LoginError(.tokenInvalidRequest, reason: "test token invalid request error"), debugDescription: "test token invalid request error"),
-        (error: LoginError(.tokenUnauthorizedClient, reason: "test token unauthorized client error"), debugDescription: "test token unauthorized client error"),
-        (error: LoginError(.tokenInvalidScope, reason: "test token invalid scope error"), debugDescription: "test token invalid scope error"),
-        (error: LoginError(.tokenInvalidClient, reason: "test token invalied client error"), debugDescription: "test token invalied client error"),
-        (error: LoginError(.tokenInvalidGrant, reason: "test token invalid grant error"), debugDescription: "test token invalid grant error"),
-        (error: LoginError(.tokenUnsupportedGrantType, reason: "test token unsupported grant type error"), debugDescription: "test token unsupported grant type error"),
-        (error: LoginError(.tokenClientError, reason: "test token client error"), debugDescription: "test token client error"),
-        (error: LoginError(.tokenUnknownError, reason: "test token unknown error"), debugDescription: "test token unknown error"),
-        (error: LoginError(.generic, reason: "test authorization server error"), debugDescription: "test authorization server error")]
+        (error: LoginError(.generic), debugDescription: "Error Domain=LoginErrorKind Code=1000 \"generic\""),
+        (error: LoginError(.invalidRedirectURL), debugDescription: "Error Domain=LoginErrorKind Code=1001 \"invalidRedirectURL\""),
+        (error: LoginError(.userCancelled), debugDescription: "Error Domain=LoginErrorKind Code=2001 \"userCancelled\""),
+        (error: LoginError(.programCancelled), debugDescription: "Error Domain=LoginErrorKind Code=2002 \"programCancelled\""),
+        (error: LoginError(.network), debugDescription: "Error Domain=LoginErrorKind Code=2003 \"network\""),
+        (error: LoginError(.generalServerError), debugDescription: "Error Domain=LoginErrorKind Code=2004 \"generalServerError\""),
+        (error: LoginError(.safariOpenError), debugDescription: "Error Domain=LoginErrorKind Code=2005 \"safariOpenError\""),
+        (error: LoginError(.authorizationInvalidRequest), debugDescription: "Error Domain=LoginErrorKind Code=3001 \"authorizationInvalidRequest\""),
+        (error: LoginError(.authorizationUnauthorizedClient), debugDescription: "Error Domain=LoginErrorKind Code=3002 \"authorizationUnauthorizedClient\""),
+        (error: LoginError(.authorizationAccessDenied), debugDescription: "Error Domain=LoginErrorKind Code=3003 \"authorizationAccessDenied\""),
+        (error: LoginError(.authorizationUnsupportedResponseType), debugDescription: "Error Domain=LoginErrorKind Code=3004 \"authorizationUnsupportedResponseType\""),
+        (error: LoginError(.authorizationInvalidScope), debugDescription: "Error Domain=LoginErrorKind Code=3005 \"authorizationInvalidScope\""),
+        (error: LoginError(.authorizationServerError), debugDescription: "Error Domain=LoginErrorKind Code=3006 \"authorizationServerError\""),
+        (error: LoginError(.authorizationTemporarilyUnavailable), debugDescription: "Error Domain=LoginErrorKind Code=3007 \"authorizationTemporarilyUnavailable\""),
+        (error: LoginError(.authorizationClientError), debugDescription: "Error Domain=LoginErrorKind Code=3008 \"authorizationClientError\""),
+        (error: LoginError(.authorizationUnknownError), debugDescription: "Error Domain=LoginErrorKind Code=3100 \"authorizationUnknownError\""),
+        (error: LoginError(.tokenInvalidRequest), debugDescription: "Error Domain=LoginErrorKind Code=4001 \"tokenInvalidRequest\""),
+        (error: LoginError(.tokenUnauthorizedClient), debugDescription: "Error Domain=LoginErrorKind Code=4002 \"tokenUnauthorizedClient\""),
+        (error: LoginError(.tokenInvalidScope), debugDescription: "Error Domain=LoginErrorKind Code=4003 \"tokenInvalidScope\""),
+        (error: LoginError(.tokenInvalidClient), debugDescription: "Error Domain=LoginErrorKind Code=4004 \"tokenInvalidClient\""),
+        (error: LoginError(.tokenInvalidGrant), debugDescription: "Error Domain=LoginErrorKind Code=4005 \"tokenInvalidGrant\""),
+        (error: LoginError(.tokenUnsupportedGrantType), debugDescription: "Error Domain=LoginErrorKind Code=4006 \"tokenUnsupportedGrantType\""),
+        (error: LoginError(.tokenClientError), debugDescription: "Error Domain=LoginErrorKind Code=4007 \"tokenClientError\""),
+        (error: LoginError(.tokenUnknownError), debugDescription: "Error Domain=LoginErrorKind Code=4100 \"tokenUnknownError\"")]
     // swiftlint:enable line_length
     
-    @Test("assert debugDescription matches reason", arguments: LoginErrorTests.allLoginErrors)
+    @Test("assert debugDescription", arguments: LoginErrorTests.allLoginErrors)
     func test_debugDescription(sut: LoginError, debugDescription: String) async throws {
         #expect(sut.debugDescription == debugDescription)
     }

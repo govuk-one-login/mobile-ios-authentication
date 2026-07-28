@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/govuk-one-login/mobile-ios-utilities",
       "state" : {
-        "revision" : "a2f19bf5cb45447c662d4f4732da7a1dcf2306e3",
-        "version" : "1.0.0"
+        "branch" : "feat/DCMAW-21061-standardise-gdserror",
+        "revision" : "cb53f220f3059bd7105caf97ff33cbd65801bf2c"
       }
     },
     {
