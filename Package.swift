@@ -12,7 +12,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/openid/AppAuth-iOS.git",
-                 .upToNextMajor(from: "2.0.0")
+                 .upToNextMajor(from: "3.0.0")
         ),
         .package(
             url: "https://github.com/govuk-one-login/mobile-ios-utilities",
