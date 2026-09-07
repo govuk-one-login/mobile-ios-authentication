@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/govuk-one-login/mobile-ios-utilities",
       "state" : {
-        "revision" : "53afbf17be3ebdbed1746108cec3d2833b18b6a8",
-        "version" : "2.0.0"
+        "revision" : "46ad2e690d7026734353eadf731503c58a87cde6",
+        "version" : "2.0.1"
       }
     },
     {
