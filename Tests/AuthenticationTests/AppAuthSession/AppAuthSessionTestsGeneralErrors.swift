@@ -127,7 +127,7 @@ extension AppAuthSessionTests {
 
         XCTAssertNotNil(caughtError)
         let le = caughtError as? LoginError
-        XCTAssertEqual(le?.reason, "Issuer mismatch")
+        XCTAssertEqual(le?.originalError?.localizedDescription, "Issuer mismatch")
     }
 
     @MainActor
@@ -179,7 +179,7 @@ extension AppAuthSessionTests {
 
         XCTAssertNotNil(caughtError)
         let le = caughtError as? LoginError
-        XCTAssertEqual(le?.reason, "Audience mismatch")
+        XCTAssertEqual(le?.originalError?.localizedDescription, "Audience mismatch")
     }
     
     @MainActor
@@ -231,7 +231,7 @@ extension AppAuthSessionTests {
 
         XCTAssertNotNil(caughtError)
         let le = caughtError as? LoginError
-        XCTAssertEqual(le?.reason, "ID Token expired")
+        XCTAssertEqual(le?.originalError?.localizedDescription, "ID Token expired")
     }
 
     // MARK: end of suite

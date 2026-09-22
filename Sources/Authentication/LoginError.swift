@@ -46,30 +46,30 @@ public enum LoginErrorKind: Int, GDSErrorKind {
     case invalidRedirectURL = 1001
 
     // MARK: OIDGeneralErrorDomain
-    case userCancelled = 2001 // -3
-    case programCancelled = 2002 // -4
-    case network = 2003 // -5
-    case generalServerError = 2004 // -6
-    case safariOpenError = 2005 // -9
+    case userCancelled = 2001 // OIDErrorCodeUserCanceledAuthorizationFlow
+    case programCancelled = 2002 // OIDErrorCodeProgramCanceledAuthorizationFlow
+    case network = 2003 // OIDErrorCodeNetworkError
+    case generalServerError = 2004 // OIDErrorCodeServerError
+    case safariOpenError = 2005 // OIDErrorCodeSafariOpenError
     
     // MARK: OIDOAuthAuthorizationErrorDomain
-    case authorizationInvalidRequest = 3001 // -2
-    case authorizationUnauthorizedClient = 3002 // -3
-    case authorizationAccessDenied = 3003 // -4
-    case authorizationUnsupportedResponseType = 3004 // -5
-    case authorizationInvalidScope = 3005 // -6
-    case authorizationServerError = 3006 // -7
-    case authorizationTemporarilyUnavailable = 3007 // -8
-    case authorizationClientError = 3008 // -0xEFFF (aka -61439)
-    case authorizationUnknownError = 3100 // -0xF000 (aka -61440)
+    case authorizationInvalidRequest = 3001 // OIDErrorCodeOAuthAuthorizationInvalidRequest
+    case authorizationUnauthorizedClient = 3002 // OIDErrorCodeOAuthAuthorizationUnauthorizedClient
+    case authorizationAccessDenied = 3003 // OIDErrorCodeOAuthAuthorizationAccessDenied
+    case authorizationUnsupportedResponseType = 3004 // OIDErrorCodeOAuthAuthorizationUnsupportedResponseType
+    case authorizationInvalidScope = 3005 // OIDErrorCodeOAuthAuthorizationAuthorizationInvalidScope
+    case authorizationServerError = 3006 // OIDErrorCodeOAuthAuthorizationServerError
+    case authorizationTemporarilyUnavailable = 3007 // OIDErrorCodeOAuthAuthorizationTemporarilyUnavailable
+    case authorizationClientError = 3008 // OIDErrorCodeOAuthAuthorizationClientError
+    case authorizationUnknownError = 3100 // OIDErrorCodeOAuthAuthorizationOther
 
     // MARK: OIDOAuthTokenErrorDomain
-    case tokenInvalidRequest = 4001 // -2
-    case tokenUnauthorizedClient = 4002 // -3
-    case tokenInvalidScope = 4003 // -6
-    case tokenInvalidClient = 4004 // -9
-    case tokenInvalidGrant = 4005 // -10
-    case tokenUnsupportedGrantType = 4006 // -11
-    case tokenClientError = 4007 // -0xEFFF (aka -61439)
-    case tokenUnknownError = 4100 // -0xF000 (aka -61440)
+    case tokenInvalidRequest = 4001 // OIDErrorCodeOAuthInvalidRequest
+    case tokenUnauthorizedClient = 4002 // OIDErrorCodeOAuthTokenUnauthorizedClient
+    case tokenInvalidScope = 4003 // OIDErrorCodeOAuthTokenInvalidScope
+    case tokenInvalidClient = 4004 // OIDErrorCodeOAuthTokenInvalidClient
+    case tokenInvalidGrant = 4005 // OIDErrorCodeOAuthTokenInvalidGrant
+    case tokenUnsupportedGrantType = 4006 // OIDErrorCodeOAuthTokenUnsupportedGrantType
+    case tokenClientError = 4007 // OIDErrorCodeOAuthTokenClientError
+    case tokenUnknownError = 4100 // OIDErrorCodeOAuthTokenOther
 }
