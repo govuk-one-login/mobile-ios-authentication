@@ -28,6 +28,7 @@ struct TokenResponseTests {
         let tokenResponseData = Data("""
         {
             "access_token": "testAccessTokenResponse",
+            "id_token": "testIDTokenResponse",
             "token_type": "token",
             "expires_in": 180
         }
@@ -36,7 +37,7 @@ struct TokenResponseTests {
             .decode(TokenResponse.self, from: tokenResponseData)
         #expect(decodedToken.accessToken == "testAccessTokenResponse")
         #expect(decodedToken.refreshToken == nil)
-        #expect(decodedToken.idToken == nil)
+        #expect(decodedToken.idToken == "testIDTokenResponse")
         #expect(decodedToken.tokenType == "token")
         #expect(decodedToken.expiryDate.description == Date(timeIntervalSinceNow: 180).description)
     }

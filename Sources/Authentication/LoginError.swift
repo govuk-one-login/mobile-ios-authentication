@@ -44,6 +44,7 @@ public enum LoginErrorKind: Int, GDSErrorKind {
     // MARK: LoginErrorKind
     case generic = 1000
     case invalidRedirectURL = 1001
+    case missingIdToken = 1002
 
     // MARK: OIDGeneralErrorDomain
     case userCancelled = 2001 // OIDErrorCodeUserCanceledAuthorizationFlow
@@ -72,4 +73,17 @@ public enum LoginErrorKind: Int, GDSErrorKind {
     case tokenUnsupportedGrantType = 4006 // OIDErrorCodeOAuthTokenUnsupportedGrantType
     case tokenClientError = 4007 // OIDErrorCodeOAuthTokenClientError
     case tokenUnknownError = 4100 // OIDErrorCodeOAuthTokenOther
+
+    public var description: String {
+        switch self {
+        case .missingIdToken:
+            """
+            There was an unexpected error while attempting to obtain the 'idToken'
+            in a token response. An ID token should always be present. This could be an indication
+            of an error in the backend endpoint; you might want to reach out to the team so they could investigate.
+            """
+        default:
+            self.stringValue
+        }
+    }
 }

@@ -275,9 +275,14 @@ public final class AppAuthSession: LoginSession {
               let expiryDate = token.accessTokenExpirationDate else {
             throw LoginError(.generic, reason: "Missing token property")
         }
+
+        guard let idToken = token.idToken else {
+            throw LoginError(.missingIdToken, reason: "The `OIDTokenResponse` returned a nil value for the 'idToken'")
+        }
+
         return TokenResponse(accessToken: accessToken,
                              refreshToken: token.refreshToken,
-                             idToken: token.idToken,
+                             idToken: idToken,
                              tokenType: tokenType,
                              expiryDate: expiryDate)
     }

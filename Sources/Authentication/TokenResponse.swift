@@ -3,14 +3,14 @@ import Foundation
 public struct TokenResponse: Decodable {
     public let accessToken: String
     public let refreshToken: String?
-    public let idToken: String?
+    public let idToken: String
     public let tokenType: String
     public let expiryDate: Date
     
     public init(
         accessToken: String,
         refreshToken: String? = nil,
-        idToken: String? = nil,
+        idToken: String,
         tokenType: String,
         expiryDate: Date
     ) {
@@ -42,7 +42,7 @@ public struct TokenResponse: Decodable {
             forKey: .refreshToken
         )
         
-        idToken = try values.decodeIfPresent(
+        idToken = try values.decode(
             String.self,
             forKey: .idToken
         )
