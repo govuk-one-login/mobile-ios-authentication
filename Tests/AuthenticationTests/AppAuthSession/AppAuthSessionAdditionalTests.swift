@@ -2,7 +2,7 @@ import AppAuthCore
 @testable import Authentication
 import XCTest
 
-extension AppAuthSessionTests {
+extension AppAuthSessionXCTests {
     @MainActor
     func test_handleAuthorizationResponseCreateTokenRequest_noAuthorizationResponse() async throws {
         do {
