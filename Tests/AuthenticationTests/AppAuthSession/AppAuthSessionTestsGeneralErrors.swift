@@ -436,8 +436,8 @@ struct AppAuthSessionTestsGeneralErrors {
     /// - SeeAlso: ``resumeExternalUserAgentFlow(with:)`` on ``OIDAuthorizationSession`` how a succesful completion, calls ``didFinishWithResponse:error:`` which sets `_pendingauthorizationFlowCallback` to nil. Thus any follow up call to ``resumeExternalUserAgentFlow(with:)`` fails the `!_pendingauthorizationFlowCallback` check for an invalid state.
     ///
     @MainActor
-    @Test(.disabled(), .bug("https://govukverify.atlassian.net/browse/DCMAW-23804"))
-    func test() async throws {
+    @Test
+    func test_given_authorisationFlowNeverCompletes_assert_second_finalise_throws_LoginError() async throws {
         let sut: AppAuthSession = .makeWithMocks()
 
         // GIVEN a `OIDAuthorizationService` instance that never completes the session

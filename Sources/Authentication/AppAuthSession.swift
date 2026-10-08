@@ -87,10 +87,9 @@ public final class AppAuthSession: LoginSession {
             window.rootViewController?.dismiss(animated: true)
             loginTask?.cancel()
         }
-        guard let userAgent else {
-            throw LoginError(.generic, reason: "User Agent Session does not exist")
-        }
-        if !userAgent.resumeExternalUserAgentFlow(with: url) {
+        if let userAgent, userAgent.resumeExternalUserAgentFlow(with: url) {
+            self.userAgent = nil
+        } else if let userAgent {
             if let params = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
                let errorType = params.first(where: { $0.name == "error" })?.value,
                let errorDescription = params.first(where: { $0.name == "error_description" })?.value {
@@ -100,6 +99,9 @@ public final class AppAuthSession: LoginSession {
             } else {
                 userAgent.failExternalUserAgentFlowWithError(LoginError(.invalidRedirectURL))
             }
+            self.userAgent = nil
+        } else {
+            throw LoginError(.generic, reason: "User Agent Session does not exist")
         }
     }
     
