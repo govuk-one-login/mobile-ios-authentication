@@ -21,4 +21,14 @@ extension OIDAuthorizationRequest {
             additionalParameters: .init()
         )
     }
+
+    func stubRedirectURL(code: String = "test-code") -> URL {
+        var redirect = URLComponents(url: self.redirectURL!, resolvingAgainstBaseURL: false)!
+        redirect.queryItems = [URLQueryItem(name: "code", value: code)]
+        if let state = self.state {
+            redirect.queryItems?.append(URLQueryItem(name: "state", value: state))
+        }
+
+        return redirect.url!
+    }
 }
