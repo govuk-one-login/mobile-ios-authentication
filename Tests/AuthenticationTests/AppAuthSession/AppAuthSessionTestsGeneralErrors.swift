@@ -1,8 +1,9 @@
 // swiftlint:disable file_length
 @testable import Authentication
+import Testing
 import XCTest
 
-final class AppAuthSessionTests: XCTestCase {
+final class AppAuthSessionXCTests: XCTestCase {
     var sut: AppAuthSession!
     var config = LoginSessionConfiguration.mock
     
@@ -24,7 +25,7 @@ final class AppAuthSessionTests: XCTestCase {
     }
 }
 
-extension AppAuthSessionTests {
+extension AppAuthSessionXCTests {
     
     // MARK: A suite of tests on ID token verification
     // A Suite of tests that assert the validity of an ID token in the format expected to be issued by STS.
@@ -244,7 +245,7 @@ extension AppAuthSessionTests {
             do {
                 let tokens = try await sut.performLoginFlow(
                     configuration: .mock(),
-                    service: MockOIDAuthorizationService_Success.self
+                    service: MockOIDAuthorizationServiceExternalUserAgentSessionResumePendingSuccess.self
                 )
                 XCTAssertEqual(tokens.accessToken, "1234567890")
                 XCTAssertEqual(tokens.tokenType, "mock token")
@@ -373,33 +374,6 @@ extension AppAuthSessionTests {
         wait(for: [exp], timeout: 10)
     }
     
-    @MainActor
-    func test_loginFlow_safariOpenError() throws {
-        let exp = expectation(description: "Wait for token response")
-        
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_SafariOpenError.self
-                )
-                XCTFail("Expected server error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error.kind, .safariOpenError)
-            } catch {
-                XCTFail("Expected server error, got \(error)")
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        try sut.finalise(redirectURL: redirectURL)
-        
-        wait(for: [exp], timeout: 10)
-    }
-    
     // MARK: Finalise tests
 
     @MainActor
@@ -420,6 +394,30 @@ extension AppAuthSessionTests {
             try XCTUnwrap(
                 URL(string: "https://www.gov.uk")
             )
+        }
+    }
+}
+
+struct AppAuthSessionTestsGeneralErrors {
+
+    @MainActor
+    @Test
+    func test_loginFlow_safariOpenError_finalise_loginErrorGeneric() async throws {
+
+        let sut: AppAuthSession = .makeWithMocks()
+
+        let service = MockOIDAuthorizationServiceNeverStartedAuthenticationSession.mock()
+
+        let configuration: LoginSessionConfiguration = await .stub()
+        await #expect(throws: LoginError(.safariOpenError)) {
+            _ = try await sut.performLoginFlow(
+                configuration: configuration,
+                service: service
+            )
+        }
+
+        #expect(throws: LoginError(.generic)) {
+            try sut.finalise(redirectURL: URL(string: configuration.redirectURI)!)
         }
     }
 }
@@ -600,5 +598,16 @@ struct Claim {
             "expires_in": 180
         }
         """
+    }
+}
+
+extension AppAuthSession {
+
+    static func makeWithMocks() -> AppAuthSession {
+        let window = UIWindow()
+        window.rootViewController = UIViewController()
+        window.makeKeyAndVisible()
+
+        return AppAuthSession(window: window)
     }
 }

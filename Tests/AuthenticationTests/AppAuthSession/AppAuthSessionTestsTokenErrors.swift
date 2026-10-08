@@ -1,7 +1,8 @@
 @testable import Authentication
+import Testing
 import XCTest
 
-extension AppAuthSessionTests {
+extension AppAuthSessionXCTests {
     @MainActor
     func test_loginFlow_tokenInvalidRequestError() throws {
         let exp = expectation(description: "Wait for token response")
