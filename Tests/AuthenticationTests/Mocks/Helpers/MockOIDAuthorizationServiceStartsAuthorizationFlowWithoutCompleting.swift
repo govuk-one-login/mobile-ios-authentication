@@ -1,7 +1,11 @@
 import AppAuthCore
 import UIKit
 
+// swiftlint:disable:next orphaned_doc_comment
+///
 /// Creates the real AppAuth authorization session using a stubbed external user agent.
+///
+// swiftlint:disable:next type_name
 class MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting: OIDAuthorizationService {
     static func mock() -> MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting.Type {
         MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting.self

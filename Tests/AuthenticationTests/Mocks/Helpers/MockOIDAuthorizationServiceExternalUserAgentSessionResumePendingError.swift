@@ -1,6 +1,7 @@
 import AppAuthCore
 import UIKit
 
+// swiftlint:disable:next type_name
 final class MockOIDAuthorizationServiceExternalUserAgentSessionResumePendingError: OIDAuthorizationService {
 
     static func mock() -> MockOIDAuthorizationServiceExternalUserAgentSessionResumePendingError.Type {
@@ -17,7 +18,7 @@ final class MockOIDAuthorizationServiceExternalUserAgentSessionResumePendingErro
 
     private static var stubSessions: [URL: MockOIDExternalUserAgentSessionResumeError] = [:]
 
-    public override class func present(
+    public override static func present(
         _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,
         prefersEphemeralSession: Bool,

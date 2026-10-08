@@ -1,5 +1,6 @@
 import AppAuthCore
 
+// swiftlint:disable:next type_name
 class MockOIDExternalUserAgentSessionResumeFalseWithoutCallback: NSObject,
                                              OIDExternalUserAgentSession {
     public func cancel() { }

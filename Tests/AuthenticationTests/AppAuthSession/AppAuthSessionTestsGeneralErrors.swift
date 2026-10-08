@@ -427,13 +427,16 @@ struct AppAuthSessionTestsGeneralErrors {
     /// opens in Safari instead.
     ///
     /// That leaves the "authorization session" in a "pending" state that requires an explicit call to
-    /// ``resumeExternalUserAgentFlow(with: url)`` with the redirectURL on the  ``OIDExternalUserAgentSession`` instance as returned by the call to the ``OIDAuthorizationService/present(configuration:preenting:prefersEphemeralSession:)``
+    /// ``resumeExternalUserAgentFlow(with: url)`` with the redirectURL on the  ``OIDExternalUserAgentSession`` instance as returned by the call to the
+    ///  ``OIDAuthorizationService/present(configuration:preenting:prefersEphemeralSession:)``
     ///
     /// For any given "user agent session" instance, only one call to ``resumeExternalUserAgentFlow(with: url)`` is permitted.
     ///
     /// This test asserts that a second call to ``AppAuthSession/finalise(redirectURL:)`` returns a ``LoginError``
     ///
-    /// - SeeAlso: ``resumeExternalUserAgentFlow(with:)`` on ``OIDAuthorizationSession`` how a succesful completion, calls ``didFinishWithResponse:error:`` which sets `_pendingauthorizationFlowCallback` to nil. Thus any follow up call to ``resumeExternalUserAgentFlow(with:)`` fails the `!_pendingauthorizationFlowCallback` check for an invalid state.
+    /// - SeeAlso: ``resumeExternalUserAgentFlow(with:)`` on ``OIDAuthorizationSession`` how a succesful completion, calls ``didFinishWithResponse:error:``
+    /// which sets `_pendingauthorizationFlowCallback` to nil. Thus any follow up call to ``resumeExternalUserAgentFlow(with:)``
+    /// fails the `!_pendingauthorizationFlowCallback` check for an invalid state.
     ///
     @MainActor
     @Test
@@ -454,7 +457,7 @@ struct AppAuthSessionTestsGeneralErrors {
         ).makeAsyncIterator()
 
         Task { @MainActor in
-            //WHEN a call to perform a login is made that stores a `OIDExternalUserAgentSession`
+            // WHEN a call to perform a login is made that stores a `OIDExternalUserAgentSession`
             try? await sut.performLoginFlow(configuration: configuration, service: service)
         }
         _ = await notificationAuthorizationFlowStarted.next()

@@ -1,8 +1,11 @@
 import AppAuthCore
 import UIKit
 
+// swiftlint:disable:next orphaned_doc_comment
+///
 /// Use this ``OIDAuthorizationService`` to mock ``present(_:presenting:prefersEphemeralSession:callback)`` which simulates how ``OIDAuthorizationService`` fails with an error
 ///
+// swiftlint:disable:next type_name
 final class MockOIDAuthorizationServiceExternalUserAgentSessionResumeError: OIDAuthorizationService {
 
     /// Creates a new partial mock that can be used to perform authorisation requests.
@@ -23,7 +26,7 @@ final class MockOIDAuthorizationServiceExternalUserAgentSessionResumeError: OIDA
 
     private static var stubSessions: [URL: Error] = [:]
 
-    public override class func present(
+    public override static func present(
         _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,
         prefersEphemeralSession: Bool,

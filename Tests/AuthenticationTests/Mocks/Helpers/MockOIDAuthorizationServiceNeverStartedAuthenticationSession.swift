@@ -1,12 +1,17 @@
 import AppAuthCore
 import UIKit
 
+// swiftlint:disable:next orphaned_doc_comment
+///
 /// Use this ``OIDAuthorizationService`` to mock ``present(_:presenting:prefersEphemeralSession:callback)`` which simulates the case of
 /// the authorisation flow never starting.
 ///
-/// In this case, your code will receive a callback via ``OIDAuthorizationCallback`` with a ``OIDErrorCodeSafariOpenError`` before returning a ``OIDExternalUserAgentSession`` session.
+/// In this case, your code will receive a callback via ``OIDAuthorizationCallback`` with a ``OIDErrorCodeSafariOpenError`` before returning
+/// a ``OIDExternalUserAgentSession`` session.
 ///
 /// - SeeAlso: ``presentAuthorizationWithExternalUserAgent:callback:`` in ``OIDAuthorizationService`` for when this case occurs.
+///
+// swiftlint:disable:next type_name
 final class MockOIDAuthorizationServiceNeverStartedAuthenticationSession: OIDAuthorizationService {
 
     /// Creates a new partial mock that can be used to perform authorisation requests.
@@ -19,7 +24,7 @@ final class MockOIDAuthorizationServiceNeverStartedAuthenticationSession: OIDAut
 
     private static var stubSessions: [URL: Error] = [:]
 
-    public override class func present(
+    public override static func present(
         _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,
         prefersEphemeralSession: Bool,
