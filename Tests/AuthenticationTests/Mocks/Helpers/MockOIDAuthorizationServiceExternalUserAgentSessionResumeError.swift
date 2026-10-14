@@ -19,8 +19,8 @@ final class MockOIDAuthorizationServiceExternalUserAgentSessionResumeError: OIDA
     ///
     /// - Parameters
     ///   - endPoint: the URL of the authorize end point for which you will be making a authorisation request at.
-    ///   - sesssion: a user agent session to be returned by ``present(_:presenting:prefersEphemeralSession:callback)``. The user agent session will callback with an error.
-    public static func stub(endPoint url: URL = URL(string: "https://token.account.gov.uk/authorize")!, error: Error) {
+    ///   - error: the error that this `OIDAuthorizationService` service will get a callback with
+    public static func stub(endPoint url: URL = URL(string: "https://token.build.account.gov.uk/authorize")!, error: Error) {
         Self.stubSessions[url] = error
     }
 

@@ -19,7 +19,7 @@ import UIKit
 /// - SeeAlso: https://developer.apple.com/videos/play/wwdc2020/10098/?time=890 'After the app is downloaded and installed the system checks its entitlements and sees that
 /// it needs data from one or more apple-app-site-association files. The device opens a connection to the web server where that file is hosted in order to download it.
 /// The apple-app-site-association file makes its way from the web service to the device, is parsed by the associated domains deamon and the app's universal links become active.
-/// But, what if there is a problem with the dowload? [...] the data won't make it to the device [...] this leaves the device in an incosistent state, where the app is installed
+/// But, what if there is a problem with the download? [...] the data won't make it to the device [...] this leaves the device in an inconsistent state, where the app is installed
 /// but its universal links and other Associated Domains data are not available. This state can persist for hours or days, until the system next attempts to
 /// update the data for that app."
 class MockOIDAuthorizationServiceExternalUserAgentSessionResumePendingSuccess: OIDAuthorizationService {
@@ -59,8 +59,8 @@ class MockOIDAuthorizationServiceExternalUserAgentSessionResumePendingSuccess: O
 /// e.g.
 ///     ```
 ///     let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-///     let issuer = "https://token.account.gov.uk"
-///     let endPoint = URL(string: "https://token.account.gov.uk/token")!
+///     let issuer = "https://token.build.account.gov.uk"
+///     let endPoint = URL(string: "https://token.build.account.gov.uk/token")!
 ///
 ///     let claims = try Claims.make(audience: audience, issuer: issuer)
 ///     try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
@@ -130,7 +130,7 @@ class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizat
 /// * **host:** *token.account.gov.uk*
 /// * **last path component** */path*
 ///
-/// e.g. "https://token.account.gov.uk/token"
+/// e.g. "https://token.build.account.gov.uk/token"
 ///
 /// - SeeAlso: ``token(endPoint:stub:statusCode)`` on how to provide a stub token for a token request
 class MockTokenURLProtocol: URLProtocol {
@@ -142,7 +142,7 @@ class MockTokenURLProtocol: URLProtocol {
           switch self {
           case .notTokenURL(let url):
               return "The token URL is expected to have a host 'token.account.gov.uk' and a last path component of 'token'. " +
-                "Got a host '\(String(describing: url.host))' and a last path '\(url.lastPathComponent)' instead. Use URL(string: \"https://token.account.gov.uk/token\""
+                "Got a host '\(String(describing: url.host))' and a last path '\(url.lastPathComponent)' instead. Use URL(string: \"https://token.build.account.gov.uk/token\""
           }
       }
     }
@@ -162,8 +162,8 @@ class MockTokenURLProtocol: URLProtocol {
     /// is expected to provide a different token.
     ///
     /// e.g.
-    ///     https://token.account.gov.uk/token?u=1
-    ///     https://token.account.gov.uk/token?u=2
+    ///     https://token.build.account.gov.uk/token?u=1
+    ///     https://token.build.account.gov.uk/token?u=2
     ///
     /// Where "u" stands for "unique" and the value is unique across the set of token requests.
     ///
@@ -196,7 +196,7 @@ class MockTokenURLProtocol: URLProtocol {
     private static var mockResponses: [URL: (Data, HTTPURLResponse)] = [:]
     
     private class func isTokenURL(_ url: URL) -> Bool {
-        return url.host == "token.account.gov.uk" && url.lastPathComponent == "token"
+        return url.host == "token.build.account.gov.uk" && url.lastPathComponent == "token"
     }
     override class func canInit(with task: URLSessionTask) -> Bool {
         guard let url = task.originalRequest?.url else {

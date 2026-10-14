@@ -11,8 +11,8 @@ final class MockOIDAuthorizationServiceExternalUserAgentSessionResumePendingErro
     ///
     /// - Parameters
     ///   - endPoint: the URL of the authorize end point for which you will be making a authorisation request at.
-    ///   - sesssion: a user agent session to be returned by ``present(_:presenting:prefersEphemeralSession:callback)``. The user agent session will callback with an error.
-    public static func stub(endPoint url: URL = URL(string: "https://token.account.gov.uk/authorize")!, session: MockOIDExternalUserAgentSessionResumeError) {
+    ///   - session: a user agent session to be returned by ``present(_:presenting:prefersEphemeralSession:callback)``. The user agent session will callback with an error.
+    public static func stub(endPoint url: URL = URL(string: "https://token.build.account.gov.uk/authorize")!, session: MockOIDExternalUserAgentSessionResumeError) {
         Self.stubSessions[url] = (session)
     }
 

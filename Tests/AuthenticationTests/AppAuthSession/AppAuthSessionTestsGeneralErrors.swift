@@ -33,7 +33,7 @@ extension AppAuthSessionXCTests {
     @MainActor
     func test_loginFlow_succeeds_validation() throws {
         //  GIVEN an ID token
-        //  AND the iss claim equals https://token.account.gov.uk
+        //  AND the iss claim equals https://token.build.account.gov.uk
         //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
         //  WHEN performing a login
         //  AND the request matches the issuer
@@ -43,10 +43,10 @@ extension AppAuthSessionXCTests {
         
         // Given a token
         let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-        let issuer = "https://token.account.gov.uk"
+        let issuer = "https://token.build.account.gov.uk"
 
         let unique = UUID().uuidString
-        let endPoint = URL(string: "https://token.account.gov.uk/token?u=\(unique)")!
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
 
         let claims = try Claims.make(audience: audience, issuer: issuer)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
@@ -82,7 +82,7 @@ extension AppAuthSessionXCTests {
     @MainActor
     func test_loginFlow_fails_validation_issuer_mismatch() throws {
         //  GIVEN an ID token
-        //  AND the iss claim equals https://token.account.gov.uk
+        //  AND the iss claim equals https://token.build.account.gov.uk
         //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
         //  WHEN performing a login
         //  AND the request DOES NOT match the issuer
@@ -92,10 +92,10 @@ extension AppAuthSessionXCTests {
 
         // Given a token
         let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-        let issuer = "https://token.account.gov.uk"
+        let issuer = "https://token.build.account.gov.uk"
 
         let unique = UUID().uuidString
-        let endPoint = URL(string: "https://token.account.gov.uk/token?u=\(unique)")!
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
 
         let claims = try Claims.make(audience: audience, issuer: issuer)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
@@ -134,7 +134,7 @@ extension AppAuthSessionXCTests {
     @MainActor
     func test_loginFlow_fails_validation_audience_mismatch() throws {
         //  GIVEN an ID token
-        //  AND the iss claim equals https://token.account.gov.uk
+        //  AND the iss claim equals https://token.build.account.gov.uk
         //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
         //  WHEN performing a login
         //  AND the request matches the issuer
@@ -144,10 +144,10 @@ extension AppAuthSessionXCTests {
 
         // Given a token
         let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-        let issuer = "https://token.account.gov.uk"
+        let issuer = "https://token.build.account.gov.uk"
 
         let unique = UUID().uuidString
-        let endPoint = URL(string: "https://token.account.gov.uk/token?u=\(unique)")!
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
 
         let claims = try Claims.make(audience: audience, issuer: issuer)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
@@ -186,7 +186,7 @@ extension AppAuthSessionXCTests {
     @MainActor
     func test_loginFlow_fails_validation_token_expired() throws {
         //  GIVEN an ID token
-        //  AND the iss claim equals https://token.account.gov.uk
+        //  AND the iss claim equals https://token.build.account.gov.uk
         //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
         //  AND the token has long EXPIRED
         //  WHEN performing a login
@@ -197,10 +197,10 @@ extension AppAuthSessionXCTests {
 
         // Given an EXPIRED token
         let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-        let issuer = "https://token.account.gov.uk"
+        let issuer = "https://token.build.account.gov.uk"
       
         let unique = UUID().uuidString
-        let endPoint = URL(string: "https://token.account.gov.uk/token?u=\(unique)")!
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
 
         let claims = try Claims.make(audience: audience, issuer: issuer, expiresAt: Date.distantPast)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
@@ -528,9 +528,9 @@ extension LoginSessionConfiguration {
 }
 
 extension LoginSessionConfiguration {
-    static func stub(authorizationEndPoint: URL = URL(string: "https://token.account.gov.uk/authorize")!,
-                     tokenEndPoint: URL = URL(string: "https://token.account.gov.uk/token")!,
-                     issuer: URL? = URL(string: "https://token.account.gov.uk"),
+    static func stub(authorizationEndPoint: URL = URL(string: "https://token.build.account.gov.uk/authorize")!,
+                     tokenEndPoint: URL = URL(string: "https://token.build.account.gov.uk/token")!,
+                     issuer: URL? = URL(string: "https://token.build.account.gov.uk"),
                      audience clientID: String = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
     ) async -> LoginSessionConfiguration {
         await LoginSessionConfiguration(
@@ -538,7 +538,7 @@ extension LoginSessionConfiguration {
             tokenEndpoint: tokenEndPoint,
             issuer: issuer,
             clientID: clientID,
-            redirectURI: "https://mobile.account.gov.uk/redirect"
+            redirectURI: "https://mobile.build.account.gov.uk/redirect"
         )
     }
 }
@@ -560,7 +560,7 @@ struct Claims: Codable {
     ///
     ///     {
     ///         "aud": "bYrcuRVvnylvEgYSSbBjwXzHrwJ",
-    ///         "iss": "https://token.account.gov.uk",
+    ///         "iss": "https://token.build.account.gov.uk",
     ///         "sub": "c722338b-b18b-4a6c-80d8-c295e214e379",
     ///         "persistent_id": "af835f3a-b3f1-4b50-b3db-88c185eae46b",
     ///         "iat": [9 minutes from now],
@@ -578,7 +578,7 @@ struct Claims: Codable {
     ///   - issuedAt: the "iss" value in the claims; it should not be more than +/- 10 minutes on the current time for a valid claim as expected by the AppAuth validation
     ///   - expiresAt: the date in which it expires;
     static func make(audience aud: String = "bYrcuRVvnylvEgYSSbBjwXzHrwJ",
-                     issuer iss: String = "https://token.account.gov.uk",
+                     issuer iss: String = "https://token.build.account.gov.uk",
                      issuedAt iat: Date? = nil,
                      expiresAt exp: Date? = nil) throws(InvalidClaimError) -> Claims {
         let current = Calendar.current
