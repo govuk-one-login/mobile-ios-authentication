@@ -448,12 +448,12 @@ struct AppAuthSessionTestsGeneralErrors {
 
         let configuration = await LoginSessionConfiguration.stub()
         let authorizationRequest = configuration.authorizationRequest
-        let browser = MockOIDExternalUserAgent()
-        service.stub(authorizationRequest: authorizationRequest, externalUserAgent: browser)
+        let userAgent = MockOIDExternalUserAgent()
+        service.stub(authorizationRequest: authorizationRequest, externalUserAgent: userAgent)
 
         let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
             named: MockOIDExternalUserAgent.authorizationFlowStarted,
-            object: browser
+            object: userAgent
         ).makeAsyncIterator()
 
         Task { @MainActor in
@@ -467,10 +467,51 @@ struct AppAuthSessionTestsGeneralErrors {
         try sut.finalise(redirectURL: redirectURL)
 
         // THEN a second finalise throws a LoginError
-        #expect(throws: LoginError.self) {
+        #expect(throws: LoginError(.generic).self) {
             try sut.finalise(redirectURL: redirectURL)
         }
     }
+
+    @MainActor
+    @Test
+    func test_given_authorisationFlowNeverCompletes_and_resumeExternalUserAgentFlow_false_assert_finalise_with_an_invalid_redirect_error() async throws {
+        let sut: AppAuthSession = .makeWithMocks()
+
+        // GIVEN a `OIDAuthorizationService` instance that never completes the session
+        let service = MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.mock()
+
+        let configuration = await LoginSessionConfiguration.stub()
+        let authorizationRequest = configuration.authorizationRequest
+        let errors = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback.FailExternalUserAgentFlowErrors()
+        let userAgent = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback.make(errors: errors)
+        service.stub(authorizationRequest: authorizationRequest, externalUserAgent: userAgent)
+
+        let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
+            named: MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.authorizationFlowStarted,
+            object: userAgent
+        ).makeAsyncIterator()
+
+        Task { @MainActor in
+            // WHEN a call to perform a login is made that stores a `OIDExternalUserAgentSession`
+            try? await sut.performLoginFlow(configuration: configuration, service: service)
+        }
+
+        _ = await notificationAuthorizationFlowStarted.next()
+
+        // AND a call is made to finalise the "user agent session" with a redirect error
+        let errorType = "anyError"
+        let errorDescription = "anyDescription"
+        let redirectURL: URL = authorizationRequest.stubRedirectURL(error: errorType, description: errorDescription)
+        // THEN finalise will failExternalUserAgentFlowWithError
+        try sut.finalise(redirectURL: redirectURL)
+
+        #expect(!errors.isEmpty)
+        var actual = errors.makeIterator()
+        let error = try #require(actual.next() as? LoginError)
+        #expect(error.kind == .invalidRedirectURL)
+        #expect(error.reason == "\(errorType): \(errorDescription)")
+    }
+
 }
 
 extension LoginSessionConfiguration {

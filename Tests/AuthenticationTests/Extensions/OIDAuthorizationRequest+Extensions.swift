@@ -31,4 +31,12 @@ extension OIDAuthorizationRequest {
 
         return redirect.url!
     }
+
+    func stubRedirectURL(error: String, description: String) -> URL {
+        var redirect = URLComponents(url: self.redirectURL!, resolvingAgainstBaseURL: false)!
+        redirect.queryItems = [URLQueryItem(name: "error", value: error),
+                               URLQueryItem(name: "error_description", value: description)]
+
+        return redirect.url!
+    }
 }
