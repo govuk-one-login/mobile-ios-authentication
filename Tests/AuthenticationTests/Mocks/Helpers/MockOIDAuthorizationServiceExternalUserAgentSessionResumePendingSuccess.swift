@@ -2,14 +2,34 @@
 import AppAuthCore
 import UIKit
 
-class MockOIDAuthorizationService_Success: OIDAuthorizationService {
+/// Use this ``OIDAuthorizationService`` to mock ``present(_:presenting:prefersEphemeralSession:callback)`` which simulates how ``OIDAuthorizationService``
+/// will **fail in case the app failed to register with universal links** [^1].
+///
+/// Universal links may fail to register with an app for [a number of reasons](https://developer.apple.com/documentation/technotes/tn3155-debugging-universal-links).
+///
+/// **This mock helps you write a test where your code is expected** to call ``resumeExternalUserAgentFlow(with:)`` on the returned ``OIDExternalUserAgentSession`` instance.
+///
+/// [1]: *Reportedly* we have seen cases where the ``ASWebAuthenticationSession`` fails to have its ``completionHandler`` called
+/// in case the ``callbackURLScheme`` used is **https** (which is the scheme used by the `redirectURL`).
+///
+/// - SeeAlso: https://govukverify.atlassian.net/browse/DCMAW-20288 for a ticket as it relates to the reliability of UI Tests.
+/// These are *seemingly* the only cases for which we have seen evidence of universal links failing (thus the the UI test failing) due to failures to the associated domain
+/// not being registered.
+/// 
+/// - SeeAlso: https://developer.apple.com/videos/play/wwdc2020/10098/?time=890 'After the app is downloaded and installed the system checks its entitlements and sees that
+/// it needs data from one or more apple-app-site-association files. The device opens a connection to the web server where that file is hosted in order to download it.
+/// The apple-app-site-association file makes its way from the web service to the device, is parsed by the associated domains deamon and the app's universal links become active.
+/// But, what if there is a problem with the download? [...] the data won't make it to the device [...] this leaves the device in an inconsistent state, where the app is installed
+/// but its universal links and other Associated Domains data are not available. This state can persist for hours or days, until the system next attempts to
+/// update the data for that app."
+class MockOIDAuthorizationServiceExternalUserAgentSessionResumePendingSuccess: OIDAuthorizationService {
     public override class func present(
         _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,
         prefersEphemeralSession: Bool,
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
-        let session = MockOIDExternalUserAgentSession_Success()
+        let session = MockOIDExternalUserAgentSessionResumeSuccess()
         session.callback = callback
         return session
     }
@@ -39,8 +59,8 @@ class MockOIDAuthorizationService_Success: OIDAuthorizationService {
 /// e.g.
 ///     ```
 ///     let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-///     let issuer = "https://token.account.gov.uk"
-///     let endPoint = URL(string: "https://token.account.gov.uk/token")!
+///     let issuer = "https://token.build.account.gov.uk"
+///     let endPoint = URL(string: "https://token.build.account.gov.uk/token")!
 ///
 ///     let claims = try Claims.make(audience: audience, issuer: issuer)
 ///     try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
@@ -67,7 +87,6 @@ class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizat
     ///
     /// Once you have created a mock, use ``stub(endPoint:session:)`` to provide a stub session prior to performing a token request.
     ///
-    /// - parameter session: the session to return in ``present(_:presenting:prefersEphemeralSession:callback)``
     static func mock() -> PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.Type {
         
         let configuration = URLSessionConfiguration.ephemeral
@@ -83,11 +102,11 @@ class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizat
     ///   - endPoint: the URL of the token end point for which you will be making a token request at.
     ///   - sesssion: a succesful user agent session to be returned by ``present(_:presenting:prefersEphemeralSession:callback)``
     /// - SeeAlso: ``OIDExternalUserAgentSession/mock(authorizationResponse:)`` on how to create a mock agent session
-    public static func stub(endPoint url: URL, session: MockOIDExternalUserAgentSession_Success) {
+    public static func stub(endPoint url: URL, session: MockOIDExternalUserAgentSessionResumeSuccess) {
         Self.stubSessions[url] = (session)
     }
     
-    private static var stubSessions: [URL: MockOIDExternalUserAgentSession_Success] = [:]
+    private static var stubSessions: [URL: MockOIDExternalUserAgentSessionResumeSuccess] = [:]
     
     public override class func present(
         _ request: OIDAuthorizationRequest,
@@ -96,7 +115,7 @@ class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizat
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
         guard let session = Self.stubSessions[request.configuration.tokenEndpoint] else {
-            return MockOIDExternalUserAgentSession_Success()
+            return MockOIDExternalUserAgentSessionResumeSuccess()
         }
         
         session.callback = callback
@@ -111,7 +130,7 @@ class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizat
 /// * **host:** *token.account.gov.uk*
 /// * **last path component** */path*
 ///
-/// e.g. "https://token.account.gov.uk/token"
+/// e.g. "https://token.build.account.gov.uk/token"
 ///
 /// - SeeAlso: ``token(endPoint:stub:statusCode)`` on how to provide a stub token for a token request
 class MockTokenURLProtocol: URLProtocol {
@@ -123,7 +142,7 @@ class MockTokenURLProtocol: URLProtocol {
           switch self {
           case .notTokenURL(let url):
               return "The token URL is expected to have a host 'token.account.gov.uk' and a last path component of 'token'. " +
-                "Got a host '\(String(describing: url.host))' and a last path '\(url.lastPathComponent)' instead. Use URL(string: \"https://token.account.gov.uk/token\""
+                "Got a host '\(String(describing: url.host))' and a last path '\(url.lastPathComponent)' instead. Use URL(string: \"https://token.build.account.gov.uk/token\""
           }
       }
     }
@@ -143,8 +162,8 @@ class MockTokenURLProtocol: URLProtocol {
     /// is expected to provide a different token.
     ///
     /// e.g.
-    ///     https://token.account.gov.uk/token?u=1
-    ///     https://token.account.gov.uk/token?u=2
+    ///     https://token.build.account.gov.uk/token?u=1
+    ///     https://token.build.account.gov.uk/token?u=2
     ///
     /// Where "u" stands for "unique" and the value is unique across the set of token requests.
     ///
@@ -177,7 +196,7 @@ class MockTokenURLProtocol: URLProtocol {
     private static var mockResponses: [URL: (Data, HTTPURLResponse)] = [:]
     
     private class func isTokenURL(_ url: URL) -> Bool {
-        return url.host == "token.account.gov.uk" && url.lastPathComponent == "token"
+        return url.host == "token.build.account.gov.uk" && url.lastPathComponent == "token"
     }
     override class func canInit(with task: URLSessionTask) -> Bool {
         guard let url = task.originalRequest?.url else {

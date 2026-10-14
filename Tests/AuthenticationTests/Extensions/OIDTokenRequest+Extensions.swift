@@ -1,10 +1,10 @@
 import AppAuthCore
 extension OIDTokenRequest {
     
-    static func mock(endPoint: URL = URL(string: "https://token.account.gov.uk/token")!, issuer: URL?, audience clientID: String = "") -> OIDTokenRequest {
+    static func mock(endPoint: URL = URL(string: "https://token.build.account.gov.uk/token")!, issuer: URL?, audience clientID: String = "") -> OIDTokenRequest {
         let serviceConfiguration = OIDServiceConfiguration(
             authorizationEndpoint: URL(
-                string: "https://token.account.gov.uk/authorize"
+                string: "https://token.build.account.gov.uk/authorize"
             )!,
             tokenEndpoint: endPoint,
             issuer: issuer

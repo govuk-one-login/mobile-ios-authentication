@@ -1,8 +1,9 @@
 // swiftlint:disable file_length
 @testable import Authentication
+import Testing
 import XCTest
 
-final class AppAuthSessionTests: XCTestCase {
+final class AppAuthSessionXCTests: XCTestCase {
     var sut: AppAuthSession!
     var config = LoginSessionConfiguration.mock
     
@@ -24,7 +25,7 @@ final class AppAuthSessionTests: XCTestCase {
     }
 }
 
-extension AppAuthSessionTests {
+extension AppAuthSessionXCTests {
     
     // MARK: A suite of tests on ID token verification
     // A Suite of tests that assert the validity of an ID token in the format expected to be issued by STS.
@@ -32,7 +33,7 @@ extension AppAuthSessionTests {
     @MainActor
     func test_loginFlow_succeeds_validation() throws {
         //  GIVEN an ID token
-        //  AND the iss claim equals https://token.account.gov.uk
+        //  AND the iss claim equals https://token.build.account.gov.uk
         //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
         //  WHEN performing a login
         //  AND the request matches the issuer
@@ -42,10 +43,10 @@ extension AppAuthSessionTests {
         
         // Given a token
         let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-        let issuer = "https://token.account.gov.uk"
+        let issuer = "https://token.build.account.gov.uk"
 
         let unique = UUID().uuidString
-        let endPoint = URL(string: "https://token.account.gov.uk/token?u=\(unique)")!
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
 
         let claims = try Claims.make(audience: audience, issuer: issuer)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
@@ -81,7 +82,7 @@ extension AppAuthSessionTests {
     @MainActor
     func test_loginFlow_fails_validation_issuer_mismatch() throws {
         //  GIVEN an ID token
-        //  AND the iss claim equals https://token.account.gov.uk
+        //  AND the iss claim equals https://token.build.account.gov.uk
         //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
         //  WHEN performing a login
         //  AND the request DOES NOT match the issuer
@@ -91,10 +92,10 @@ extension AppAuthSessionTests {
 
         // Given a token
         let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-        let issuer = "https://token.account.gov.uk"
+        let issuer = "https://token.build.account.gov.uk"
 
         let unique = UUID().uuidString
-        let endPoint = URL(string: "https://token.account.gov.uk/token?u=\(unique)")!
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
 
         let claims = try Claims.make(audience: audience, issuer: issuer)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
@@ -133,7 +134,7 @@ extension AppAuthSessionTests {
     @MainActor
     func test_loginFlow_fails_validation_audience_mismatch() throws {
         //  GIVEN an ID token
-        //  AND the iss claim equals https://token.account.gov.uk
+        //  AND the iss claim equals https://token.build.account.gov.uk
         //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
         //  WHEN performing a login
         //  AND the request matches the issuer
@@ -143,10 +144,10 @@ extension AppAuthSessionTests {
 
         // Given a token
         let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-        let issuer = "https://token.account.gov.uk"
+        let issuer = "https://token.build.account.gov.uk"
 
         let unique = UUID().uuidString
-        let endPoint = URL(string: "https://token.account.gov.uk/token?u=\(unique)")!
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
 
         let claims = try Claims.make(audience: audience, issuer: issuer)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
@@ -185,7 +186,7 @@ extension AppAuthSessionTests {
     @MainActor
     func test_loginFlow_fails_validation_token_expired() throws {
         //  GIVEN an ID token
-        //  AND the iss claim equals https://token.account.gov.uk
+        //  AND the iss claim equals https://token.build.account.gov.uk
         //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
         //  AND the token has long EXPIRED
         //  WHEN performing a login
@@ -196,10 +197,10 @@ extension AppAuthSessionTests {
 
         // Given an EXPIRED token
         let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-        let issuer = "https://token.account.gov.uk"
+        let issuer = "https://token.build.account.gov.uk"
       
         let unique = UUID().uuidString
-        let endPoint = URL(string: "https://token.account.gov.uk/token?u=\(unique)")!
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
 
         let claims = try Claims.make(audience: audience, issuer: issuer, expiresAt: Date.distantPast)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
@@ -244,7 +245,7 @@ extension AppAuthSessionTests {
             do {
                 let tokens = try await sut.performLoginFlow(
                     configuration: .mock(),
-                    service: MockOIDAuthorizationService_Success.self
+                    service: MockOIDAuthorizationServiceExternalUserAgentSessionResumePendingSuccess.self
                 )
                 XCTAssertEqual(tokens.accessToken, "1234567890")
                 XCTAssertEqual(tokens.tokenType, "mock token")
@@ -373,33 +374,6 @@ extension AppAuthSessionTests {
         wait(for: [exp], timeout: 10)
     }
     
-    @MainActor
-    func test_loginFlow_safariOpenError() throws {
-        let exp = expectation(description: "Wait for token response")
-        
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_SafariOpenError.self
-                )
-                XCTFail("Expected server error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error.kind, .safariOpenError)
-            } catch {
-                XCTFail("Expected server error, got \(error)")
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        try sut.finalise(redirectURL: redirectURL)
-        
-        wait(for: [exp], timeout: 10)
-    }
-    
     // MARK: Finalise tests
 
     @MainActor
@@ -424,6 +398,122 @@ extension AppAuthSessionTests {
     }
 }
 
+struct AppAuthSessionTestsGeneralErrors {
+
+    @MainActor
+    @Test
+    func test_loginFlow_safariOpenError_finalise_loginErrorGeneric() async throws {
+
+        let sut: AppAuthSession = .makeWithMocks()
+
+        let service = MockOIDAuthorizationServiceNeverStartedAuthenticationSession.mock()
+
+        let configuration: LoginSessionConfiguration = await .stub()
+        await #expect(throws: LoginError(.safariOpenError)) {
+            _ = try await sut.performLoginFlow(
+                configuration: configuration,
+                service: service
+            )
+        }
+
+        #expect(throws: LoginError(.generic)) {
+            try sut.finalise(redirectURL: URL(string: configuration.redirectURI)!)
+        }
+    }
+
+    /// This is a use case where **the associated app domains have failed to register with the app** thus
+    /// the completionHandler on the ``ASWebAuthenticationSession`` is **never called** due to the fact that the
+    /// `/redirect` URL  (aka `callbackURL`) for the associated domain (e.g. https://mobile.account.gov.uk/redirect)
+    /// opens in Safari instead.
+    ///
+    /// That leaves the "authorization session" in a "pending" state that requires an explicit call to
+    /// ``resumeExternalUserAgentFlow(with: url)`` with the redirectURL on the  ``OIDExternalUserAgentSession`` instance as returned by the call to the
+    ///  ``OIDAuthorizationService/present(configuration:preenting:prefersEphemeralSession:)``
+    ///
+    /// For any given "user agent session" instance, only one call to ``resumeExternalUserAgentFlow(with: url)`` is permitted.
+    ///
+    /// This test asserts that a second call to ``AppAuthSession/finalise(redirectURL:)`` returns a ``LoginError``
+    ///
+    /// - SeeAlso: ``resumeExternalUserAgentFlow(with:)`` on ``OIDAuthorizationSession`` how a succesful completion, calls ``didFinishWithResponse:error:``
+    /// which sets `_pendingauthorizationFlowCallback` to nil. Thus any follow up call to ``resumeExternalUserAgentFlow(with:)``
+    /// fails the `!_pendingauthorizationFlowCallback` check for an invalid state.
+    ///
+    @MainActor
+    @Test
+    func test_given_authorisationFlowNeverCompletes_assert_second_finalise_throws_LoginError() async throws {
+        let sut: AppAuthSession = .makeWithMocks()
+
+        // GIVEN a `OIDAuthorizationService` instance that never completes the session
+        let service = MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting.mock()
+
+        let configuration = await LoginSessionConfiguration.stub()
+        let authorizationRequest = configuration.authorizationRequest
+        let userAgent = MockOIDExternalUserAgent()
+        service.stub(authorizationRequest: authorizationRequest, externalUserAgent: userAgent)
+
+        let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
+            named: MockOIDExternalUserAgent.authorizationFlowStarted,
+            object: userAgent
+        ).makeAsyncIterator()
+
+        Task { @MainActor in
+            // WHEN a call to perform a login is made that stores a `OIDExternalUserAgentSession`
+            try? await sut.performLoginFlow(configuration: configuration, service: service)
+        }
+        _ = await notificationAuthorizationFlowStarted.next()
+
+        // AND a call is made to finalise the "user agent session"
+        let redirectURL: URL = authorizationRequest.stubRedirectURL(code: "test-code")
+        try sut.finalise(redirectURL: redirectURL)
+
+        // THEN a second finalise throws a LoginError
+        #expect(throws: LoginError(.generic).self) {
+            try sut.finalise(redirectURL: redirectURL)
+        }
+    }
+
+    @MainActor
+    @Test
+    func test_given_authorisationFlowNeverCompletes_and_resumeExternalUserAgentFlow_false_assert_finalise_with_an_invalid_redirect_error() async throws {
+        let sut: AppAuthSession = .makeWithMocks()
+
+        // GIVEN a `OIDAuthorizationService` instance that never completes the session
+        let service = MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.mock()
+
+        let configuration = await LoginSessionConfiguration.stub()
+        let authorizationRequest = configuration.authorizationRequest
+        let errors = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback.FailExternalUserAgentFlowErrors()
+        let userAgent = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback.make(errors: errors)
+        service.stub(authorizationRequest: authorizationRequest, externalUserAgent: userAgent)
+
+        let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
+            named: MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.authorizationFlowStarted,
+            object: userAgent
+        ).makeAsyncIterator()
+
+        Task { @MainActor in
+            // WHEN a call to perform a login is made that stores a `OIDExternalUserAgentSession`
+            try? await sut.performLoginFlow(configuration: configuration, service: service)
+        }
+
+        _ = await notificationAuthorizationFlowStarted.next()
+
+        // AND a call is made to finalise the "user agent session" with a redirect error
+        let errorType = "anyError"
+        let errorDescription = "anyDescription"
+        let redirectURL: URL = authorizationRequest.stubRedirectURL(error: errorType, description: errorDescription)
+        // THEN finalise will failExternalUserAgentFlowWithError
+        try sut.finalise(redirectURL: redirectURL)
+
+        #expect(!errors.isEmpty)
+        var actual = errors.makeIterator()
+        let error = try #require(actual.next() as? LoginError)
+        #expect(error.kind == .invalidRedirectURL)
+        #expect(error.reason == "\(errorType): \(errorDescription)")
+    }
+
+}
+
 extension LoginSessionConfiguration {
     static let mock = {
         await LoginSessionConfiguration(
@@ -438,18 +528,18 @@ extension LoginSessionConfiguration {
 }
 
 extension LoginSessionConfiguration {
-    static func stub(tokenEndPoint: URL = URL(string: "https://token.account.gov.uk/token")!,
-                     issuer: URL? = URL(string: "https://token.account.gov.uk"), audience clientID: String = "bYrcuRVvnylvEgYSSbBjwXzHrwJ") async -> LoginSessionConfiguration {
+    static func stub(authorizationEndPoint: URL = URL(string: "https://token.build.account.gov.uk/authorize")!,
+                     tokenEndPoint: URL = URL(string: "https://token.build.account.gov.uk/token")!,
+                     issuer: URL? = URL(string: "https://token.build.account.gov.uk"),
+                     audience clientID: String = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
+    ) async -> LoginSessionConfiguration {
         await LoginSessionConfiguration(
-            authorizationEndpoint: URL(
-                string: "https://token.account.gov.uk/authorize"
-            )!,
+            authorizationEndpoint: authorizationEndPoint,
             tokenEndpoint: tokenEndPoint,
             issuer: issuer,
             clientID: clientID,
-            redirectURI: "https://mobile.account.gov.uk/redirect"
+            redirectURI: "https://mobile.build.account.gov.uk/redirect"
         )
-
     }
 }
 
@@ -470,7 +560,7 @@ struct Claims: Codable {
     ///
     ///     {
     ///         "aud": "bYrcuRVvnylvEgYSSbBjwXzHrwJ",
-    ///         "iss": "https://token.account.gov.uk",
+    ///         "iss": "https://token.build.account.gov.uk",
     ///         "sub": "c722338b-b18b-4a6c-80d8-c295e214e379",
     ///         "persistent_id": "af835f3a-b3f1-4b50-b3db-88c185eae46b",
     ///         "iat": [9 minutes from now],
@@ -488,7 +578,7 @@ struct Claims: Codable {
     ///   - issuedAt: the "iss" value in the claims; it should not be more than +/- 10 minutes on the current time for a valid claim as expected by the AppAuth validation
     ///   - expiresAt: the date in which it expires;
     static func make(audience aud: String = "bYrcuRVvnylvEgYSSbBjwXzHrwJ",
-                     issuer iss: String = "https://token.account.gov.uk",
+                     issuer iss: String = "https://token.build.account.gov.uk",
                      issuedAt iat: Date? = nil,
                      expiresAt exp: Date? = nil) throws(InvalidClaimError) -> Claims {
         let current = Calendar.current
@@ -600,5 +690,16 @@ struct Claim {
             "expires_in": 180
         }
         """
+    }
+}
+
+extension AppAuthSession {
+
+    static func makeWithMocks() -> AppAuthSession {
+        let window = UIWindow()
+        window.rootViewController = UIViewController()
+        window.makeKeyAndVisible()
+
+        return AppAuthSession(window: window)
     }
 }
