@@ -118,6 +118,10 @@ class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizat
             return MockOIDExternalUserAgentSessionResumeSuccess()
         }
         
+        DispatchQueue.main.async {
+            callback(session.authorizationResponse, nil)
+        }
+
         session.callback = callback
         return session
     }

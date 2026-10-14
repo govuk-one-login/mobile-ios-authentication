@@ -31,7 +31,7 @@ final class MockOIDAuthorizationServiceNeverStartedAuthenticationSession: OIDAut
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
 
-        callback(nil, OIDError.error(code: OIDErrorCode.safariOpenError))
+        callback(nil, OIDError.error(code: OIDErrorCode.safariOpenError, localizedDescription: "Unable to open Safari."))
 
         return MockOIDExternalUserAgentSession.mock()
     }
@@ -56,8 +56,15 @@ final class MockOIDExternalUserAgentSession: NSObject,
 }
 
 struct OIDError {
-    static func error(code: OIDErrorCode) -> Error {
+    static let issuerMismatch = OIDError.error(code: OIDErrorCode.idTokenFailedValidationError, localizedDescription: "Issuer mismatch")
+
+    static let audienceMismatch = OIDError.error(code: OIDErrorCode.idTokenFailedValidationError, localizedDescription: "Audience mismatch")
+
+    static let idTokenExpired = OIDError.error(code: OIDErrorCode.idTokenFailedValidationError, localizedDescription: "ID Token expired")
+
+    static func error(code: OIDErrorCode, localizedDescription: String = "") -> Error {
         return NSError(domain: OIDGeneralErrorDomain,
-                       code: code.rawValue)
+                       code: code.rawValue,
+                       userInfo: [NSLocalizedDescriptionKey: localizedDescription])
     }
 }

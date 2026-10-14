@@ -1,5 +1,6 @@
 // swiftlint:disable file_length
 @testable import Authentication
+import AppAuthCore
 import Testing
 import XCTest
 
@@ -27,216 +28,6 @@ final class AppAuthSessionXCTests: XCTestCase {
 
 extension AppAuthSessionXCTests {
     
-    // MARK: A suite of tests on ID token verification
-    // A Suite of tests that assert the validity of an ID token in the format expected to be issued by STS.
-    
-    @MainActor
-    func test_loginFlow_succeeds_validation() throws {
-        //  GIVEN an ID token
-        //  AND the iss claim equals https://token.build.account.gov.uk
-        //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
-        //  WHEN performing a login
-        //  AND the request matches the issuer
-        //  AND the request matches the audience
-        //  ASSERT that no (validation) error occured
-        let exp = expectation(description: #function)
-        
-        // Given a token
-        let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-        let issuer = "https://token.build.account.gov.uk"
-
-        let unique = UUID().uuidString
-        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
-
-        let claims = try Claims.make(audience: audience, issuer: issuer)
-        try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
-
-        let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: endPoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
-
-        // When
-        var caughtError: Error?
-
-        Task {
-            do {
-                let tokens = try await self.sut.performLoginFlow(
-                    configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
-                    service: service)
-                XCTAssertNotNil(tokens)
-            } catch {
-                caughtError = error
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        try sut.finalise(redirectURL: redirectURL)
-
-        wait(for: [exp], timeout: 5)
-
-        // Then
-        XCTAssertNil(caughtError)
-    }
-    
-    @MainActor
-    func test_loginFlow_fails_validation_issuer_mismatch() throws {
-        //  GIVEN an ID token
-        //  AND the iss claim equals https://token.build.account.gov.uk
-        //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
-        //  WHEN performing a login
-        //  AND the request DOES NOT match the issuer
-        //  AND the request matches the audience
-        //  ASSERT that a login error occured for the issuer mismatch
-        let exp = expectation(description: #function)
-
-        // Given a token
-        let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-        let issuer = "https://token.build.account.gov.uk"
-
-        let unique = UUID().uuidString
-        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
-
-        let claims = try Claims.make(audience: audience, issuer: issuer)
-        try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
-
-        let mismatchedIssuer = "https://invalid.gov.uk"
-        let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: endPoint,
-                     session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: mismatchedIssuer), audience: audience))))
-
-        // When
-        var caughtError: Error?
-
-        Task {
-            do {
-                let tokens = try await self.sut.performLoginFlow(
-                    configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: mismatchedIssuer), audience: audience),
-                    service: service)
-                XCTAssertNotNil(tokens)
-            } catch {
-                caughtError = error
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        try sut.finalise(redirectURL: redirectURL)
-
-        wait(for: [exp], timeout: 5)
-
-        XCTAssertNotNil(caughtError)
-        let le = caughtError as? LoginError
-        XCTAssertEqual(le?.originalError?.localizedDescription, "Issuer mismatch")
-    }
-
-    @MainActor
-    func test_loginFlow_fails_validation_audience_mismatch() throws {
-        //  GIVEN an ID token
-        //  AND the iss claim equals https://token.build.account.gov.uk
-        //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
-        //  WHEN performing a login
-        //  AND the request matches the issuer
-        //  AND the request DOES NOT match the audience
-        //  ASSERT that a login error occured for the audience mismatch
-        let exp = expectation(description: #function)
-
-        // Given a token
-        let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-        let issuer = "https://token.build.account.gov.uk"
-
-        let unique = UUID().uuidString
-        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
-
-        let claims = try Claims.make(audience: audience, issuer: issuer)
-        try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
-
-        let invalidAudience = "invalid aud"
-        let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: endPoint,
-                     session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: invalidAudience))))
-
-        // When
-        var caughtError: Error?
-
-        Task {
-            do {
-                let tokens = try await self.sut.performLoginFlow(
-                    configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
-                    service: service)
-                XCTAssertNotNil(tokens)
-            } catch {
-                caughtError = error
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        try sut.finalise(redirectURL: redirectURL)
-
-        wait(for: [exp], timeout: 5)
-
-        XCTAssertNotNil(caughtError)
-        let le = caughtError as? LoginError
-        XCTAssertEqual(le?.originalError?.localizedDescription, "Audience mismatch")
-    }
-    
-    @MainActor
-    func test_loginFlow_fails_validation_token_expired() throws {
-        //  GIVEN an ID token
-        //  AND the iss claim equals https://token.build.account.gov.uk
-        //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
-        //  AND the token has long EXPIRED
-        //  WHEN performing a login
-        //  AND the request matches the issuer
-        //  AND the request matches the audience
-        //  ASSERT that a login error occured for the expired id token
-        let exp = expectation(description: #function)
-
-        // Given an EXPIRED token
-        let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
-        let issuer = "https://token.build.account.gov.uk"
-      
-        let unique = UUID().uuidString
-        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
-
-        let claims = try Claims.make(audience: audience, issuer: issuer, expiresAt: Date.distantPast)
-        try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
-
-        let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: endPoint,
-                     session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
-        
-        // When
-        var caughtError: Error?
-
-        Task {
-            do {
-                let tokens = try await self.sut.performLoginFlow(
-                    configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
-                    service: service)
-                XCTAssertNotNil(tokens)
-            } catch {
-                caughtError = error
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        try sut.finalise(redirectURL: redirectURL)
-
-        wait(for: [exp], timeout: 5)
-
-        XCTAssertNotNil(caughtError)
-        let le = caughtError as? LoginError
-        XCTAssertEqual(le?.originalError?.localizedDescription, "ID Token expired")
-    }
-
-    // MARK: end of suite
-
     @MainActor
     func test_loginFlow_succeeds() throws {
         let exp = expectation(description: "Wait for token response")
@@ -399,6 +190,159 @@ extension AppAuthSessionXCTests {
 }
 
 struct AppAuthSessionTestsGeneralErrors {
+
+    // MARK: A suite of tests on ID token verification
+    // A Suite of tests that assert the validity of an ID token in the format expected to be issued by STS.
+    
+    @MainActor
+    @Test
+    func test_loginFlow_succeeds_validation() async throws {
+        //  GIVEN an ID token
+        //  AND the iss claim equals https://token.build.account.gov.uk
+        //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
+        //  WHEN performing a login
+        //  AND the request matches the issuer
+        //  AND the request matches the audience
+        //  ASSERT that no (validation) error occured
+        
+        // Given a token
+        let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
+        let issuer = "https://token.build.account.gov.uk"
+
+        let unique = UUID().uuidString
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
+
+        let claims = try Claims.make(audience: audience, issuer: issuer)
+        try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
+
+        let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
+        service.stub(endPoint: endPoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+
+        let sut: AppAuthSession = .makeWithMocks()
+        
+        await #expect(throws: Never.self) {
+            try await sut.performLoginFlow(
+                configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+                service: service)
+        }
+    }
+    
+    @MainActor
+    @Test
+    func test_loginFlow_fails_validation_issuer_mismatch() async throws {
+        //  GIVEN an ID token
+        //  AND the iss claim equals https://token.build.account.gov.uk
+        //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
+        //  WHEN performing a login
+        //  AND the request DOES NOT match the issuer
+        //  AND the request matches the audience
+        //  ASSERT that a login error occured for the issuer mismatch
+
+        // Given a token
+        let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
+        let issuer = "https://token.build.account.gov.uk"
+
+        let unique = UUID().uuidString
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
+
+        let claims = try Claims.make(audience: audience, issuer: issuer)
+        try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
+
+        let mismatchedIssuer = "https://invalid.gov.uk"
+        let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
+        service.stub(endPoint: endPoint,
+                     session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: mismatchedIssuer), audience: audience))))
+
+        let sut: AppAuthSession = .makeWithMocks()
+        // When
+        let caughtError = await #expect(throws: LoginError(.generic).self) {
+            try await sut.performLoginFlow(
+                configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: mismatchedIssuer), audience: audience),
+                service: service)
+        }
+        
+        let oe = try #require(caughtError?.originalError as? NSError)
+        #expect(oe == OIDError.issuerMismatch as NSError)
+    }
+
+    @MainActor
+    @Test
+    func test_loginFlow_fails_validation_audience_mismatch() async throws {
+        //  GIVEN an ID token
+        //  AND the iss claim equals https://token.build.account.gov.uk
+        //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
+        //  WHEN performing a login
+        //  AND the request matches the issuer
+        //  AND the request DOES NOT match the audience
+        //  ASSERT that a login error occured for the audience mismatch
+
+        // Given a token
+        let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
+        let issuer = "https://token.build.account.gov.uk"
+
+        let unique = UUID().uuidString
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
+
+        let claims = try Claims.make(audience: audience, issuer: issuer)
+        try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
+
+        let invalidAudience = "invalid aud"
+        let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
+        service.stub(endPoint: endPoint,
+                     session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: invalidAudience))))
+
+        let sut: AppAuthSession = .makeWithMocks()
+        // When
+        let caughtError = await #expect(throws: LoginError.self) {
+            try await sut.performLoginFlow(
+                    configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+                    service: service)
+        }
+        
+        let oe = try #require(caughtError?.originalError as? NSError)
+        #expect(oe == OIDError.audienceMismatch as NSError)
+    }
+    
+    @MainActor
+    @Test
+    func test_loginFlow_fails_validation_token_expired() async throws {
+        //  GIVEN an ID token
+        //  AND the iss claim equals https://token.build.account.gov.uk
+        //  AND the aud claim equals bYrcuRVvnylvEgYSSbBjwXzHrwJ
+        //  AND the token has long EXPIRED
+        //  WHEN performing a login
+        //  AND the request matches the issuer
+        //  AND the request matches the audience
+        //  ASSERT that a login error occured for the expired id token
+
+        // Given an EXPIRED token
+        let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
+        let issuer = "https://token.build.account.gov.uk"
+      
+        let unique = UUID().uuidString
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
+
+        let claims = try Claims.make(audience: audience, issuer: issuer, expiresAt: Date.distantPast)
+        try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
+
+        let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
+        service.stub(endPoint: endPoint,
+                     session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+        
+        let sut: AppAuthSession = .makeWithMocks()
+
+        // When
+        let caughtError = await #expect(throws: LoginError.self) {
+            try await sut.performLoginFlow(
+                configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+                service: service)
+        }
+        
+        let oe = try #require(caughtError?.originalError as? NSError)
+        #expect(oe == OIDError.idTokenExpired as NSError)
+    }
+
+    // MARK: end of suite
 
     @MainActor
     @Test
