@@ -6,11 +6,11 @@ final class MockOIDExternalUserAgentSessionResumeFalseWithoutCallback: NSObject,
                                                                        OIDExternalUserAgentSession {
     final class FailExternalUserAgentFlowErrors: Sequence<Error> {
 
-        func makeIterator() -> IndexingIterator<Array<Error>> {
+        func makeIterator() -> IndexingIterator<[Error]> {
             self.errors.makeIterator()
         }
 
-        typealias Iterator = IndexingIterator<Array<Error>>
+        typealias Iterator = IndexingIterator<[Error]>
 
         fileprivate var errors: [Error]
 
@@ -44,11 +44,11 @@ final class MockOIDExternalUserAgentSessionResumeFalseWithoutCallback: NSObject,
         return MockOIDExternalUserAgentSessionResumeFalseWithoutCallback(failExternalUserAgentFlowWithErrorAsFunction: failExternalUserAgentFlowWithErrorAsFunction)
     }
 
-    typealias FailExternalUserAgentFlowWithErrorAsFunction = @Sendable (Error) -> ()
+    typealias FailExternalUserAgentFlowWithErrorAsFunction = @Sendable (Error) -> Void
 
     private let failExternalUserAgentFlowWithErrorAsFunction: FailExternalUserAgentFlowWithErrorAsFunction
 
-    init(failExternalUserAgentFlowWithErrorAsFunction: @escaping FailExternalUserAgentFlowWithErrorAsFunction = { error in }) {
+    init(failExternalUserAgentFlowWithErrorAsFunction: @escaping FailExternalUserAgentFlowWithErrorAsFunction = { _ in }) {
         self.failExternalUserAgentFlowWithErrorAsFunction = failExternalUserAgentFlowWithErrorAsFunction
     }
 
