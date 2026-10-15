@@ -15,63 +15,16 @@ final class AppAuthSessionXCTests: XCTestCase {
         let vc = UIViewController()
         window.rootViewController = vc
         window.makeKeyAndVisible()
-        
+
         sut = AppAuthSession(window: window)
     }
-    
+
     override func tearDown() {
         sut = nil
-        
+
         super.tearDown()
     }
-}
-
-extension AppAuthSessionXCTests {
     
-    @MainActor
-    func test_loginFlow_succeeds() throws {
-        let exp = expectation(description: "Wait for token response")
-        
-        Task {
-            do {
-                let tokens = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationServiceExternalUserAgentSessionResumePendingSuccess.self
-                )
-                XCTAssertEqual(tokens.accessToken, "1234567890")
-                XCTAssertEqual(tokens.tokenType, "mock token")
-                XCTAssertEqual(tokens.refreshToken, "0987654321")
-                XCTAssertEqual(tokens.idToken, "mock user")
-                XCTAssertNotNil(tokens.expiryDate)
-            } catch {
-                XCTFail("Expected tokens, got \(error)")
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        try sut.finalise(redirectURL: redirectURL)
-        
-        wait(for: [exp], timeout: 10)
-    }
-    
-    // MARK: Finalise tests
-
-    @MainActor
-    func test_finalise_throwErrorWithNoAuthCode() throws {
-        do {
-            _ = try sut.finalise(redirectURL: redirectURL)
-            XCTFail("Expected user agent session does not exist error, got success")
-        } catch let error as LoginError {
-            XCTAssertEqual(error.kind, .generic)
-            XCTAssertEqual(error.reason, "User Agent Session does not exist")
-        } catch {
-            XCTFail("Expected user agent session does not exist error, got \(error)")
-        }
-    }
-
     var redirectURL: URL {
         get throws {
             try XCTUnwrap(
@@ -80,8 +33,48 @@ extension AppAuthSessionXCTests {
         }
     }
 }
-
 struct AppAuthSessionTestsGeneralErrors {
+
+    @MainActor
+    @Test
+    func test_loginFlow_succeeds() async throws {
+        // Given a token
+        let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
+        let issuer = "https://token.build.account.gov.uk"
+
+        let unique = UUID().uuidString
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
+
+        let accessToken = "1234567890"
+        let tokenType = "mock token"
+        let refreshToken = "0987654321"
+        let expiryDate = Date()
+        let claims = try Claims.make(audience: audience, issuer: issuer)
+        try MockTokenURLProtocol.token(endPoint: endPoint,
+                                       claim: Claim.make(
+                                        accessToken: accessToken,
+                                        tokenType: tokenType,
+                                        refreshToken: refreshToken,
+                                        expiryDate: expiryDate
+                                       ),
+                                       stub: claims)
+
+        let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
+        service.stub(endPoint: endPoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+
+        let sut: AppAuthSession = .makeWithMocks()
+
+        let tokens = try await sut.performLoginFlow(
+            configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+            service: service
+        )
+
+        #expect(tokens.accessToken == accessToken)
+        #expect(tokens.tokenType == tokenType)
+        #expect(tokens.refreshToken == refreshToken)
+        #expect(tokens.idToken != nil)
+        #expect(tokens.expiryDate > expiryDate)
+    }
 
     @MainActor
     @Test
@@ -437,6 +430,20 @@ struct AppAuthSessionTestsGeneralErrors {
         #expect(error.reason == "\(anyError.rawValue): \(errorDescription)")
     }
 
+    // MARK: Finalise tests
+
+    @MainActor
+    @Test
+    func test_finalise_throwErrorWithNoAuthCode() async throws {
+        let sut: AppAuthSession = .makeWithMocks()
+
+        let configuration = await LoginSessionConfiguration.stub()
+        let error = #expect(throws: LoginError(.generic).self) {
+            try sut.finalise(redirectURL: configuration.authorizationRequest.stubRedirectURL())
+        }
+
+        #expect(error?.reason == "User Agent Session does not exist")
+    }
 }
 
 extension LoginSessionConfiguration {
@@ -556,15 +563,28 @@ struct Claims: Codable {
 }
 
 struct Claim {
+
+    let accessToken: String
+    let tokenType: String
+    let refreshToken: String
+    let expiryDate: Date
     
-    static func make() -> Claim {
+    static func make(accessToken: String = "1234567890",
+                     tokenType: String = "mock token",
+                     refreshToken: String = "0987654321",
+                     expiryDate: Date = Date()) -> Claim {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .custom { date, encoder in
             var container = encoder.singleValueContainer()
             try container.encode(Int(date.timeIntervalSince1970))
         }
         
-        return Claim(encoder: encoder)
+        return Claim(
+            accessToken: accessToken,
+            tokenType: tokenType,
+            refreshToken: refreshToken,
+            expiryDate: expiryDate,
+            encoder: encoder)
     }
     
     let encoder: JSONEncoder
@@ -603,16 +623,16 @@ struct Claim {
             .replacingOccurrences(of: "/", with: "_")
             .trimmingCharacters(in: CharacterSet(charactersIn: "=="))
 
-        let idToken = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjE2ZGI2NTg3LTU0NDUtNDVkNi1hN2Q5LTk4NzgxZWJkZjkzZCJ9.\(payload)." +
+        let idToken =  "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjE2ZGI2NTg3LTU0NDUtNDVkNi1hN2Q5LTk4NzgxZWJkZjkzZCJ9.\(payload)." +
             "7ocBIY_vVO83eYlYpJJJuFvl_GtWqwkeYzEDiNjSfUGGatnIW5ahcoEC-tjkIxQhVjpKhmcS_HcE34836OSXrw"
         
         return """
         {
-            "access_token": "any",
-            "refresh_token": "any",
+            "access_token": "\(accessToken)",
+            "refresh_token": "\(refreshToken)",
             "id_token": "\(idToken)",
-            "token_type": "token",
-            "expires_in": 180
+            "token_type": "\(tokenType)",
+            "expires_in": \(Int(expiryDate.timeIntervalSince1970))
         }
         """
     }

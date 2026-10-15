@@ -8,9 +8,9 @@ import UIKit
 // swiftlint:disable:next type_name
 final class MockOIDAuthorizationServiceExternalUserAgentSessionResumeError: OIDAuthorizationService {
 
-    /// Creates a new partial mock that can be used to perform authorisation requests.
+    /// Creates a new mock that can be used to perform authorisation requests.
     ///
-    /// Once you have created a mock, use ``stub(endPoint:session:)`` to provide a stub session prior to performing an authorisation request.
+    /// Once you have created a mock, use ``stub(endPoint:error:)`` to provide a stub error prior to performing an authorisation request.
     ///
     static func mock() -> MockOIDAuthorizationServiceExternalUserAgentSessionResumeError.Type {
         return MockOIDAuthorizationServiceExternalUserAgentSessionResumeError.self
