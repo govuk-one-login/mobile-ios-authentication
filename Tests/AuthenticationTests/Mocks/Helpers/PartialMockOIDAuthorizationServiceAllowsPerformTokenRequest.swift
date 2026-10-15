@@ -67,7 +67,7 @@ class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizat
         prefersEphemeralSession: Bool,
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
-        guard let session = Self.stubSessions[request.configuration.tokenEndpoint] else {
+        guard let session = Self.stubSessions[request.configuration.authorizationEndpoint] else {
             return MockOIDExternalUserAgentSessionResumeSuccess()
         }
         

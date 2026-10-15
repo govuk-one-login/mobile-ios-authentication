@@ -1,4 +1,4 @@
-import AppAuthCore
+@preconcurrency import AppAuthCore
 
 // swiftlint:disable:next type_name
 final class MockOIDExternalUserAgentSessionResumeFalseWithoutCallback: NSObject,
@@ -41,20 +41,27 @@ final class MockOIDExternalUserAgentSessionResumeFalseWithoutCallback: NSObject,
             errors.append(error)
         }
 
-        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback()
-        externalUserAgentSession.failExternalUserAgentFlowWithErrorAsFunction = failExternalUserAgentFlowWithErrorAsFunction
+        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback(
+            failExternalUserAgentFlowWithErrorAsFunction: failExternalUserAgentFlowWithErrorAsFunction
+        )
+        
         return externalUserAgentSession
     }
 
     typealias FailExternalUserAgentFlowWithErrorAsFunction = @Sendable (Error) -> Void
 
-    fileprivate var failExternalUserAgentFlowWithErrorAsFunction: FailExternalUserAgentFlowWithErrorAsFunction?
+    let failExternalUserAgentFlowWithErrorAsFunction: FailExternalUserAgentFlowWithErrorAsFunction?
 
     let authorizationResponse: OIDAuthorizationResponse?
     let error: (any Error)?
     var callback: OIDAuthorizationCallback?
 
-    init(authorizationResponse: OIDAuthorizationResponse? = nil, error: (any Error)? = nil, callback: OIDAuthorizationCallback? = nil) {
+    init(
+    failExternalUserAgentFlowWithErrorAsFunction: @escaping FailExternalUserAgentFlowWithErrorAsFunction = { _ in },
+        authorizationResponse: OIDAuthorizationResponse? = nil,
+         error: (any Error)? = nil,
+         callback: OIDAuthorizationCallback? = nil) {
+        self.failExternalUserAgentFlowWithErrorAsFunction = failExternalUserAgentFlowWithErrorAsFunction
         self.authorizationResponse = authorizationResponse
         self.error = error
         self.callback = callback

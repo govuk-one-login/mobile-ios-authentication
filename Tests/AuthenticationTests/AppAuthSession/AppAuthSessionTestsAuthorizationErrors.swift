@@ -1,7 +1,6 @@
 import AppAuthCore
 @testable import Authentication
 import Testing
-import XCTest
 
 struct AppAuthSessionTests {
 

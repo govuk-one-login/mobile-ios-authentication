@@ -2,37 +2,8 @@
 @testable import Authentication
 import AppAuthCore
 import Testing
-import XCTest
+import UIKit
 
-final class AppAuthSessionXCTests: XCTestCase {
-    var sut: AppAuthSession!
-    var config = LoginSessionConfiguration.mock
-
-    @MainActor
-    override func setUp() {
-        super.setUp()
-        let window = UIWindow()
-        let vc = UIViewController()
-        window.rootViewController = vc
-        window.makeKeyAndVisible()
-
-        sut = AppAuthSession(window: window)
-    }
-
-    override func tearDown() {
-        sut = nil
-
-        super.tearDown()
-    }
-    
-    var redirectURL: URL {
-        get throws {
-            try XCTUnwrap(
-                URL(string: "https://www.gov.uk")
-            )
-        }
-    }
-}
 struct AppAuthSessionTestsGeneralErrors {
 
     @MainActor
@@ -58,14 +29,15 @@ struct AppAuthSessionTestsGeneralErrors {
                                         expiryDate: expiryDate
                                        ),
                                        stub: claims)
+        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
 
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: endPoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+        service.stub(endPoint: configuration.authorizationEndpoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
 
         let sut: AppAuthSession = .makeWithMocks()
 
         let tokens = try await sut.performLoginFlow(
-            configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+            configuration: configuration,
             service: service
         )
 
@@ -124,14 +96,15 @@ struct AppAuthSessionTestsGeneralErrors {
         let claims = try Claims.make(audience: audience, issuer: issuer, expiresAt: Date.distantPast)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims, statusCode: 400)
 
+        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: endPoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+        service.stub(endPoint: configuration.authorizationEndpoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
 
         let sut: AppAuthSession = .makeWithMocks()
 
         await #expect(throws: LoginError(.generalServerError).self) {
             try await sut.performLoginFlow(
-                configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+                configuration: configuration,
                 service: service)
         }
     }
@@ -160,14 +133,16 @@ struct AppAuthSessionTestsGeneralErrors {
         let claims = try Claims.make(audience: audience, issuer: issuer)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
 
+        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
+
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: endPoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+        service.stub(endPoint: configuration.authorizationEndpoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
 
         let sut: AppAuthSession = .makeWithMocks()
         
         await #expect(throws: Never.self) {
             try await sut.performLoginFlow(
-                configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+                configuration: configuration,
                 service: service)
         }
     }
@@ -194,15 +169,16 @@ struct AppAuthSessionTestsGeneralErrors {
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
 
         let mismatchedIssuer = "https://invalid.gov.uk"
+        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: mismatchedIssuer), audience: audience)
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: endPoint,
+        service.stub(endPoint: configuration.authorizationEndpoint,
                      session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: mismatchedIssuer), audience: audience))))
 
         let sut: AppAuthSession = .makeWithMocks()
         // When
         let caughtError = await #expect(throws: LoginError(.generic).self) {
             try await sut.performLoginFlow(
-                configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: mismatchedIssuer), audience: audience),
+                configuration: configuration,
                 service: service)
         }
         
@@ -232,15 +208,16 @@ struct AppAuthSessionTestsGeneralErrors {
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
 
         let invalidAudience = "invalid aud"
+        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: endPoint,
+        service.stub(endPoint: configuration.authorizationEndpoint,
                      session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: invalidAudience))))
 
         let sut: AppAuthSession = .makeWithMocks()
         // When
         let caughtError = await #expect(throws: LoginError.self) {
             try await sut.performLoginFlow(
-                    configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+                configuration: configuration,
                     service: service)
         }
         
@@ -270,8 +247,9 @@ struct AppAuthSessionTestsGeneralErrors {
         let claims = try Claims.make(audience: audience, issuer: issuer, expiresAt: Date.distantPast)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
 
+        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: endPoint,
+        service.stub(endPoint: configuration.authorizationEndpoint,
                      session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
         
         let sut: AppAuthSession = .makeWithMocks()
@@ -279,7 +257,7 @@ struct AppAuthSessionTestsGeneralErrors {
         // When
         let caughtError = await #expect(throws: LoginError.self) {
             try await sut.performLoginFlow(
-                configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+                configuration: configuration,
                 service: service)
         }
         
@@ -299,14 +277,15 @@ struct AppAuthSessionTestsGeneralErrors {
         // Given a network error (e.g. networkConnectionLost)
         try MockTokenURLProtocol.error(endPoint: endPoint, error: URLError(.networkConnectionLost))
 
+        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: endPoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+        service.stub(endPoint: configuration.authorizationEndpoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
 
         let sut: AppAuthSession = .makeWithMocks()
 
         await #expect(throws: LoginError(.network).self) {
             try await sut.performLoginFlow(
-                configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+                configuration: configuration,
                 service: service)
         }
     }

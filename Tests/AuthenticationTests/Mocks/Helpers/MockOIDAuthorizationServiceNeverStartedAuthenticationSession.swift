@@ -69,6 +69,12 @@ struct OIDError: RawRepresentable, Codable {
                        userInfo: [NSLocalizedDescriptionKey: localizedDescription])
     }
 
+    static func error(code: OIDErrorCodeOAuthToken, localizedDescription: String = "") -> Error {
+        return NSError(domain: OIDOAuthTokenErrorDomain,
+                       code: code.rawValue,
+                       userInfo: [NSLocalizedDescriptionKey: localizedDescription])
+    }
+
     static let invalidRequest: OIDError = OIDError(rawValue: "invalid_request")!
     static let unauthorizedClient: OIDError = OIDError(rawValue: "unauthorized_client")!
     static let accessDenied: OIDError = OIDError(rawValue: "access_denied")!
@@ -113,4 +119,8 @@ struct OIDErrorOAuth {
     static let clientError = OIDError.error(code: OIDErrorCodeOAuth.clientError)
 
     static let other = OIDError.error(code: OIDErrorCodeOAuth.other)
+}
+
+struct OIDErrorOAuthToken {
+    static let clientError = OIDError.error(code: OIDErrorCodeOAuthToken.clientError)
 }

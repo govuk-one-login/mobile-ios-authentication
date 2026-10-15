@@ -1,36 +1,6 @@
 @testable import Authentication
+import Foundation
 import Testing
-import XCTest
-
-extension AppAuthSessionXCTests {
-        
-    @MainActor
-    func test_loginFlow_tokenClientError() throws {
-        let exp = expectation(description: "Wait for token response")
-        
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_TokenClientError.self
-                )
-                XCTFail("Expected client error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error.kind, .tokenClientError)
-            } catch {
-                XCTFail("Expected client error, got \(error)")
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        try sut.finalise(redirectURL: redirectURL)
-        
-        wait(for: [exp], timeout: 10)
-    }
-}
 
 struct AppAuthSessionOAuthTokenErrorDomainTests {
 
@@ -53,14 +23,16 @@ struct AppAuthSessionOAuthTokenErrorDomainTests {
 
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: error, statusCode: 400)
 
+        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
+
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: endPoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+        service.stub(endPoint: configuration.authorizationEndpoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
 
         let sut: AppAuthSession = .makeWithMocks()
 
         await #expect(throws: LoginError(kind).self) {
             try await sut.performLoginFlow(
-                configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+                configuration: configuration,
                 service: service)
         }
     }
@@ -140,5 +112,30 @@ struct AppAuthSessionOAuthTokenErrorDomainTests {
 
         let error = await task.value
         #expect(error?.kind == .invalidRedirectURL)
+    }
+
+    @MainActor
+    @Test
+    func test_loginFlow_tokenClientError() async throws {
+        let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
+        let issuer = "https://token.build.account.gov.uk"
+
+        let service = MockOIDAuthorizationServiceStubsTokenRequest.mock()
+
+        let unique = UUID().uuidString
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
+
+        let configuration = await LoginSessionConfiguration.stub()
+
+        service.stub(endPoint: configuration.tokenEndpoint, error: OIDErrorOAuthToken.clientError)
+
+        let sut: AppAuthSession = .makeWithMocks()
+
+        await #expect(throws: LoginError(.tokenClientError)) {
+            try await sut.performLoginFlow(
+                configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+                service: service
+            )
+        }
     }
 }
