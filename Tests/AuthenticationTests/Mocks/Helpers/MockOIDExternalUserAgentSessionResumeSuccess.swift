@@ -13,9 +13,10 @@ extension OIDExternalUserAgentSession {
 }
 
 class MockOIDExternalUserAgentSessionResumeSuccess: NSObject,
-                                                    OIDExternalUserAgentSession {
+                                                    MockOIDExternalUserAgentSession {
 
-    var authorizationResponse: OIDAuthorizationResponse?
+    let authorizationResponse: OIDAuthorizationResponse?
+    let error: (any Error)? = nil
     var callback: OIDAuthorizationCallback?
 
     init(authorizationResponse: OIDAuthorizationResponse? = .mock()) {

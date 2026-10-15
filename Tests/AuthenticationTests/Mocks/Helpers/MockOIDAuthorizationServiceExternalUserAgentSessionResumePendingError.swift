@@ -25,7 +25,7 @@ final class MockOIDAuthorizationServiceExternalUserAgentSessionResumePendingErro
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
         guard let session = Self.stubSessions[request.configuration.authorizationEndpoint] else {
-            return MockOIDExternalUserAgentSessionResumeError.error(code: .networkError)
+            return MockOIDExternalUserAgentSessionResumeError(error: OIDError.networkError(url: request.authorizationRequestURL()))
         }
         session.callback = callback
         return session

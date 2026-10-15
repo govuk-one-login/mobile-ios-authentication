@@ -33,38 +33,64 @@ final class MockOIDAuthorizationServiceNeverStartedAuthenticationSession: OIDAut
 
         callback(nil, OIDError.error(code: OIDErrorCode.safariOpenError, localizedDescription: "Unable to open Safari."))
 
-        return MockOIDExternalUserAgentSession.mock()
+        return MockOIDExternalUserAgentSessionResumeFalseWithoutCallback.mock()
     }
 }
 
-final class MockOIDExternalUserAgentSession: NSObject,
-                                             OIDExternalUserAgentSession {
+struct OIDError: RawRepresentable, Codable {
 
-    static func mock() -> MockOIDExternalUserAgentSession {
-        return MockOIDExternalUserAgentSession()
-    }
+    typealias RawValue = String
 
-    public func cancel() { }
-
-    public func cancel() async { }
-
-    public func failExternalUserAgentFlowWithError(_ error: Error) { }
-
-    public func resumeExternalUserAgentFlow(with URL: URL) -> Bool {
-        return false
-    }
-}
-
-struct OIDError {
+    // MARK: OIDGeneralErrorDomain
     static let issuerMismatch = OIDError.error(code: OIDErrorCode.idTokenFailedValidationError, localizedDescription: "Issuer mismatch")
 
     static let audienceMismatch = OIDError.error(code: OIDErrorCode.idTokenFailedValidationError, localizedDescription: "Audience mismatch")
 
     static let idTokenExpired = OIDError.error(code: OIDErrorCode.idTokenFailedValidationError, localizedDescription: "ID Token expired")
 
+    static func serverError(url: URL, statusCode: Int) -> Error {
+        OIDError.error(code: OIDErrorCode.serverError, localizedDescription: "Non-200 HTTP response (\(statusCode) making token request to '\(url)'.")
+    }
+    static func networkError(url: URL, error: URLError = URLError(.networkConnectionLost)) -> Error {
+        OIDError.error(code: OIDErrorCode.networkError, localizedDescription: "Connection error making token request to \(url): \(error.localizedDescription).")
+    }
+
+    static let userCanceledAuthorizationFlow = OIDError.error(code: OIDErrorCode.userCanceledAuthorizationFlow)
+
     static func error(code: OIDErrorCode, localizedDescription: String = "") -> Error {
         return NSError(domain: OIDGeneralErrorDomain,
                        code: code.rawValue,
                        userInfo: [NSLocalizedDescriptionKey: localizedDescription])
     }
+
+    static func error(code: OIDErrorCodeOAuth, localizedDescription: String = "") -> Error {
+        return NSError(domain: OIDOAuthAuthorizationErrorDomain,
+                       code: code.rawValue,
+                       userInfo: [NSLocalizedDescriptionKey: localizedDescription])
+    }
+
+    static let accessDenied: OIDError = OIDError(rawValue: "access_denied")!
+    static let invalidRequest: OIDError = OIDError(rawValue: "invalid_request")!
+
+    enum CodingKeys: String, CodingKey {
+        case error
+    }
+
+    let rawValue: String
+
+    init?(rawValue: String) {
+        self.rawValue = rawValue
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(rawValue, forKey: .error)
+    }
+}
+
+struct OIDErrorOAuth {
+    // MARK: OIDOAuthAuthorizationErrorDomain
+    static let accessDenied = OIDError.error(code: OIDErrorCodeOAuth.accessDenied)
+
+    static let invalidRequest = OIDError.error(code: OIDErrorCodeOAuth.invalidRequest)
 }

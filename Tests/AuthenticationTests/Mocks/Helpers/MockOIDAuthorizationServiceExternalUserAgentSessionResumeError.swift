@@ -38,20 +38,16 @@ final class MockOIDAuthorizationServiceExternalUserAgentSessionResumeError: OIDA
             callback(nil, error)
         }
 
-        return MockOIDExternalUserAgentSession.mock()
+        return MockOIDExternalUserAgentSessionResumeFalseWithoutCallback.mock()
     }
 }
 
 final class MockOIDExternalUserAgentSessionResumeError: NSObject,
-                                                        OIDExternalUserAgentSession {
+                                                        Sendable,
+                                                        MockOIDExternalUserAgentSession {
 
-    static func error(code: OIDErrorCode) -> MockOIDExternalUserAgentSessionResumeError {
-        let error = NSError(domain: OIDGeneralErrorDomain,
-                            code: code.rawValue)
-        return MockOIDExternalUserAgentSessionResumeError(error: error)
-    }
-
-    var error: Error
+    let authorizationResponse: OIDAuthorizationResponse? = nil
+    let error: (any Error)?
     var callback: OIDAuthorizationCallback?
 
     init(error: Error) {

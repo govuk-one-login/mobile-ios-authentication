@@ -155,10 +155,20 @@ class MockTokenURLProtocol: URLProtocol {
     ///   - endPoint: the URL of the token end point for which you will be making a token request at.
     ///   - stub: a set of claims that you want to return in the body of the response for the given endPoint.
     public static func token(endPoint url: URL, stub claims: Claims, statusCode: Int = 200) throws {
-        let token = try Claim.make().token(claims)
-        try stub(endPoint: url, token: token, statusCode: 200)
+        let token = try Claim.make().token(claims).data(using: .utf8)!
+        try stub(endPoint: url, token: token, statusCode: statusCode)
     }
     
+    public static func token(endPoint url: URL, stub error: OIDError, statusCode: Int = 400) throws {
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(error)
+        try stub(endPoint: url, token: data, statusCode: statusCode)
+    }
+
+    public static func error(endPoint url: URL, error: any Error) throws {
+        errors[url] = error
+    }
+
     /// Stubs a response for the given endPoint
     /// Calling this function with the same url, will replace any previous token for that url.
     ///
@@ -185,20 +195,20 @@ class MockTokenURLProtocol: URLProtocol {
     ///    ```
     /// - SeeAlso: ``token(endPoint:stub:statusCode:)`` on how to add a stub using a set of claims
     /// - SeeAlso: ``Claim.make().token()`` on how to make a token in the expected format
-    public static func stub(endPoint url: URL, token json: String, statusCode: Int) throws {
+    public static func stub(endPoint url: URL, token data: Data, statusCode: Int) throws {
         guard isTokenURL(url) else {
             throw InvalidURLError.notTokenURL(url: url)
         }
         
-        guard let data = json.data(using: .utf8),
-              let response = HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)
+        guard let response = HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)
         else { return }
         
         mockResponses[url] = (data, response)
     }
 
     private static var mockResponses: [URL: (Data, HTTPURLResponse)] = [:]
-    
+    private static var errors: [URL: any Error] = [:]
+
     private class func isTokenURL(_ url: URL) -> Bool {
         return url.host == "token.build.account.gov.uk" && url.lastPathComponent == "token"
     }
@@ -230,6 +240,8 @@ class MockTokenURLProtocol: URLProtocol {
             client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
             client?.urlProtocol(self, didLoad: data)
             client?.urlProtocolDidFinishLoading(self)
+        } else if let error = Self.errors[url] {
+            client?.urlProtocol(self, didFailWithError: error)
         }
     }
     
