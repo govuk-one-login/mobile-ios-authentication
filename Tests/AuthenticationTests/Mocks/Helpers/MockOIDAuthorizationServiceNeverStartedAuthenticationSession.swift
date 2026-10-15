@@ -69,8 +69,14 @@ struct OIDError: RawRepresentable, Codable {
                        userInfo: [NSLocalizedDescriptionKey: localizedDescription])
     }
 
-    static let accessDenied: OIDError = OIDError(rawValue: "access_denied")!
     static let invalidRequest: OIDError = OIDError(rawValue: "invalid_request")!
+    static let unauthorizedClient: OIDError = OIDError(rawValue: "unauthorized_client")!
+    static let accessDenied: OIDError = OIDError(rawValue: "access_denied")!
+    static let invalidScope: OIDError = OIDError(rawValue: "invalid_scope")!
+    static let invalidClient: OIDError = OIDError(rawValue: "invalid_client")!
+    static let invalidGrant: OIDError = OIDError(rawValue: "invalid_grant")!
+    static let unsupportedGrantType: OIDError = OIDError(rawValue: "unsupported_grant_type")!
+    static let unknown: OIDError = OIDError(rawValue: "unknown")!
 
     enum CodingKeys: String, CodingKey {
         case error
