@@ -401,12 +401,12 @@ struct AppAuthSessionTestsGeneralErrors {
         let configuration = await LoginSessionConfiguration.stub()
         let authorizationRequest = configuration.authorizationRequest
         let errors = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback.FailExternalUserAgentFlowErrors()
-        let userAgent = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback.make(errors: errors)
-        service.stub(authorizationRequest: authorizationRequest, externalUserAgent: userAgent)
+        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback.make(errors: errors)
+        service.stub(authorizationRequest: authorizationRequest, externalUserAgentSession: externalUserAgentSession)
 
         let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
             named: MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.authorizationFlowStarted,
-            object: userAgent
+            object: externalUserAgentSession
         ).makeAsyncIterator()
 
         Task { @MainActor in

@@ -261,6 +261,5 @@ struct AppAuthSessionTests {
 
         let error = await task.value
         #expect(error?.kind == .authorizationAccessDenied)
-
     }
 }

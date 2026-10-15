@@ -30,57 +30,6 @@ extension AppAuthSessionXCTests {
         
         wait(for: [exp], timeout: 10)
     }
-    
-    @MainActor
-    func test_loginFlow_invalidRedirectURL() throws {
-        // GIVEN I am logging in
-        let exp = expectation(description: "wait for login to be displayed")
-        Task {
-            exp.fulfill()
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_InvalidURL.self
-                )
-                XCTFail("Expected Login Error to be thrown")
-            } catch let error as LoginError {
-                // THEN AN error is thrown
-                XCTAssertEqual(error.kind, .invalidRedirectURL)
-                // AND the session is cleared
-                XCTAssertTrue(sut.isActive)
-            }
-        }
-        wait(for: [exp], timeout: 10)
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        // WHEN I receive an invalid redirect URL
-        try sut.finalise(redirectURL: redirectURL)
-    }
-    
-    @MainActor
-    func test_loginFlow_invalidRedirectURL_queryParams() throws {
-        // GIVEN I am logging in
-        let exp = expectation(description: "wait for login to be displayed")
-        Task {
-            exp.fulfill()
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_InvalidURL.self
-                )
-                XCTFail("Expected Login Error to be thrown")
-            } catch let error as LoginError {
-                // THEN AN error is thrown
-                XCTAssertEqual(error.kind, .invalidRedirectURL)
-                XCTAssertEqual(error.reason, "unknown: server_error")
-            }
-        }
-        wait(for: [exp], timeout: 10)
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        // WHEN I receive an invalid redirect URL
-        try sut.finalise(redirectURL: try XCTUnwrap(URL(string: "https://www.gov.uk?error=unknown&error_description=server_error")))
-    }
 }
 
 struct AppAuthSessionOAuthTokenErrorDomainTests {
@@ -114,5 +63,82 @@ struct AppAuthSessionOAuthTokenErrorDomainTests {
                 configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
                 service: service)
         }
+    }
+
+    @Test
+    @MainActor
+    func test_loginFlow_invalidRedirectURL() async throws {
+        let sut: AppAuthSession = .makeWithMocks()
+
+        // GIVEN a `OIDAuthorizationService` instance that never completes the session
+        let service = MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.mock()
+
+        let unique = UUID().uuidString
+        let authorizationEndPoint = URL(string: "https://token.build.account.gov.uk/authorize?u=\(unique)")!
+
+        let configuration = await LoginSessionConfiguration.stub(authorizationEndPoint: authorizationEndPoint)
+        let authorizationRequest = configuration.authorizationRequest
+        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback()
+        service.stub(authorizationRequest: authorizationRequest, externalUserAgentSession: externalUserAgentSession)
+
+        let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
+            named: MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.authorizationFlowStarted,
+            object: externalUserAgentSession
+        ).makeAsyncIterator()
+
+        let task = Task {
+            await #expect(throws: LoginError(.invalidRedirectURL).self) {
+                try await sut.performLoginFlow(
+                    configuration: configuration,
+                    service: service)
+            }
+        }
+        _ = await notificationAuthorizationFlowStarted.next()
+
+        // THEN finalise will failExternalUserAgentFlowWithError
+        try sut.finalise(redirectURL: authorizationRequest.redirectURL!)
+
+        let error = await task.value
+        #expect(error?.kind == .invalidRedirectURL)
+    }
+
+    @Test
+    @MainActor
+    func test_loginFlow_invalidRedirectURL_queryParams() async throws {
+        let sut: AppAuthSession = .makeWithMocks()
+
+        // GIVEN a `OIDAuthorizationService` instance that never completes the session
+        let service = MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.mock()
+
+        let unique = UUID().uuidString
+        let authorizationEndPoint = URL(string: "https://token.build.account.gov.uk/authorize?u=\(unique)")!
+
+        let configuration = await LoginSessionConfiguration.stub(authorizationEndPoint: authorizationEndPoint)
+        let authorizationRequest = configuration.authorizationRequest
+        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback()
+        service.stub(authorizationRequest: authorizationRequest, externalUserAgentSession: externalUserAgentSession)
+
+        let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
+            named: MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.authorizationFlowStarted,
+            object: externalUserAgentSession
+        ).makeAsyncIterator()
+
+        let task = Task {
+            await #expect(throws: LoginError(.invalidRedirectURL).self) {
+                try await sut.performLoginFlow(
+                    configuration: configuration,
+                    service: service)
+            }
+        }
+        _ = await notificationAuthorizationFlowStarted.next()
+
+        // AND a call is made to finalise the "user agent session" with a redirect error
+        let loginError: LoginErrorKind = .invalidRedirectURL
+        let redirectURL: URL = authorizationRequest.stubRedirectURL(error: loginError.description)
+        // THEN finalise will failExternalUserAgentFlowWithError
+        try sut.finalise(redirectURL: redirectURL)
+
+        let error = await task.value
+        #expect(error?.kind == .invalidRedirectURL)
     }
 }

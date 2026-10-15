@@ -12,12 +12,12 @@ final class MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse: OIDA
 
     static func stub(
         authorizationRequest request: OIDAuthorizationRequest,
-        externalUserAgent: any OIDExternalUserAgentSession
+        externalUserAgentSession: any MockOIDExternalUserAgentSession
     ) {
-        Self.stubRequests[request.configuration.authorizationEndpoint] = externalUserAgent
+        Self.stubRequests[request.configuration.authorizationEndpoint] = externalUserAgentSession
     }
 
-    private static var stubRequests: [URL: any OIDExternalUserAgentSession] = [:]
+    private static var stubRequests: [URL: any MockOIDExternalUserAgentSession] = [:]
 
     public override static func present(
         _ request: OIDAuthorizationRequest,
@@ -26,12 +26,14 @@ final class MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse: OIDA
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
 
-        let externalUserAgent = Self.stubRequests[request.configuration.authorizationEndpoint] ?? MockOIDExternalUserAgentSessionResumeFalseWithoutCallback()
+        let externalUserAgentSession = Self.stubRequests[request.configuration.authorizationEndpoint] ?? MockOIDExternalUserAgentSessionResumeFalseWithoutCallback()
+
+        externalUserAgentSession.callback = callback
 
         defer {
-            NotificationCenter.default.post(name: MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.authorizationFlowStarted, object: externalUserAgent)
+            NotificationCenter.default.post(name: MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.authorizationFlowStarted, object: externalUserAgentSession)
         }
 
-        return externalUserAgent
+        return externalUserAgentSession
     }
 }

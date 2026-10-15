@@ -1,4 +1,4 @@
-import AppAuthCore
+@preconcurrency import AppAuthCore
 import UIKit
 
 // swiftlint:disable:next orphaned_doc_comment
