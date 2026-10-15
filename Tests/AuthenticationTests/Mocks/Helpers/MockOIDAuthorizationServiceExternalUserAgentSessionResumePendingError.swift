@@ -28,6 +28,7 @@ final class MockOIDAuthorizationServiceExternalUserAgentSessionResumePendingErro
             return MockOIDExternalUserAgentSessionResumeError(error: OIDError.networkError(url: request.authorizationRequestURL()))
         }
         session.callback = callback
+
         return session
     }
 }

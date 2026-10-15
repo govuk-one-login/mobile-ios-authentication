@@ -96,7 +96,21 @@ struct OIDError: RawRepresentable, Codable {
 
 struct OIDErrorOAuth {
     // MARK: OIDOAuthAuthorizationErrorDomain
+    static let invalidRequest = OIDError.error(code: OIDErrorCodeOAuth.invalidRequest)
+
+    static let unauthorizedClient = OIDError.error(code: OIDErrorCodeOAuth.unauthorizedClient)
+
     static let accessDenied = OIDError.error(code: OIDErrorCodeOAuth.accessDenied)
 
-    static let invalidRequest = OIDError.error(code: OIDErrorCodeOAuth.invalidRequest)
+    static let unsupportedResponseType = OIDError.error(code: OIDErrorCodeOAuth.unsupportedResponseType)
+
+    static let invalidScope = OIDError.error(code: OIDErrorCodeOAuth.invalidScope)
+
+    static let serverError = OIDError.error(code: OIDErrorCodeOAuth.serverError)
+
+    static let temporarilyUnavailable = OIDError.error(code: OIDErrorCodeOAuth.temporarilyUnavailable)
+
+    static let clientError = OIDError.error(code: OIDErrorCodeOAuth.clientError)
+
+    static let other = OIDError.error(code: OIDErrorCodeOAuth.other)
 }
