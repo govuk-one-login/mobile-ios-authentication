@@ -2,9 +2,6 @@
 import Testing
 
 struct LoginErrorTests {
-}
-
-extension LoginErrorTests {
 
     struct Case: Sendable {
         let error: LoginError
