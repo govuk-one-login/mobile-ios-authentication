@@ -1,4 +1,4 @@
-import AppAuthCore
+@preconcurrency import AppAuthCore
 @testable import Authentication
 import Testing
 
@@ -59,18 +59,18 @@ struct AppAuthSessionTests {
         let sut: AppAuthSession = .makeWithMocks()
 
         // GIVEN a `OIDAuthorizationService` instance that never completes the session
-        let service = MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.mock()
+        let service = MockOIDAuthorizationServiceExternalUserAgentPending.mock()
 
         let unique = UUID().uuidString
         let authorizationEndPoint = URL(string: "https://token.build.account.gov.uk/authorize?u=\(unique)")!
 
         let configuration = await LoginSessionConfiguration.stub(authorizationEndPoint: authorizationEndPoint)
         let authorizationRequest = configuration.authorizationRequest
-        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeError(error: error)
+        let externalUserAgentSession: MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow = .mockResumeExternalUserAgentFlowWith(error: error)
         service.stub(authorizationRequest: authorizationRequest, externalUserAgentSession: externalUserAgentSession)
 
         let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
-            named: MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.authorizationFlowStarted,
+            named: MockOIDAuthorizationServiceExternalUserAgentPending.authorizationFlowStarted,
             object: externalUserAgentSession
         ).makeAsyncIterator()
 

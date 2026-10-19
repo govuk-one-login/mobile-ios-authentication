@@ -1,8 +1,8 @@
 @preconcurrency import AppAuthCore
 
+@MainActor
 final class MockOIDExternalUserAgentSessionCancel: NSObject,
-                                                   Sendable,
-                                                   MockOIDExternalUserAgentSession {
+                                                   @preconcurrency MockOIDExternalUserAgentSession {
 
     let authorizationResponse: OIDAuthorizationResponse? = nil
     let error: Error?

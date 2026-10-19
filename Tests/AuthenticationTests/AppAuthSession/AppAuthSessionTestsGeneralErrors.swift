@@ -1,6 +1,6 @@
 // swiftlint:disable file_length
 @testable import Authentication
-import AppAuthCore
+@preconcurrency import AppAuthCore
 import Testing
 import UIKit
 
@@ -29,10 +29,24 @@ struct AppAuthSessionTestsGeneralErrors {
                                         expiryDate: expiryDate
                                        ),
                                        stub: claims)
-        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
+        let configuration: LoginSessionConfiguration = await .stub(
+            tokenEndPoint: endPoint,
+            issuer: URL(string: issuer),
+            audience: audience
+        )
 
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: configuration.authorizationEndpoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+        service.stub(endPoint: configuration.authorizationEndpoint,
+                     session: .mockResumeExternalUserAgentFlowWith(
+                        authorizationResponse: .mock(
+                            tokenExchangeRequest: .mock(
+                                endPoint: endPoint,
+                                issuer: URL(string: issuer),
+                                audience: audience
+                            )
+                        )
+                     )
+        )
 
         let sut: AppAuthSession = .makeWithMocks()
 
@@ -61,7 +75,7 @@ struct AppAuthSessionTestsGeneralErrors {
         let configuration = await LoginSessionConfiguration.stub(authorizationEndPoint: authorizationEndPoint)
         let authorizationRequest = configuration.authorizationRequest
         let userAgent = MockOIDExternalUserAgentSessionCancel(error: OIDError.error(code: .userCanceledAuthorizationFlow))
-        service.stub(authorizationRequest: authorizationRequest, externalUserAgent: userAgent)
+        service.stub(authorizationRequest: authorizationRequest, externalUserAgentSession: userAgent)
 
         let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
             named: MockOIDAuthorizationServiceExternalUserAgentPending.authorizationFlowStarted,
@@ -96,9 +110,24 @@ struct AppAuthSessionTestsGeneralErrors {
         let claims = try Claims.make(audience: audience, issuer: issuer, expiresAt: Date.distantPast)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims, statusCode: 400)
 
-        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
+        let configuration: LoginSessionConfiguration = await .stub(
+            tokenEndPoint: endPoint,
+            issuer: URL(string: issuer),
+            audience: audience
+        )
+
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: configuration.authorizationEndpoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+        service.stub(endPoint: configuration.authorizationEndpoint,
+                     session: .mockResumeExternalUserAgentFlowWith(
+                        authorizationResponse: .mock(
+                            tokenExchangeRequest: .mock(
+                                endPoint: endPoint,
+                                issuer: URL(string: issuer),
+                                audience: audience
+                            )
+                        )
+                     )
+        )
 
         let sut: AppAuthSession = .makeWithMocks()
 
@@ -133,10 +162,24 @@ struct AppAuthSessionTestsGeneralErrors {
         let claims = try Claims.make(audience: audience, issuer: issuer)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
 
-        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
+        let configuration: LoginSessionConfiguration = await .stub(
+            tokenEndPoint: endPoint,
+            issuer: URL(string: issuer),
+            audience: audience
+        )
 
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: configuration.authorizationEndpoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+        service.stub(endPoint: configuration.authorizationEndpoint,
+                     session: .mockResumeExternalUserAgentFlowWith(
+                        authorizationResponse: .mock(
+                            tokenExchangeRequest: .mock(
+                                endPoint: endPoint,
+                                issuer: URL(string: issuer),
+                                audience: audience
+                            )
+                        )
+                     )
+        )
 
         let sut: AppAuthSession = .makeWithMocks()
         
@@ -169,10 +212,24 @@ struct AppAuthSessionTestsGeneralErrors {
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
 
         let mismatchedIssuer = "https://invalid.gov.uk"
-        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: mismatchedIssuer), audience: audience)
+        let configuration: LoginSessionConfiguration = await .stub(
+            tokenEndPoint: endPoint,
+            issuer: URL(string: mismatchedIssuer),
+            audience: audience
+        )
+
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
         service.stub(endPoint: configuration.authorizationEndpoint,
-                     session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: mismatchedIssuer), audience: audience))))
+                     session: .mockResumeExternalUserAgentFlowWith(
+                        authorizationResponse: .mock(
+                            tokenExchangeRequest: .mock(
+                                endPoint: endPoint,
+                                issuer: URL(string: mismatchedIssuer),
+                                audience: audience
+                            )
+                        )
+                     )
+        )
 
         let sut: AppAuthSession = .makeWithMocks()
         // When
@@ -208,10 +265,24 @@ struct AppAuthSessionTestsGeneralErrors {
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
 
         let invalidAudience = "invalid aud"
-        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
+        let configuration: LoginSessionConfiguration = await .stub(
+            tokenEndPoint: endPoint,
+            issuer: URL(string: issuer),
+            audience: audience
+        )
+
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
         service.stub(endPoint: configuration.authorizationEndpoint,
-                     session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: invalidAudience))))
+                     session: .mockResumeExternalUserAgentFlowWith(
+                        authorizationResponse: .mock(
+                            tokenExchangeRequest: .mock(
+                                endPoint: endPoint,
+                                issuer: URL(string: issuer),
+                                audience: invalidAudience
+                            )
+                        )
+                     )
+        )
 
         let sut: AppAuthSession = .makeWithMocks()
         // When
@@ -247,10 +318,24 @@ struct AppAuthSessionTestsGeneralErrors {
         let claims = try Claims.make(audience: audience, issuer: issuer, expiresAt: Date.distantPast)
         try MockTokenURLProtocol.token(endPoint: endPoint, stub: claims)
 
-        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
+        let configuration: LoginSessionConfiguration = await .stub(
+            tokenEndPoint: endPoint,
+            issuer: URL(string: issuer),
+            audience: audience
+        )
+
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
         service.stub(endPoint: configuration.authorizationEndpoint,
-                     session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+                     session: .mockResumeExternalUserAgentFlowWith(
+                        authorizationResponse: .mock(
+                            tokenExchangeRequest: .mock(
+                                endPoint: endPoint,
+                                issuer: URL(string: issuer),
+                                audience: audience
+                            )
+                        )
+                     )
+        )
         
         let sut: AppAuthSession = .makeWithMocks()
 
@@ -277,9 +362,24 @@ struct AppAuthSessionTestsGeneralErrors {
         // Given a network error (e.g. networkConnectionLost)
         try MockTokenURLProtocol.error(endPoint: endPoint, error: URLError(.networkConnectionLost))
 
-        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
+        let configuration: LoginSessionConfiguration = await .stub(
+            tokenEndPoint: endPoint,
+            issuer: URL(string: issuer),
+            audience: audience
+        )
+
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: configuration.authorizationEndpoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+        service.stub(endPoint: configuration.authorizationEndpoint,
+                     session: .mockResumeExternalUserAgentFlowWith(
+                        authorizationResponse: .mock(
+                            tokenExchangeRequest: .mock(
+                                endPoint: endPoint,
+                                issuer: URL(string: issuer),
+                                audience: audience
+                            )
+                        )
+                     )
+        )
 
         let sut: AppAuthSession = .makeWithMocks()
 
@@ -375,20 +475,20 @@ struct AppAuthSessionTestsGeneralErrors {
         let sut: AppAuthSession = .makeWithMocks()
 
         // GIVEN a `OIDAuthorizationService` instance that never completes the session
-        let service = MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.mock()
+        let service = MockOIDAuthorizationServiceExternalUserAgentPending.mock()
 
         let configuration = await LoginSessionConfiguration.stub()
         let authorizationRequest = configuration.authorizationRequest
-        let errors = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback.FailExternalUserAgentFlowErrors()
-        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback.make(errors: errors)
+        let errors = MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError.FailExternalUserAgentFlowErrors()
+        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError.make(errors: errors)
         service.stub(authorizationRequest: authorizationRequest, externalUserAgentSession: externalUserAgentSession)
 
         let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
-            named: MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.authorizationFlowStarted,
+            named: MockOIDAuthorizationServiceExternalUserAgentPending.authorizationFlowStarted,
             object: externalUserAgentSession
         ).makeAsyncIterator()
 
-        Task { @MainActor in
+        Task {
             // WHEN a call to perform a login is made that stores a `OIDExternalUserAgentSession`
             try? await sut.performLoginFlow(configuration: configuration, service: service)
         }
@@ -429,11 +529,11 @@ extension LoginSessionConfiguration {
     static let mock = {
         await LoginSessionConfiguration(
             authorizationEndpoint: URL(
-                string: "https://www.google.com"
+                string: "https://token.build.account.gov.uk/authorize"
             )!,
-            tokenEndpoint: URL(string: "https://www.google.com/token")!,
+            tokenEndpoint: URL(string: "https://token.build.account.gov.uk/token")!,
             clientID: "1234",
-            redirectURI: "https://www.google.com"
+            redirectURI: "https://mobile.build.account.gov.uk/redirect"
         )
     }
 }

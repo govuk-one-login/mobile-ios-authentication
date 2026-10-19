@@ -1,4 +1,4 @@
-import AppAuthCore
+@preconcurrency import AppAuthCore
 import UIKit
 
 // swiftlint:disable:next orphaned_doc_comment
@@ -25,7 +25,8 @@ import UIKit
 /// update the data for that app."
 ///
 // swiftlint:disable:next type_name
-class MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting: OIDAuthorizationService {
+@MainActor
+final class MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting: OIDAuthorizationService {
     static func mock() -> MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting.Type {
         MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting.self
     }
@@ -46,7 +47,7 @@ class MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting: OIDAu
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
         guard let (authorizationRequest, externalUserAgent) = Self.stubRequests[request.configuration.authorizationEndpoint] else {
-            return MockOIDExternalUserAgentSessionResumeSuccess()
+            return MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow()
         }
 
         return OIDAuthorizationService.present(
@@ -57,7 +58,8 @@ class MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting: OIDAu
     }
 }
 
-final class MockOIDExternalUserAgent: NSObject, OIDExternalUserAgent, Sendable {
+@MainActor
+final class MockOIDExternalUserAgent: NSObject, @preconcurrency OIDExternalUserAgent {
     static let authorizationFlowStarted = Notification.Name("MockOIDExternalUserAgent.authorizationFlowStarted")
 
     func present(

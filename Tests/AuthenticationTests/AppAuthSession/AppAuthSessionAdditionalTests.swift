@@ -1,4 +1,4 @@
-import AppAuthCore
+@preconcurrency import AppAuthCore
 @testable import Authentication
 import Testing
 
@@ -22,10 +22,7 @@ struct AppAuthSessionAdditionalTests {
     @MainActor
     @Test
     func test_handleAuthorizationResponseCreateTokenRequest_addHeaders() async throws {
-        let authorizationResponse = MockAuthorizationResponse_AddingHeaders(
-            request: OIDAuthorizationRequest.mockAuthorizationRequest,
-            parameters: .init()
-        )
+        let authorizationResponse: OIDAuthorizationResponse = .mock(issuer: URL(string: "https://token.build.account.gov.uk")!)
 
         let sut: AppAuthSession = .makeWithMocks()
         let tokenRequest = try await sut.handleAuthResponseCreateTokenRequest(
@@ -49,10 +46,7 @@ struct AppAuthSessionAdditionalTests {
     @MainActor
     @Test
     func test_handleAuthorizationResponseCreateTokenRequest_noTokenResponse() async throws {
-        let authorizationResponse = MockAuthorizationResponse_MissingTokenRequest(
-            request: OIDAuthorizationRequest.mockAuthorizationRequest,
-            parameters: .init()
-        )
+        let authorizationResponse: OIDAuthorizationResponse = .mock(tokenExchangeRequest: nil)
 
         let sut: AppAuthSession = .makeWithMocks()
 
@@ -85,11 +79,10 @@ struct AppAuthSessionAdditionalTests {
     @MainActor
     @Test
     func test_handleTokenResponse_generateToken_error() throws {
-        let tokenResponse = MockTokenResponse_MissingProperty(
-            request: OIDTokenRequest.mockTokenRequest,
-            parameters: .init()
+        let tokenResponse: OIDTokenResponse = .mock(
+            accessToken: nil
         )
-        
+
         let sut: AppAuthSession = .makeWithMocks()
 
         let error = #expect(throws: LoginError(.generic)) {
@@ -104,9 +97,18 @@ struct AppAuthSessionAdditionalTests {
     @MainActor
     @Test
     func test_handleTokenResponse_generateToken() throws {
-        let tokenResponse = MockTokenResponse_FullyFormed(
-            request: OIDTokenRequest.mockTokenRequest,
-            parameters: .init()
+        let accessToken = "1234567890"
+        let tokenType = "mock token"
+        let refreshToken = "0987654321"
+        let idToken = "mock user"
+        let accessTokenExpirationDate = Date()
+
+        let tokenResponse: OIDTokenResponse = .mock(
+            accessToken: accessToken,
+            tokenType: tokenType,
+            refreshToken: refreshToken,
+            idToken: idToken,
+            accessTokenExpirationDate: accessTokenExpirationDate
         )
         
         let sut: AppAuthSession = .makeWithMocks()
@@ -116,10 +118,10 @@ struct AppAuthSessionAdditionalTests {
                 error: nil
             )
 
-        #expect(tokens.accessToken == "1234567890")
-        #expect(tokens.tokenType == "mock token")
-        #expect(tokens.refreshToken == "0987654321")
-        #expect(tokens.idToken == "mock user")
-        //#expect(tokens.expiryDate == tokenResponse.accessTokenExpirationDate!)
+        #expect(tokens.accessToken == tokenResponse.accessToken)
+        #expect(tokens.tokenType == tokenResponse.tokenType)
+        #expect(tokens.refreshToken == tokenResponse.refreshToken)
+        #expect(tokens.idToken == tokenResponse.idToken)
+        #expect(tokens.expiryDate == tokenResponse.accessTokenExpirationDate)
     }
 }

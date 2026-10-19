@@ -1,7 +1,12 @@
 import AppAuthCore
+
 extension OIDTokenRequest {
-    
-    static func mock(endPoint: URL = URL(string: "https://token.build.account.gov.uk/token")!, issuer: URL?, audience clientID: String = "") -> OIDTokenRequest {
+    static func mock(endPoint: URL = URL(string: "https://token.build.account.gov.uk/token")!,
+                     issuer: URL? = URL(string: "https://token.build.account.gov.uk"),
+                     audience clientID: String = "",
+                     withAdditionalParameters additionalParameters: [String: String]? = nil,
+                     additionalHeaders: [String: String]? = nil
+    ) -> OIDTokenRequest {
         let serviceConfiguration = OIDServiceConfiguration(
             authorizationEndpoint: URL(
                 string: "https://token.build.account.gov.uk/authorize"
@@ -19,10 +24,8 @@ extension OIDTokenRequest {
             scope: nil,
             refreshToken: nil,
             codeVerifier: nil,
-            additionalParameters: nil,
-            additionalHeaders: nil
+            additionalParameters: additionalParameters,
+            additionalHeaders: additionalHeaders
         )
     }
-    
-    static var mockTokenRequest: OIDTokenRequest = .mock(issuer: nil)
 }

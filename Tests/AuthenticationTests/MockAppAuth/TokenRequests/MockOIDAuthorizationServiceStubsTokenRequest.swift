@@ -1,6 +1,7 @@
-import AppAuthCore
+@preconcurrency import AppAuthCore
 import UIKit
 
+@MainActor
 class MockOIDAuthorizationServiceStubsTokenRequest: OIDAuthorizationService {
 
     static func mock() -> MockOIDAuthorizationServiceStubsTokenRequest.Type {
@@ -19,7 +20,7 @@ class MockOIDAuthorizationServiceStubsTokenRequest: OIDAuthorizationService {
         prefersEphemeralSession: Bool,
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
-        let session = MockOIDExternalUserAgentSessionResumeSuccess()
+        let session = MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow(authorizationResponse: .mock())
         DispatchQueue.main.async {
             callback(session.authorizationResponse, nil)
         }

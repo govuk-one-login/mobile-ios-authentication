@@ -1,9 +1,9 @@
 @preconcurrency import AppAuthCore
 
+@MainActor
 // swiftlint:disable:next type_name
-final class MockOIDExternalUserAgentSessionResumeFalseWithoutCallback: NSObject,
-                                                                       Sendable,
-                                                                       MockOIDExternalUserAgentSession {
+final class MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError: NSObject,
+                                                                                     @preconcurrency MockOIDExternalUserAgentSession {
     final class FailExternalUserAgentFlowErrors: Sequence<Error> {
 
         func makeIterator() -> IndexingIterator<[Error]> {
@@ -36,12 +36,12 @@ final class MockOIDExternalUserAgentSessionResumeFalseWithoutCallback: NSObject,
         }
     }
 
-    static func make(errors: FailExternalUserAgentFlowErrors) -> MockOIDExternalUserAgentSessionResumeFalseWithoutCallback {
+    static func make(errors: FailExternalUserAgentFlowErrors) -> MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError {
         let failExternalUserAgentFlowWithErrorAsFunction: FailExternalUserAgentFlowWithErrorAsFunction = { error in
             errors.append(error)
         }
 
-        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback(
+        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError(
             failExternalUserAgentFlowWithErrorAsFunction: failExternalUserAgentFlowWithErrorAsFunction
         )
         
@@ -52,19 +52,13 @@ final class MockOIDExternalUserAgentSessionResumeFalseWithoutCallback: NSObject,
 
     let failExternalUserAgentFlowWithErrorAsFunction: FailExternalUserAgentFlowWithErrorAsFunction?
 
-    let authorizationResponse: OIDAuthorizationResponse?
-    let error: (any Error)?
-    var callback: OIDAuthorizationCallback?
+    let authorizationResponse: OIDAuthorizationResponse? = nil
+    let error: (any Error)? = nil
+    var callback: OIDAuthorizationCallback? = nil
 
     init(
-    failExternalUserAgentFlowWithErrorAsFunction: @escaping FailExternalUserAgentFlowWithErrorAsFunction = { _ in },
-        authorizationResponse: OIDAuthorizationResponse? = nil,
-         error: (any Error)? = nil,
-         callback: OIDAuthorizationCallback? = nil) {
+    failExternalUserAgentFlowWithErrorAsFunction: @escaping FailExternalUserAgentFlowWithErrorAsFunction = { _ in }) {
         self.failExternalUserAgentFlowWithErrorAsFunction = failExternalUserAgentFlowWithErrorAsFunction
-        self.authorizationResponse = authorizationResponse
-        self.error = error
-        self.callback = callback
     }
 
     public func cancel() { }

@@ -1,6 +1,7 @@
-import AppAuthCore
+@preconcurrency import AppAuthCore
 import UIKit
 
+@MainActor
 final class MockOIDAuthorizationServiceExternalUserAgentPending: OIDAuthorizationService {
 
     static let authorizationFlowStarted = Notification.Name("MockOIDAuthorizationServiceExternalUserAgentPending.authorizationFlowStarted")
@@ -11,9 +12,9 @@ final class MockOIDAuthorizationServiceExternalUserAgentPending: OIDAuthorizatio
 
     static func stub(
         authorizationRequest request: OIDAuthorizationRequest,
-        externalUserAgent: any MockOIDExternalUserAgentSession
+        externalUserAgentSession: any MockOIDExternalUserAgentSession
     ) {
-        Self.stubRequests[request.configuration.authorizationEndpoint] = externalUserAgent
+        Self.stubRequests[request.configuration.authorizationEndpoint] = externalUserAgentSession
     }
 
     private static var stubRequests: [URL: any MockOIDExternalUserAgentSession] = [:]
@@ -25,14 +26,15 @@ final class MockOIDAuthorizationServiceExternalUserAgentPending: OIDAuthorizatio
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
 
-        let externalUserAgent = Self.stubRequests[request.configuration.authorizationEndpoint] ?? MockOIDExternalUserAgentSessionCancel(error: nil)
+        let externalUserAgentSession = Self.stubRequests[request.configuration.authorizationEndpoint] ?? MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow()
 
-        externalUserAgent.callback = callback
+        externalUserAgentSession.callback = callback
 
         defer {
-            NotificationCenter.default.post(name: MockOIDAuthorizationServiceExternalUserAgentPending.authorizationFlowStarted, object: externalUserAgent)
+            NotificationCenter.default.post(name: MockOIDAuthorizationServiceExternalUserAgentPending.authorizationFlowStarted,
+                                            object: externalUserAgentSession)
         }
 
-        return externalUserAgent
+        return externalUserAgentSession
     }
 }

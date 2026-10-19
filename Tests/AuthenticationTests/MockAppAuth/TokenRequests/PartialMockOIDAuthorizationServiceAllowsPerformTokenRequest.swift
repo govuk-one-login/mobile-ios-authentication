@@ -1,4 +1,4 @@
-import AppAuthCore
+@preconcurrency import AppAuthCore
 import UIKit
 
 /// Use this ``OIDAuthorizationService`` to mock ``present(_:presenting:prefersEphemeralSession:callback)`` while still being able to perform a token request
@@ -34,7 +34,8 @@ import UIKit
 ///
 /// - SeeAlso: ``mock(session:)`` to create a new ``PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest`` mock
 /// - SeeAlso: ``MockTokenURLProtocol`` on how to stub a token for a token request
-class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizationService {
+@MainActor
+final class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizationService {
 
     /// Creates a new partial mock that can be used to perform token requests.
     ///
@@ -55,11 +56,11 @@ class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizat
     ///   - endPoint: the URL of the token end point for which you will be making a token request at.
     ///   - sesssion: a succesful user agent session to be returned by ``present(_:presenting:prefersEphemeralSession:callback)``
     /// - SeeAlso: ``OIDExternalUserAgentSession/mock(authorizationResponse:)`` on how to create a mock agent session
-    public static func stub(endPoint url: URL, session: MockOIDExternalUserAgentSessionResumeSuccess) {
+    public static func stub(endPoint url: URL, session: MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow) {
         Self.stubSessions[url] = (session)
     }
     
-    private static var stubSessions: [URL: MockOIDExternalUserAgentSessionResumeSuccess] = [:]
+    private static var stubSessions: [URL: MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow] = [:]
     
     public override class func present(
         _ request: OIDAuthorizationRequest,
@@ -68,7 +69,7 @@ class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizat
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
         guard let session = Self.stubSessions[request.configuration.authorizationEndpoint] else {
-            return MockOIDExternalUserAgentSessionResumeSuccess()
+            return MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow()
         }
         
         DispatchQueue.main.async {

@@ -1,4 +1,4 @@
-import AppAuthCore
+@preconcurrency import AppAuthCore
 
 protocol MockOIDExternalUserAgentSession: OIDExternalUserAgentSession {
     var authorizationResponse: OIDAuthorizationResponse? { get }

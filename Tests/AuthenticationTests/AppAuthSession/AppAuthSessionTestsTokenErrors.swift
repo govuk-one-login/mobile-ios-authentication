@@ -26,7 +26,17 @@ struct AppAuthSessionOAuthTokenErrorDomainTests {
         let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
 
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
-        service.stub(endPoint: configuration.authorizationEndpoint, session: .mock(authorizationResponse: .mock(mockTokenRequest: .mock(endPoint: endPoint, issuer: URL(string: issuer), audience: audience))))
+        service.stub(endPoint: configuration.authorizationEndpoint,
+                     session: .mockResumeExternalUserAgentFlowWith(
+                        authorizationResponse: .mock(
+                            tokenExchangeRequest: .mock(
+                                endPoint: endPoint,
+                                issuer: URL(string: issuer),
+                                audience: audience
+                            )
+                        )
+                     )
+        )
 
         let sut: AppAuthSession = .makeWithMocks()
 
@@ -43,18 +53,18 @@ struct AppAuthSessionOAuthTokenErrorDomainTests {
         let sut: AppAuthSession = .makeWithMocks()
 
         // GIVEN a `OIDAuthorizationService` instance that never completes the session
-        let service = MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.mock()
+        let service = MockOIDAuthorizationServiceExternalUserAgentPending.mock()
 
         let unique = UUID().uuidString
         let authorizationEndPoint = URL(string: "https://token.build.account.gov.uk/authorize?u=\(unique)")!
 
         let configuration = await LoginSessionConfiguration.stub(authorizationEndPoint: authorizationEndPoint)
         let authorizationRequest = configuration.authorizationRequest
-        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback()
+        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError()
         service.stub(authorizationRequest: authorizationRequest, externalUserAgentSession: externalUserAgentSession)
 
         let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
-            named: MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.authorizationFlowStarted,
+            named: MockOIDAuthorizationServiceExternalUserAgentPending.authorizationFlowStarted,
             object: externalUserAgentSession
         ).makeAsyncIterator()
 
@@ -80,18 +90,18 @@ struct AppAuthSessionOAuthTokenErrorDomainTests {
         let sut: AppAuthSession = .makeWithMocks()
 
         // GIVEN a `OIDAuthorizationService` instance that never completes the session
-        let service = MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.mock()
+        let service = MockOIDAuthorizationServiceExternalUserAgentPending.mock()
 
         let unique = UUID().uuidString
         let authorizationEndPoint = URL(string: "https://token.build.account.gov.uk/authorize?u=\(unique)")!
 
         let configuration = await LoginSessionConfiguration.stub(authorizationEndPoint: authorizationEndPoint)
         let authorizationRequest = configuration.authorizationRequest
-        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFalseWithoutCallback()
+        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError()
         service.stub(authorizationRequest: authorizationRequest, externalUserAgentSession: externalUserAgentSession)
 
         let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
-            named: MockOIDAuthorizationServiceExternalUserAgentSessionResumeFalse.authorizationFlowStarted,
+            named: MockOIDAuthorizationServiceExternalUserAgentPending.authorizationFlowStarted,
             object: externalUserAgentSession
         ).makeAsyncIterator()
 
@@ -133,7 +143,9 @@ struct AppAuthSessionOAuthTokenErrorDomainTests {
 
         await #expect(throws: LoginError(.tokenClientError)) {
             try await sut.performLoginFlow(
-                configuration: .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience),
+                configuration: .stub(tokenEndPoint: endPoint,
+                                     issuer: URL(string: issuer),
+                                     audience: audience),
                 service: service
             )
         }

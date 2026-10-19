@@ -6,14 +6,15 @@ import UIKit
 /// Use this ``OIDAuthorizationService`` to mock ``present(_:presenting:prefersEphemeralSession:callback)`` which simulates how ``OIDAuthorizationService`` fails with an error
 ///
 // swiftlint:disable:next type_name
-final class MockOIDAuthorizationServiceExternalUserAgentSessionResumeError: OIDAuthorizationService {
+@MainActor
+final class MockOIDAuthorizationServiceAuthorizationRequestError: OIDAuthorizationService {
 
     /// Creates a new mock that can be used to perform authorisation requests.
     ///
     /// Once you have created a mock, use ``stub(endPoint:error:)`` to provide a stub error prior to performing an authorisation request.
     ///
-    static func mock() -> MockOIDAuthorizationServiceExternalUserAgentSessionResumeError.Type {
-        return MockOIDAuthorizationServiceExternalUserAgentSessionResumeError.self
+    static func mock() -> MockOIDAuthorizationServiceAuthorizationRequestError.Type {
+        return MockOIDAuthorizationServiceAuthorizationRequestError.self
     }
 
     ///
@@ -32,39 +33,12 @@ final class MockOIDAuthorizationServiceExternalUserAgentSessionResumeError: OIDA
         prefersEphemeralSession: Bool,
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
-        let error: Error = Self.stubSessions[request.configuration.authorizationEndpoint] ?? OIDError.error(code: OIDErrorCode.safariOpenError)
+        let error: Error = Self.stubSessions[request.configuration.authorizationEndpoint] ?? OIDError.error(code: OIDErrorCodeOAuth.other)
 
         DispatchQueue.main.async {
             callback(nil, error)
         }
 
-        return MockOIDExternalUserAgentSessionResumeFalseWithoutCallback.mock()
-    }
-}
-
-final class MockOIDExternalUserAgentSessionResumeError: NSObject,
-                                                        Sendable,
-                                                        MockOIDExternalUserAgentSession {
-
-    let authorizationResponse: OIDAuthorizationResponse? = nil
-    let error: (any Error)?
-    var callback: OIDAuthorizationCallback?
-
-    init(error: Error) {
-        self.error = error
-    }
-
-    public func cancel() { }
-
-    public func cancel() async { }
-
-    public func failExternalUserAgentFlowWithError(_ error: Error) { }
-
-    public func resumeExternalUserAgentFlow(with URL: URL) -> Bool {
-        callback?(
-            nil,
-            error,
-        )
-        return true
+        return MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError.mockResumeExternalUserAgentFlowWith()
     }
 }
