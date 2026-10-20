@@ -1,12 +1,11 @@
 @preconcurrency import AppAuthCore
 import UIKit
 
-// swiftlint:disable:next orphaned_doc_comment
 ///
 /// Use this ``OIDAuthorizationService`` to mock ``present(_:presenting:prefersEphemeralSession:callback)`` which simulates how ``OIDAuthorizationService`` fails with an error
 ///
-// swiftlint:disable:next type_name
 @MainActor
+// swiftlint:disable:next type_name
 final class MockOIDAuthorizationServiceAuthorizationRequestError: OIDAuthorizationService {
 
     /// Creates a new mock that can be used to perform authorisation requests.

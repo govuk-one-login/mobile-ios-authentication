@@ -1,9 +1,10 @@
 // swiftlint:disable file_length
-@testable import Authentication
 @preconcurrency import AppAuthCore
+@testable import Authentication
 import Testing
 import UIKit
 
+// swiftlint:disable:next type_body_length
 struct AppAuthSessionTestsGeneralErrors {
 
     @MainActor

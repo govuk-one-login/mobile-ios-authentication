@@ -41,7 +41,7 @@ final class MockTokenResponse: OIDTokenResponse {
         super.init(request: .mock(), parameters: [:])
     }
 
-    override init(request: OIDTokenRequest, parameters: [String : any NSCopying & NSObjectProtocol]) {
+    override init(request: OIDTokenRequest, parameters: [String: any NSCopying & NSObjectProtocol]) {
         self.response = Response.empty
         super.init(request: request, parameters: parameters)
     }

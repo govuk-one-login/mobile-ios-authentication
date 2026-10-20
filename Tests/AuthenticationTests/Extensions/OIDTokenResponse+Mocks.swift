@@ -11,7 +11,7 @@ extension OIDTokenResponse {
                      idToken: String? = "mock user",
                      accessTokenExpirationDate: Date? = Date()) -> MockTokenResponse {
         return MockTokenResponse(response: MockTokenResponse.Response(
-            accessToken:accessToken,
+            accessToken: accessToken,
             tokenType: tokenType,
             refreshToken: refreshToken,
             idToken: idToken,

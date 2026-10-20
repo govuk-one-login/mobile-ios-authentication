@@ -2,6 +2,7 @@
 import UIKit
 
 @MainActor
+// swiftlint:disable:next type_name
 final class MockOIDAuthorizationServiceExternalUserAgentPending: OIDAuthorizationService {
 
     static let authorizationFlowStarted = Notification.Name("MockOIDAuthorizationServiceExternalUserAgentPending.authorizationFlowStarted")

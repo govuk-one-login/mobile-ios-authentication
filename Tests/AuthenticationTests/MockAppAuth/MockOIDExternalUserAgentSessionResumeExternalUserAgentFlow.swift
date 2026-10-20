@@ -1,8 +1,9 @@
 @preconcurrency import AppAuthCore
 
 @MainActor
-class MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow: NSObject,
-                                                                  @preconcurrency MockOIDExternalUserAgentSession {
+// swiftlint:disable:next type_name
+final class MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow: NSObject,
+                                                                        @preconcurrency MockOIDExternalUserAgentSession {
 
     let authorizationResponse: OIDAuthorizationResponse?
     let error: (any Error)?

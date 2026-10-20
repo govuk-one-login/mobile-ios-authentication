@@ -35,6 +35,7 @@ import UIKit
 /// - SeeAlso: ``mock(session:)`` to create a new ``PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest`` mock
 /// - SeeAlso: ``MockTokenURLProtocol`` on how to stub a token for a token request
 @MainActor
+// swiftlint:disable:next type_name
 final class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizationService {
 
     /// Creates a new partial mock that can be used to perform token requests.
@@ -62,7 +63,7 @@ final class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuth
     
     private static var stubSessions: [URL: MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow] = [:]
     
-    public override class func present(
+    public override static func present(
         _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,
         prefersEphemeralSession: Bool,
@@ -202,4 +203,3 @@ class MockTokenURLProtocol: URLProtocol {
     override func stopLoading() {
     }
 }
-// swiftlint:enable type_name

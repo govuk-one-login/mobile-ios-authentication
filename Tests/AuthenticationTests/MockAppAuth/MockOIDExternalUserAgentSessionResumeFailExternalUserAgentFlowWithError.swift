@@ -54,7 +54,7 @@ final class MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithEr
 
     let authorizationResponse: OIDAuthorizationResponse? = nil
     let error: (any Error)? = nil
-    var callback: OIDAuthorizationCallback? = nil
+    var callback: OIDAuthorizationCallback?
 
     init(
     failExternalUserAgentFlowWithErrorAsFunction: @escaping FailExternalUserAgentFlowWithErrorAsFunction = { _ in }) {

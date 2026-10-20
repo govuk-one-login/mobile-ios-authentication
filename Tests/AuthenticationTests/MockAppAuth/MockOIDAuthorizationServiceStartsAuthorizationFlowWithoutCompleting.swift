@@ -1,7 +1,6 @@
 @preconcurrency import AppAuthCore
 import UIKit
 
-// swiftlint:disable:next orphaned_doc_comment
 ///
 /// Use this ``OIDAuthorizationService`` to mock ``present(_:presenting:prefersEphemeralSession:callback)`` which simulates how ``OIDAuthorizationService``
 /// will **fail in case the app failed to register with universal links** [^1].
@@ -24,8 +23,8 @@ import UIKit
 /// but its universal links and other Associated Domains data are not available. This state can persist for hours or days, until the system next attempts to
 /// update the data for that app."
 ///
-// swiftlint:disable:next type_name
 @MainActor
+// swiftlint:disable:next type_name
 final class MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting: OIDAuthorizationService {
     static func mock() -> MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting.Type {
         MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting.self
@@ -40,7 +39,7 @@ final class MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting:
 
     private static var stubRequests: [URL: (OIDAuthorizationRequest, any OIDExternalUserAgent)] = [:]
 
-    override class func present(
+    override static func present(
         _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,
         prefersEphemeralSession: Bool,
