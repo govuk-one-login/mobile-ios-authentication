@@ -25,16 +25,17 @@ struct AppAuthSessionOAuthTokenErrorDomainTests {
         let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
 
         let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
+        let userAgentSession: MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow = .mockResumeExternalUserAgentFlowWith(
+            authorizationResponse: .mock(
+                tokenExchangeRequest: .mock(
+                    endPoint: endPoint,
+                    issuer: URL(string: issuer),
+                    audience: audience
+                )
+            )
+        )
         service.stub(endPoint: configuration.authorizationEndpoint,
-                     session: .mockResumeExternalUserAgentFlowWith(
-                        authorizationResponse: .mock(
-                            tokenExchangeRequest: .mock(
-                                endPoint: endPoint,
-                                issuer: URL(string: issuer),
-                                audience: audience
-                            )
-                        )
-                     )
+                     session: userAgentSession
         )
 
         let sut: AppAuthSession = .makeWithMocks()
