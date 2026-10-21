@@ -1,272 +1,153 @@
 @testable import Authentication
+import Foundation
 import Testing
-import XCTest
 
-extension AppAuthSessionXCTests {
+struct AppAuthSessionOAuthTokenErrorDomainTests {
     @MainActor
-    func test_loginFlow_tokenInvalidRequestError() throws {
-        let exp = expectation(description: "Wait for token response")
-        
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_TokenInvalidRequestError.self
+    @Test(arguments:
+            [(error: OIDError.invalidRequest, kind: LoginErrorKind.tokenInvalidRequest),
+             (error: OIDError.unauthorizedClient, kind: LoginErrorKind.tokenUnauthorizedClient),
+             (error: OIDError.invalidScope, kind: LoginErrorKind.tokenInvalidScope),
+             (error: OIDError.invalidClient, kind: LoginErrorKind.tokenInvalidClient),
+             (error: OIDError.invalidGrant, kind: LoginErrorKind.tokenInvalidGrant),
+             (error: OIDError.unsupportedGrantType, kind: LoginErrorKind.tokenUnsupportedGrantType),
+             (error: OIDError.unknown, kind: LoginErrorKind.tokenUnknownError)]
+    )
+    func assert_loginFlow(error: OIDError, map kind: LoginErrorKind) async throws {
+        let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
+        let issuer = "https://token.build.account.gov.uk"
+
+        let unique = UUID().uuidString
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
+
+        try MockTokenURLProtocol.token(endPoint: endPoint, stub: error, statusCode: 400)
+
+        let configuration: LoginSessionConfiguration = await .stub(tokenEndPoint: endPoint, issuer: URL(string: issuer), audience: audience)
+
+        let service = PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.mock()
+        let userAgentSession: MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow = .mockResumeExternalUserAgentFlowWith(
+            authorizationResponse: .mock(
+                tokenExchangeRequest: .mock(
+                    endPoint: endPoint,
+                    issuer: URL(string: issuer),
+                    audience: audience
                 )
-                XCTFail("Expected token invalid request error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error.kind, .tokenInvalidRequest)
-            } catch {
-                XCTFail("Expected token invalid request error, got \(error)")
-            }
-            
-            exp.fulfill()
+            )
+        )
+        service.stub(endPoint: configuration.authorizationEndpoint,
+                     session: userAgentSession
+        )
+
+        let sut: AppAuthSession = .makeWithMocks()
+
+        await #expect(throws: LoginError(kind).self) {
+            try await sut.performLoginFlow(
+                configuration: configuration,
+                service: service)
         }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        try sut.finalise(redirectURL: redirectURL)
-        
-        wait(for: [exp], timeout: 10)
     }
-    
+
+    @Test
     @MainActor
-    func test_loginFlow_tokenUnauthorizedClientError() throws {
-        let exp = expectation(description: "Wait for token response")
-        
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_TokenUnauthorizedClientError.self
-                )
-                XCTFail("Expected token invalid request error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error.kind, .tokenUnauthorizedClient)
-            } catch {
-                XCTFail("Expected token invalid request error, got \(error)")
+    func test_loginFlow_invalidRedirectURL() async throws {
+        let sut: AppAuthSession = .makeWithMocks()
+
+        // GIVEN a `OIDAuthorizationService` instance that never completes the session
+        let service = MockOIDAuthorizationServiceExternalUserAgentPending.mock()
+
+        let unique = UUID().uuidString
+        let authorizationEndPoint = URL(string: "https://token.build.account.gov.uk/authorize?u=\(unique)")!
+
+        let configuration = await LoginSessionConfiguration.stub(authorizationEndPoint: authorizationEndPoint)
+        let authorizationRequest = configuration.authorizationRequest
+        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError()
+        service.stub(authorizationRequest: authorizationRequest, externalUserAgentSession: externalUserAgentSession)
+
+        let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
+            named: MockOIDAuthorizationServiceExternalUserAgentPending.authorizationFlowStarted,
+            object: externalUserAgentSession
+        ).makeAsyncIterator()
+
+        let task = Task {
+            await #expect(throws: LoginError(.invalidRedirectURL).self) {
+                try await sut.performLoginFlow(
+                    configuration: configuration,
+                    service: service)
             }
-            
-            exp.fulfill()
         }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        try sut.finalise(redirectURL: redirectURL)
-        
-        wait(for: [exp], timeout: 10)
+        _ = await notificationAuthorizationFlowStarted.next()
+
+        // THEN finalise will failExternalUserAgentFlowWithError
+        try sut.finalise(redirectURL: authorizationRequest.redirectURL!)
+
+        let error = await task.value
+        #expect(error?.kind == .invalidRedirectURL)
     }
-    
+
+    @Test
     @MainActor
-    func test_loginFlow_tokenInvalidScopeError() throws {
-        let exp = expectation(description: "Wait for token response")
-        
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_TokenInvalidScopeError.self
-                )
-                XCTFail("Expected client error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error.kind, .tokenInvalidScope)
-            } catch {
-                XCTFail("Expected client error, got \(error)")
+    func test_loginFlow_invalidRedirectURL_queryParams() async throws {
+        let sut: AppAuthSession = .makeWithMocks()
+
+        // GIVEN a `OIDAuthorizationService` instance that never completes the session
+        let service = MockOIDAuthorizationServiceExternalUserAgentPending.mock()
+
+        let unique = UUID().uuidString
+        let authorizationEndPoint = URL(string: "https://token.build.account.gov.uk/authorize?u=\(unique)")!
+
+        let configuration = await LoginSessionConfiguration.stub(authorizationEndPoint: authorizationEndPoint)
+        let authorizationRequest = configuration.authorizationRequest
+        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError()
+        service.stub(authorizationRequest: authorizationRequest, externalUserAgentSession: externalUserAgentSession)
+
+        let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
+            named: MockOIDAuthorizationServiceExternalUserAgentPending.authorizationFlowStarted,
+            object: externalUserAgentSession
+        ).makeAsyncIterator()
+
+        let task = Task {
+            await #expect(throws: LoginError(.invalidRedirectURL).self) {
+                try await sut.performLoginFlow(
+                    configuration: configuration,
+                    service: service)
             }
-            
-            exp.fulfill()
         }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
+        _ = await notificationAuthorizationFlowStarted.next()
+
+        // AND a call is made to finalise the "user agent session" with a redirect error
+        let loginError: LoginErrorKind = .invalidRedirectURL
+        let redirectURL: URL = authorizationRequest.stubRedirectURL(error: loginError.description)
+        // THEN finalise will failExternalUserAgentFlowWithError
         try sut.finalise(redirectURL: redirectURL)
-        
-        wait(for: [exp], timeout: 10)
+
+        let error = await task.value
+        #expect(error?.kind == .invalidRedirectURL)
     }
-    
+
     @MainActor
-    func test_loginFlow_tokenInvalidClientError() throws {
-        let exp = expectation(description: "Wait for token response")
-        
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_TokenInvalidClientError.self
-                )
-                XCTFail("Expected client error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error.kind, .tokenInvalidClient)
-            } catch {
-                XCTFail("Expected client error, got \(error)")
-            }
-            
-            exp.fulfill()
+    @Test
+    func test_loginFlow_tokenClientError() async throws {
+        let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
+        let issuer = "https://token.build.account.gov.uk"
+
+        let service = MockOIDAuthorizationServiceStubsTokenRequest.mock()
+
+        let unique = UUID().uuidString
+        let endPoint = URL(string: "https://token.build.account.gov.uk/token?u=\(unique)")!
+
+        let configuration = await LoginSessionConfiguration.stub()
+
+        service.stub(endPoint: configuration.tokenEndpoint, error: OIDErrorOAuthToken.clientError)
+
+        let sut: AppAuthSession = .makeWithMocks()
+
+        await #expect(throws: LoginError(.tokenClientError)) {
+            try await sut.performLoginFlow(
+                configuration: .stub(tokenEndPoint: endPoint,
+                                     issuer: URL(string: issuer),
+                                     audience: audience),
+                service: service
+            )
         }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        try sut.finalise(redirectURL: redirectURL)
-        
-        wait(for: [exp], timeout: 10)
-    }
-    
-    @MainActor
-    func test_loginFlow_tokenInvalidGrantError() throws {
-        let exp = expectation(description: "Wait for token response")
-        
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_TokenInvalidGrantError.self
-                )
-                XCTFail("Expected client error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error.kind, .tokenInvalidGrant)
-            } catch {
-                XCTFail("Expected client error, got \(error)")
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        try sut.finalise(redirectURL: redirectURL)
-        
-        wait(for: [exp], timeout: 10)
-    }
-    
-    @MainActor
-    func test_loginFlow_tokenUnsupportedGrantTypeError() throws {
-        let exp = expectation(description: "Wait for token response")
-        
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_TokenUnsupportedGrantTypeError.self
-                )
-                XCTFail("Expected client error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error.kind, .tokenUnsupportedGrantType)
-            } catch {
-                XCTFail("Expected client error, got \(error)")
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        try sut.finalise(redirectURL: redirectURL)
-        
-        wait(for: [exp], timeout: 10)
-    }
-    
-    @MainActor
-    func test_loginFlow_tokenClientError() throws {
-        let exp = expectation(description: "Wait for token response")
-        
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_TokenClientError.self
-                )
-                XCTFail("Expected client error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error.kind, .tokenClientError)
-            } catch {
-                XCTFail("Expected client error, got \(error)")
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        try sut.finalise(redirectURL: redirectURL)
-        
-        wait(for: [exp], timeout: 10)
-    }
-    
-    @MainActor
-    func test_loginFlow_tokenUnknownError() throws {
-        let exp = expectation(description: "Wait for token response")
-        
-        Task {
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_TokenUnknownError.self
-                )
-                XCTFail("Expected client error, got success")
-            } catch let error as LoginError {
-                XCTAssertEqual(error.kind, .tokenUnknownError)
-            } catch {
-                XCTFail("Expected client error, got \(error)")
-            }
-            
-            exp.fulfill()
-        }
-        
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        try sut.finalise(redirectURL: redirectURL)
-        
-        wait(for: [exp], timeout: 10)
-    }
-    
-    @MainActor
-    func test_loginFlow_invalidRedirectURL() throws {
-        // GIVEN I am logging in
-        let exp = expectation(description: "wait for login to be displayed")
-        Task {
-            exp.fulfill()
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_InvalidURL.self
-                )
-                XCTFail("Expected Login Error to be thrown")
-            } catch let error as LoginError {
-                // THEN AN error is thrown
-                XCTAssertEqual(error.kind, .invalidRedirectURL)
-                // AND the session is cleared
-                XCTAssertTrue(sut.isActive)
-            }
-        }
-        wait(for: [exp], timeout: 10)
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        // WHEN I receive an invalid redirect URL
-        try sut.finalise(redirectURL: redirectURL)
-    }
-    
-    @MainActor
-    func test_loginFlow_invalidRedirectURL_queryParams() throws {
-        // GIVEN I am logging in
-        let exp = expectation(description: "wait for login to be displayed")
-        Task {
-            exp.fulfill()
-            do {
-                _ = try await sut.performLoginFlow(
-                    configuration: .mock(),
-                    service: MockOIDAuthorizationService_InvalidURL.self
-                )
-                XCTFail("Expected Login Error to be thrown")
-            } catch let error as LoginError {
-                // THEN AN error is thrown
-                XCTAssertEqual(error.kind, .invalidRedirectURL)
-                XCTAssertEqual(error.reason, "unknown: server_error")
-            }
-        }
-        wait(for: [exp], timeout: 10)
-        waitForTruth(self.sut.isActive, timeout: 10)
-        
-        // WHEN I receive an invalid redirect URL
-        try sut.finalise(redirectURL: try XCTUnwrap(URL(string: "https://www.gov.uk?error=unknown&error_description=server_error")))
     }
 }

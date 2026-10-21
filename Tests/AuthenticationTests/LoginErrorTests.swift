@@ -2,10 +2,6 @@
 import Testing
 
 struct LoginErrorTests {
-}
-
-extension LoginErrorTests {
-
     struct Case: Sendable {
         let error: LoginError
         let debugDescription: String
@@ -41,7 +37,7 @@ extension LoginErrorTests {
         // swiftlint:enable line_length
 
     @Test("assert debugDescription", arguments: allLoginErrors)
-    func test_debugDescription(testCase: Case) async throws {
+    func test_debugDescription(testCase: Case) {
         #expect(testCase.error.debugDescription == testCase.debugDescription)
     }
     
@@ -50,7 +46,7 @@ extension LoginErrorTests {
     /// - Seealso: https://govukverify.atlassian.net/wiki/spaces/DCMAW/pages/3787195450/GOV.UK+One+Login+app+-+Error+handling#Authentication-errors-(appAuth-mappings)
     /// // swiftlint:enable line_length
     @Test("assert kind", arguments: LoginErrorTests.allLoginErrors)
-    func test_kind(testCase: Case) async throws {
+    func test_kind(testCase: Case) {
         #expect(testCase.error.errorUserInfo["kind"] as? String == testCase.kind)
     }
 }
