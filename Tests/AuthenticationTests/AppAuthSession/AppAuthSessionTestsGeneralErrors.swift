@@ -243,8 +243,8 @@ struct AppAuthSessionTestsGeneralErrors {
                 service: service)
         }
         
-        let oe = try #require(caughtError?.originalError as? NSError)
-        #expect(oe == OIDError.issuerMismatch as NSError)
+        let originalError = try #require(caughtError?.originalError as? NSError)
+        #expect(originalError == OIDError.issuerMismatch as NSError)
     }
 
     @MainActor
@@ -297,8 +297,8 @@ struct AppAuthSessionTestsGeneralErrors {
                     service: service)
         }
         
-        let oe = try #require(caughtError?.originalError as? NSError)
-        #expect(oe == OIDError.audienceMismatch as NSError)
+        let originalError = try #require(caughtError?.originalError as? NSError)
+        #expect(originalError == OIDError.audienceMismatch as NSError)
     }
     
     @MainActor
@@ -352,8 +352,8 @@ struct AppAuthSessionTestsGeneralErrors {
                 service: service)
         }
         
-        let oe = try #require(caughtError?.originalError as? NSError)
-        #expect(oe == OIDError.idTokenExpired as NSError)
+        let originalError = try #require(caughtError?.originalError as? NSError)
+        #expect(originalError == OIDError.idTokenExpired as NSError)
     }
 
     @MainActor
@@ -560,7 +560,7 @@ extension LoginSessionConfiguration {
     }
 }
 
-struct Claims: Codable {    
+struct Claims: Codable {
   enum InvalidClaimError: Error, LocalizedError {
       case iatRejection
     
