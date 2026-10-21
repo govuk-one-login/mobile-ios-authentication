@@ -2,7 +2,7 @@
 import Foundation
 import Testing
 
-struct LoginSessionConfigurationTests {    
+struct LoginSessionConfigurationTests {
     @Test
     func test_LoginSessionConfiguration() async {
         let sut = await LoginSessionConfiguration(

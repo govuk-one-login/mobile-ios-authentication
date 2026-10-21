@@ -41,7 +41,7 @@ final class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuth
     ///
     /// Once you have created a mock, use ``stub(endPoint:session:)`` to provide a stub session prior to performing a token request.
     ///
-    static func mock() -> PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.Type {        
+    static func mock() -> PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.Type {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [MockTokenURLProtocol.self]
         let session = URLSession(configuration: configuration)
@@ -90,7 +90,7 @@ final class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuth
 /// e.g. "https://token.build.account.gov.uk/token"
 ///
 /// - SeeAlso: ``token(endPoint:stub:statusCode)`` on how to provide a stub token for a token request
-class MockTokenURLProtocol: URLProtocol {    
+class MockTokenURLProtocol: URLProtocol {
     enum InvalidURLError: Error, LocalizedError {
         case notTokenURL(url: URL)
       
