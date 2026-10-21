@@ -5,16 +5,19 @@ import Testing
 struct LoginSessionConfigurationTests {    
     @Test
     func test_LoginSessionConfiguration() async {
-        let sut = await LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://token.build.account.gov.uk/authorize")!,
-                                                  tokenEndpoint: URL(string: "https://token.build.account.gov.uk/token")!,
-                                                  responseType: .code,
-                                                  scopes: [.email],
-                                                  clientID: "1234",
-                                                  prefersEphemeralWebSession: true,
-                                                  redirectURI: "https://mobile.build.account.gov.uk/redirect",
-                                                  vectorsOfTrust: ["1"],
-                                                  locale: .en,
-                                                  persistentSessionId: "123456789")
+        let sut = await LoginSessionConfiguration(
+            authorizationEndpoint: URL(string: "https://token.build.account.gov.uk/authorize")!,
+            tokenEndpoint: URL(string: "https://token.build.account.gov.uk/token")!,
+            responseType: .code,
+            scopes: [.email],
+            clientID: "1234",
+            prefersEphemeralWebSession: true,
+            redirectURI: "https://mobile.build.account.gov.uk/redirect",
+            vectorsOfTrust: ["1"],
+            locale: .en,
+            persistentSessionId: "123456789"
+        )
+
         #expect(sut.authorizationEndpoint == URL(string: "https://token.build.account.gov.uk/authorize"))
         #expect(sut.tokenEndpoint == URL(string: "https://token.build.account.gov.uk/token"))
         #expect(sut.responseType == .code)
@@ -29,10 +32,13 @@ struct LoginSessionConfigurationTests {
     
     @Test
     func test_defaultValues() async {
-        let sut = await LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://token.build.account.gov.uk/authorize")!,
-                                              tokenEndpoint: URL(string: "https://token.build.account.gov.uk/token")!,
-                                              clientID: "1234",
-                                              redirectURI: "https://mobile.build.account.gov.uk/redirect")
+        let sut = await LoginSessionConfiguration(
+            authorizationEndpoint: URL(string: "https://token.build.account.gov.uk/authorize")!,
+            tokenEndpoint: URL(string: "https://token.build.account.gov.uk/token")!,
+            clientID: "1234",
+            redirectURI: "https://mobile.build.account.gov.uk/redirect"
+        )
+
         #expect(sut.responseType == .code)
         #expect(sut.scopes == [.openid, .email, .phone, .offline_access])
         #expect(sut.prefersEphemeralWebSession)
@@ -43,16 +49,18 @@ struct LoginSessionConfigurationTests {
     
     @Test
     func test_serviceConfiguration() async {
-        let sut = await LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://token.build.account.gov.uk/authorize")!,
-                                                  tokenEndpoint: URL(string: "https://token.build.account.gov.uk/token")!,
-                                                  responseType: .code,
-                                                  scopes: [.email],
-                                                  clientID: "1234",
-                                                  prefersEphemeralWebSession: true,
-                                                  redirectURI: "https://mobile.build.account.gov.uk/redirect",
-                                                  vectorsOfTrust: ["1"],
-                                                  locale: .en,
-                                                  persistentSessionId: "123456789")
+        let sut = await LoginSessionConfiguration(
+            authorizationEndpoint: URL(string: "https://token.build.account.gov.uk/authorize")!,
+            tokenEndpoint: URL(string: "https://token.build.account.gov.uk/token")!,
+            responseType: .code,
+            scopes: [.email],
+            clientID: "1234",
+            prefersEphemeralWebSession: true,
+            redirectURI: "https://mobile.build.account.gov.uk/redirect",
+            vectorsOfTrust: ["1"],
+            locale: .en,
+            persistentSessionId: "123456789"
+        )
 
         #expect(sut.serviceConfiguration.authorizationEndpoint == URL(string: "https://token.build.account.gov.uk/authorize"))
         #expect(sut.serviceConfiguration.tokenEndpoint == URL(string: "https://token.build.account.gov.uk/token"))
@@ -60,16 +68,18 @@ struct LoginSessionConfigurationTests {
     
     @Test
     func test_authorizationRequest() async {
-        let sut = await LoginSessionConfiguration(authorizationEndpoint: URL(string: "https://token.build.account.gov.uk/authorize")!,
-                                                  tokenEndpoint: URL(string: "https://token.build.account.gov.uk/token")!,
-                                                  responseType: .code,
-                                                  scopes: [.email],
-                                                  clientID: "1234",
-                                                  prefersEphemeralWebSession: true,
-                                                  redirectURI: "https://mobile.build.account.gov.uk/redirect",
-                                                  vectorsOfTrust: ["1"],
-                                                  locale: .en,
-                                                  persistentSessionId: "123456789")
+        let sut = await LoginSessionConfiguration(
+            authorizationEndpoint: URL(string: "https://token.build.account.gov.uk/authorize")!,
+            tokenEndpoint: URL(string: "https://token.build.account.gov.uk/token")!,
+            responseType: .code,
+            scopes: [.email],
+            clientID: "1234",
+            prefersEphemeralWebSession: true,
+            redirectURI: "https://mobile.build.account.gov.uk/redirect",
+            vectorsOfTrust: ["1"],
+            locale: .en,
+            persistentSessionId: "123456789"
+        )
 
         #expect(sut.authorizationRequest.scope == "email")
         #expect(sut.authorizationRequest.redirectURL == URL(string: "https://mobile.build.account.gov.uk/redirect"))
