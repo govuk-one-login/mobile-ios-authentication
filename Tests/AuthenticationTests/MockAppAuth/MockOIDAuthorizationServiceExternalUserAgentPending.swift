@@ -4,7 +4,6 @@ import UIKit
 @MainActor
 // swiftlint:disable:next type_name
 final class MockOIDAuthorizationServiceExternalUserAgentPending: OIDAuthorizationService {
-
     static let authorizationFlowStarted = Notification.Name("MockOIDAuthorizationServiceExternalUserAgentPending.authorizationFlowStarted")
 
     static func mock() -> MockOIDAuthorizationServiceExternalUserAgentPending.Type {
@@ -20,13 +19,12 @@ final class MockOIDAuthorizationServiceExternalUserAgentPending: OIDAuthorizatio
 
     private static var stubRequests: [URL: any MockOIDExternalUserAgentSession] = [:]
 
-    public override static func present(
+    override public static func present(
         _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,
         prefersEphemeralSession: Bool,
         callback: @escaping OIDAuthorizationCallback
     ) -> any OIDExternalUserAgentSession {
-
         let externalUserAgentSession = Self.stubRequests[request.configuration.authorizationEndpoint] ?? MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow()
 
         externalUserAgentSession.callback = callback

@@ -3,7 +3,6 @@
 import Testing
 
 struct AppAuthSessionTests {
-
     @MainActor
     @Test
     func test_loginFlow_authorizationAccessDeniedError() async throws {

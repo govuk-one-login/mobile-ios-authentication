@@ -3,7 +3,6 @@ import Foundation
 import Testing
 
 struct AppAuthSessionOAuthTokenErrorDomainTests {
-
     @MainActor
     @Test(arguments:
             [(error: OIDError.invalidRequest, kind: LoginErrorKind.tokenInvalidRequest),

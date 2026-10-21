@@ -28,14 +28,14 @@ struct AppAuthSessionAdditionalTests {
         let tokenRequest = try await sut.handleAuthResponseCreateTokenRequest(
             authorizationResponse,
             error: nil,
-            tokenParameters: {[
+            tokenParameters: { [
                 "token_parameter_1": "test_parameter_1",
                 "token_parameter_2": "test_parameter_2"
-            ]},
-            tokenHeaders: {[
+            ] },
+            tokenHeaders: { [
                 "token_header_1": "test_header_1",
                 "token_header_2": "test_header_2"
-            ]}
+            ] }
         )
         #expect(tokenRequest.additionalParameters?["token_parameter_1"] == "test_parameter_1")
         #expect(tokenRequest.additionalParameters?["token_parameter_2"] == "test_parameter_2")
@@ -63,7 +63,7 @@ struct AppAuthSessionAdditionalTests {
     
     @MainActor
     @Test
-    func test_handleTokenResponse_noTokenResponse() async throws {
+    func test_handleTokenResponse_noTokenResponse() throws {
         let sut: AppAuthSession = .makeWithMocks()
 
         let error = #expect(throws: LoginError(.generic)) {

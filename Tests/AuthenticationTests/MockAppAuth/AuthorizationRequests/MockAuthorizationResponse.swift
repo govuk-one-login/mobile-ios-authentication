@@ -1,7 +1,6 @@
 @preconcurrency import AppAuthCore
 
-final class MockAuthorizationResponse: OIDAuthorizationResponse {
-        
+final class MockAuthorizationResponse: OIDAuthorizationResponse {        
     let tokenExchangeRequest: OIDTokenRequest?
     
     init(tokenExchangeRequest: OIDTokenRequest?) {

@@ -3,7 +3,6 @@ import UIKit
 
 @MainActor
 class MockOIDAuthorizationServiceStubsTokenRequest: OIDAuthorizationService {
-
     static func mock() -> MockOIDAuthorizationServiceStubsTokenRequest.Type {
         return MockOIDAuthorizationServiceStubsTokenRequest.self
     }
@@ -14,7 +13,7 @@ class MockOIDAuthorizationServiceStubsTokenRequest: OIDAuthorizationService {
 
     private static var stubSessions: [URL: Error] = [:]
 
-    public override class func present(
+    override public class func present(
         _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,
         prefersEphemeralSession: Bool,
@@ -27,7 +26,7 @@ class MockOIDAuthorizationServiceStubsTokenRequest: OIDAuthorizationService {
         return session
     }
 
-    public override class func perform(
+    override public class func perform(
         _ request: OIDTokenRequest,
         originalAuthorizationResponse authorizationResponse: OIDAuthorizationResponse?,
         callback: @escaping OIDTokenCallback

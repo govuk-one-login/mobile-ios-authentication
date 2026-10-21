@@ -1,7 +1,6 @@
 @preconcurrency import AppAuthCore
 
 struct OIDError: RawRepresentable, Codable {
-
     typealias RawValue = String
 
     // MARK: OIDGeneralErrorDomain
@@ -14,6 +13,7 @@ struct OIDError: RawRepresentable, Codable {
     static func serverError(url: URL, statusCode: Int) -> Error {
         OIDError.error(code: OIDErrorCode.serverError, localizedDescription: "Non-200 HTTP response (\(statusCode) making token request to '\(url)'.")
     }
+
     static func networkError(url: URL, error: URLError = URLError(.networkConnectionLost)) -> Error {
         OIDError.error(code: OIDErrorCode.networkError, localizedDescription: "Connection error making token request to \(url): \(error.localizedDescription).")
     }

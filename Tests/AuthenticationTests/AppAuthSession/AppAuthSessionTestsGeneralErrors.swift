@@ -6,7 +6,6 @@ import UIKit
 
 // swiftlint:disable:next type_body_length
 struct AppAuthSessionTestsGeneralErrors {
-
     @MainActor
     @Test
     func test_loginFlow_succeeds() async throws {
@@ -65,7 +64,7 @@ struct AppAuthSessionTestsGeneralErrors {
 
     @MainActor
     @Test
-    func test_loginFlow_userCancelled() async throws {
+    func test_loginFlow_userCancelled() async {
         let sut: AppAuthSession = .makeWithMocks()
 
         let service = MockOIDAuthorizationServiceExternalUserAgentPending.mock()
@@ -396,7 +395,6 @@ struct AppAuthSessionTestsGeneralErrors {
     @MainActor
     @Test
     func test_loginFlow_safariOpenError_finalise_loginErrorGeneric() async throws {
-
         let sut: AppAuthSession = .makeWithMocks()
 
         let service = MockOIDAuthorizationServiceNeverStartedAuthenticationSession.mock()
@@ -555,8 +553,7 @@ extension LoginSessionConfiguration {
     }
 }
 
-struct Claims: Codable {
-    
+struct Claims: Codable {    
   enum InvalidClaimError: Error, LocalizedError {
       case iatRejection
     
@@ -643,7 +640,6 @@ struct Claims: Codable {
 }
 
 struct Claim {
-
     let accessToken: String
     let tokenType: String
     let refreshToken: String
@@ -703,7 +699,7 @@ struct Claim {
             .replacingOccurrences(of: "/", with: "_")
             .trimmingCharacters(in: CharacterSet(charactersIn: "=="))
 
-        let idToken =  "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjE2ZGI2NTg3LTU0NDUtNDVkNi1hN2Q5LTk4NzgxZWJkZjkzZCJ9.\(payload)." +
+        let idToken = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjE2ZGI2NTg3LTU0NDUtNDVkNi1hN2Q5LTk4NzgxZWJkZjkzZCJ9.\(payload)." +
             "7ocBIY_vVO83eYlYpJJJuFvl_GtWqwkeYzEDiNjSfUGGatnIW5ahcoEC-tjkIxQhVjpKhmcS_HcE34836OSXrw"
         
         return """
@@ -719,7 +715,6 @@ struct Claim {
 }
 
 extension AppAuthSession {
-
     static func makeWithMocks() -> AppAuthSession {
         let window = UIWindow()
         window.rootViewController = UIViewController()

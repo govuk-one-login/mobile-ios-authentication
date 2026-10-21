@@ -37,13 +37,11 @@ import UIKit
 @MainActor
 // swiftlint:disable:next type_name
 final class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuthorizationService {
-
     /// Creates a new partial mock that can be used to perform token requests.
     ///
     /// Once you have created a mock, use ``stub(endPoint:session:)`` to provide a stub session prior to performing a token request.
     ///
-    static func mock() -> PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.Type {
-        
+    static func mock() -> PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest.Type {        
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [MockTokenURLProtocol.self]
         let session = URLSession(configuration: configuration)
@@ -58,12 +56,12 @@ final class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuth
     ///   - sesssion: a succesful user agent session to be returned by ``present(_:presenting:prefersEphemeralSession:callback)``
     /// - SeeAlso: ``OIDExternalUserAgentSession/mock(authorizationResponse:)`` on how to create a mock agent session
     public static func stub(endPoint url: URL, session: MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow) {
-        Self.stubSessions[url] = (session)
+        Self.stubSessions[url] = session
     }
     
     private static var stubSessions: [URL: MockOIDExternalUserAgentSessionResumeExternalUserAgentFlow] = [:]
     
-    public override static func present(
+    override public static func present(
         _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,
         prefersEphemeralSession: Bool,
@@ -92,8 +90,7 @@ final class PartialMockOIDAuthorizationServiceAllowsPerformTokenRequest: OIDAuth
 /// e.g. "https://token.build.account.gov.uk/token"
 ///
 /// - SeeAlso: ``token(endPoint:stub:statusCode)`` on how to provide a stub token for a token request
-class MockTokenURLProtocol: URLProtocol {
-    
+class MockTokenURLProtocol: URLProtocol {    
     enum InvalidURLError: Error, LocalizedError {
         case notTokenURL(url: URL)
       
@@ -167,6 +164,7 @@ class MockTokenURLProtocol: URLProtocol {
     private class func isTokenURL(_ url: URL) -> Bool {
         return url.host == "token.build.account.gov.uk" && url.lastPathComponent == "token"
     }
+
     override class func canInit(with task: URLSessionTask) -> Bool {
         guard let url = task.originalRequest?.url else {
             return false
@@ -200,6 +198,5 @@ class MockTokenURLProtocol: URLProtocol {
         }
     }
     
-    override func stopLoading() {
-    }
+    override func stopLoading() {}
 }

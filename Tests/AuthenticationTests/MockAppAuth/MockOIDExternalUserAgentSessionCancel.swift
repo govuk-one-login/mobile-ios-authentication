@@ -3,7 +3,6 @@
 @MainActor
 final class MockOIDExternalUserAgentSessionCancel: NSObject,
                                                    @preconcurrency MockOIDExternalUserAgentSession {
-
     let authorizationResponse: OIDAuthorizationResponse? = nil
     let error: Error?
     var callback: OIDAuthorizationCallback?
@@ -21,7 +20,7 @@ final class MockOIDExternalUserAgentSessionCancel: NSObject,
         callback?(nil, error)
     }
 
-    public func failExternalUserAgentFlowWithError(_ error: Error) { }
+    public func failExternalUserAgentFlowWithError(_ error: Error) {}
 
     public func resumeExternalUserAgentFlow(with URL: URL) -> Bool {
         return true

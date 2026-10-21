@@ -5,7 +5,6 @@
 final class MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError: NSObject,
                                                                                      @preconcurrency MockOIDExternalUserAgentSession {
     final class FailExternalUserAgentFlowErrors: Sequence<Error> {
-
         func makeIterator() -> IndexingIterator<[Error]> {
             self.errors.makeIterator()
         }
@@ -41,11 +40,9 @@ final class MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithEr
             errors.append(error)
         }
 
-        let externalUserAgentSession = MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError(
+        return MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithError(
             failExternalUserAgentFlowWithErrorAsFunction: failExternalUserAgentFlowWithErrorAsFunction
         )
-        
-        return externalUserAgentSession
     }
 
     typealias FailExternalUserAgentFlowWithErrorAsFunction = @Sendable (Error) -> Void
@@ -61,9 +58,9 @@ final class MockOIDExternalUserAgentSessionResumeFailExternalUserAgentFlowWithEr
         self.failExternalUserAgentFlowWithErrorAsFunction = failExternalUserAgentFlowWithErrorAsFunction
     }
 
-    public func cancel() { }
+    public func cancel() {}
 
-    public func cancel() async { }
+    public func cancel() async {}
 
     public func failExternalUserAgentFlowWithError(_ error: Error) {
         callback?(nil, error)

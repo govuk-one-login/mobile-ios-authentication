@@ -7,7 +7,6 @@ import UIKit
 @MainActor
 // swiftlint:disable:next type_name
 final class MockOIDAuthorizationServiceAuthorizationRequestError: OIDAuthorizationService {
-
     /// Creates a new mock that can be used to perform authorisation requests.
     ///
     /// Once you have created a mock, use ``stub(endPoint:error:)`` to provide a stub error prior to performing an authorisation request.
@@ -26,7 +25,7 @@ final class MockOIDAuthorizationServiceAuthorizationRequestError: OIDAuthorizati
 
     private static var stubSessions: [URL: Error] = [:]
 
-    public override static func present(
+    override public static func present(
         _ request: OIDAuthorizationRequest,
         presenting presentingViewController: UIViewController,
         prefersEphemeralSession: Bool,
