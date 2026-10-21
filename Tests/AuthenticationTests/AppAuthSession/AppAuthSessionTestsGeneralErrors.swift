@@ -9,7 +9,6 @@ struct AppAuthSessionTestsGeneralErrors {
     @MainActor
     @Test
     func test_loginFlow_succeeds() async throws {
-        // Given a token
         let audience = "bYrcuRVvnylvEgYSSbBjwXzHrwJ"
         let issuer = "https://token.build.account.gov.uk"
 
@@ -291,7 +290,7 @@ struct AppAuthSessionTestsGeneralErrors {
 
         let sut: AppAuthSession = .makeWithMocks()
         // When
-        let caughtError = await #expect(throws: LoginError.self) {
+        let caughtError = await #expect(throws: LoginError(.generic).self) {
             try await sut.performLoginFlow(
                 configuration: configuration,
                     service: service)
@@ -346,7 +345,7 @@ struct AppAuthSessionTestsGeneralErrors {
         let sut: AppAuthSession = .makeWithMocks()
 
         // When
-        let caughtError = await #expect(throws: LoginError.self) {
+        let caughtError = await #expect(throws: LoginError(.generic).self) {
             try await sut.performLoginFlow(
                 configuration: configuration,
                 service: service)
