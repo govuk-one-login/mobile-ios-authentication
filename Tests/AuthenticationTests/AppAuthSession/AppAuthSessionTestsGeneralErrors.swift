@@ -517,16 +517,47 @@ struct AppAuthSessionTestsGeneralErrors {
     // MARK: Finalise tests
 
     @MainActor
-    @Test
+    @Test(.disabled("""
+                    This test does not seem possible to write given AppAuth raises an exception
+                    instead of using an error in case an authorization code is missing.
+                    See: https://github.com/openid/AppAuth-iOS/blob/2.0.0/Sources/AppAuthCore/OIDAuthorizationResponse.m#L202
+                    An exception raised in Objective-C will cause a crash when the stack frame higher up is in Swift.
+                    That is because an exception is more like an assertion than an error that can be caught.
+                    In simple terms, it is not safe to raise an NSException when Swift is involved.
+                    Equally,
+                    * AppAuth 2.1.0 https://github.com/openid/AppAuth-iOS/blob/2.1.0/Sources/AppAuthCore/OIDAuthorizationResponse.m
+                    * AppAuth 3.0.0 https://github.com/openid/AppAuth-iOS/blob/3.0.0/Sources/AppAuthCore/OIDAuthorizationResponse.m
+                    raise an exception. That is to say, unless AppAuth is updated (or we create a fork), this is a potential source
+                    for a crash.
+                    """))
     func test_finalise_throwErrorWithNoAuthCode() async throws {
         let sut: AppAuthSession = .makeWithMocks()
+        let service = MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting.mock()
 
-        let configuration = await LoginSessionConfiguration.stub()
-        let error = #expect(throws: LoginError(.generic).self) {
-            try sut.finalise(redirectURL: configuration.authorizationRequest.stubRedirectURL())
+        let unique = UUID().uuidString
+        let authorizationEndPoint = URL(string: "https://token.build.account.gov.uk/authorize?u=\(unique)")!
+
+        let configuration = await LoginSessionConfiguration.stub(authorizationEndPoint: authorizationEndPoint)
+        let authorizationRequest = configuration.authorizationRequest
+        let userAgent = MockOIDExternalUserAgent()
+        service.stub(authorizationRequest: authorizationRequest, externalUserAgent: userAgent)
+
+        let notificationAuthorizationFlowStarted = NotificationCenter.default.notifications(
+            named: MockOIDExternalUserAgent.authorizationFlowStarted,
+            object: userAgent
+        ).makeAsyncIterator()
+
+        let task = Task {
+            try await sut.performLoginFlow(
+                configuration: configuration,
+                service: service)
         }
 
-        #expect(error?.reason == "User Agent Session does not exist")
+        _ = await notificationAuthorizationFlowStarted.next()
+
+        try sut.finalise(redirectURL: authorizationRequest.stubRedirectURL(code: nil))
+
+        _ = try await task.value
     }
 }
 

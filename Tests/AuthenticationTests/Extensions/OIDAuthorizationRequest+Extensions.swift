@@ -1,9 +1,13 @@
 @preconcurrency import AppAuthCore
 
 extension OIDAuthorizationRequest {
-    func stubRedirectURL(code: String = "test-code") -> URL {
+    func stubRedirectURL(code: String? = "test-code") -> URL {
         var redirect = URLComponents(url: self.redirectURL!, resolvingAgainstBaseURL: false)!
-        redirect.queryItems = [URLQueryItem(name: "code", value: code)]
+        if let code {
+            redirect.queryItems = [URLQueryItem(name: "code", value: code)]
+        } else {
+            redirect.queryItems = []
+        }
         if let state = self.state {
             redirect.queryItems?.append(URLQueryItem(name: "state", value: state))
         }
