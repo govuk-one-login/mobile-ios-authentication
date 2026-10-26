@@ -534,6 +534,7 @@ struct AppAuthSessionTestsGeneralErrors {
         let sut: AppAuthSession = .makeWithMocks()
         let service = MockOIDAuthorizationServiceStartsAuthorizationFlowWithoutCompleting.mock()
 
+
         let unique = UUID().uuidString
         let authorizationEndPoint = URL(string: "https://token.build.account.gov.uk/authorize?u=\(unique)")!
 
@@ -689,7 +690,7 @@ struct Claim {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .custom { date, encoder in
             var container = encoder.singleValueContainer()
-            try container.encode(Int(date.timeIntervalSince1970))
+            try container.encode(date.timeIntervalSince1970)
         }
         
         return Claim(
@@ -745,7 +746,7 @@ struct Claim {
             "refresh_token": "\(refreshToken)",
             "id_token": "\(idToken)",
             "token_type": "\(tokenType)",
-            "expires_in": \(Int(expiryDate.timeIntervalSince1970))
+            "expires_in": \(expiryDate.timeIntervalSinceNow)
         }
         """
     }

@@ -98,9 +98,9 @@ struct AppAuthSessionAdditionalTests {
     @Test
     func test_handleTokenResponse_generateToken() throws {
         let accessToken = "1234567890"
-        let tokenType = "mock token"
+        let tokenType = "mock token type"
         let refreshToken = "0987654321"
-        let idToken = "mock user"
+        let idToken = "mock id"
         let accessTokenExpirationDate = Date()
 
         let tokenResponse: OIDTokenResponse = .mock(

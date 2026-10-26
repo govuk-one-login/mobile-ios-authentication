@@ -1,7 +1,7 @@
 @preconcurrency import AppAuthCore
 
 extension OIDAuthorizationRequest {
-    static func mock(endPoint: URL = URL(string: "https://token.build.account.gov.uk/token")!,
+    static func mock(endPoint: URL = URL(string: "https://token.build.account.gov.uk/authorize")!,
                      redirectURL: URL = URL(string: "https://mobile.build.account.gov.uk/redirect")!,
                      clientId: String = "",
                      scopes: [String]? = nil,

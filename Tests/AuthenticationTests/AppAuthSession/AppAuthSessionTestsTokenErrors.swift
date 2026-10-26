@@ -86,7 +86,7 @@ struct AppAuthSessionOAuthTokenErrorDomainTests {
 
     @Test
     @MainActor
-    func test_loginFlow_invalidRedirectURL_queryParams() async throws {
+    func test_loginFlow_invalidRedirectURL_with_error_in_redirectURL() async throws {
         let sut: AppAuthSession = .makeWithMocks()
 
         // GIVEN a `OIDAuthorizationService` instance that never completes the session
