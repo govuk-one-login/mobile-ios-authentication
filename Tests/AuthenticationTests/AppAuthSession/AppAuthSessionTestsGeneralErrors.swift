@@ -18,14 +18,14 @@ struct AppAuthSessionTestsGeneralErrors {
         let accessToken = "1234567890"
         let tokenType = "mock token"
         let refreshToken = "0987654321"
-        let expiryDate = Date()
+        let expiresIn = 180
         let claims = try Claims.make(audience: audience, issuer: issuer)
         try MockTokenURLProtocol.token(endPoint: endPoint,
                                        claim: Claim.make(
                                         accessToken: accessToken,
                                         tokenType: tokenType,
                                         refreshToken: refreshToken,
-                                        expiryDate: expiryDate
+                                        expiresIn: expiresIn
                                        ),
                                        stub: claims)
         let configuration: LoginSessionConfiguration = await .stub(
@@ -59,7 +59,7 @@ struct AppAuthSessionTestsGeneralErrors {
         #expect(tokens.tokenType == tokenType)
         #expect(tokens.refreshToken == refreshToken)
         #expect(tokens.idToken != nil)
-        #expect(tokens.expiryDate > expiryDate)
+        #expect(tokens.expiryDate <=  Date(timeIntervalSinceNow: Double(expiresIn)) + 1)
     }
 
     @MainActor
@@ -681,12 +681,12 @@ struct Claim {
     let accessToken: String
     let tokenType: String
     let refreshToken: String
-    let expiryDate: Date
+    let expiresIn: Int
     
     static func make(accessToken: String = "1234567890",
                      tokenType: String = "mock token",
                      refreshToken: String = "0987654321",
-                     expiryDate: Date = Date()) -> Claim {
+                     expiresIn: Int = 180) -> Claim {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .custom { date, encoder in
             var container = encoder.singleValueContainer()
@@ -697,7 +697,7 @@ struct Claim {
             accessToken: accessToken,
             tokenType: tokenType,
             refreshToken: refreshToken,
-            expiryDate: expiryDate,
+            expiresIn: expiresIn,
             encoder: encoder)
     }
     
@@ -746,7 +746,7 @@ struct Claim {
             "refresh_token": "\(refreshToken)",
             "id_token": "\(idToken)",
             "token_type": "\(tokenType)",
-            "expires_in": \(expiryDate.timeIntervalSinceNow)
+            "expires_in": \(expiresIn)
         }
         """
     }
