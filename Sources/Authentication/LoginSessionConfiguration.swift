@@ -7,6 +7,7 @@ public typealias TokenHeaders = [String: String]
 public struct LoginSessionConfiguration {
     public let authorizationEndpoint: URL
     public let tokenEndpoint: URL
+    public let issuer: URL?
     public let responseType: ResponseType
     public let scopes: [Scope]
     
@@ -57,6 +58,7 @@ public struct LoginSessionConfiguration {
     public init(
         authorizationEndpoint: URL,
         tokenEndpoint: URL,
+        issuer: URL? = nil,
         responseType: ResponseType = .code,
         scopes: [Scope] = [.openid, .email, .phone, .offline_access],
         clientID: String,
@@ -70,6 +72,7 @@ public struct LoginSessionConfiguration {
     ) async {
         self.authorizationEndpoint = authorizationEndpoint
         self.tokenEndpoint = tokenEndpoint
+        self.issuer = issuer
         self.responseType = responseType
         self.scopes = scopes
         self.clientID = clientID
@@ -87,7 +90,8 @@ extension LoginSessionConfiguration {
     var serviceConfiguration: OIDServiceConfiguration {
         OIDServiceConfiguration(
             authorizationEndpoint: authorizationEndpoint,
-            tokenEndpoint: tokenEndpoint
+            tokenEndpoint: tokenEndpoint,
+            issuer: issuer
         )
     }
     

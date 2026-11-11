@@ -19,19 +19,20 @@ jobs:
         run: echo "/usr/local/bin" >> $GITHUB_PATH
 
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # pin@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # pin@v4
         with:
           lfs: 'true'
           fetch-depth: 0
 
       - name: Xcode select
         run: |
-          sudo xcode-select -s /Applications/Xcode_26.1.app
+          sudo xcode-select -s /Applications/Xcode_26.5.app
 
       - name: Build and Test
         run: |
           set -o pipefail && xcodebuild -scheme Authentication test \
-            -destination "platform=iOS Simulator,name=iPhone 17,OS=26.1" \
+            -skipPackagePluginValidation \
+            -destination "platform=iOS Simulator,name=iPhone 17,arch=arm64,OS=26.5" \
             -enableCodeCoverage YES \
             -resultBundlePath result.xcresult | xcbeautify
             
@@ -50,7 +51,7 @@ jobs:
 
       - name: Increment Version
         id: versioning
-        uses: Oliver-Binns/Versioning@be1807ff3c5cd06edbe8fa3de54076cfd505f2df # pin@v1.4.3
+        uses: Oliver-Binns/Versioning@26996c64bce96a4bd238cc9a8fcb34cd9c2f9dc8 # pin@v1.5.2
         with:
           ACTION_TYPE: 'Release'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
